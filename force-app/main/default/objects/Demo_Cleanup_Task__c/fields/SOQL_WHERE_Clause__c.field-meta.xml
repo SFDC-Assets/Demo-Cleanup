@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SOQL_WHERE_Clause__c</fullName>
+    <description>A SOQL WHERE clause expression (without the &quot;WHERE&quot;) that evaluates to &quot;true&quot; if a record should be deleted, for example, &quot;Hand_Crafted_for_Demo_Scenario__c = false&quot;. Leave blank if all records of this object are to be deleted.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>A SOQL WHERE clause expression (without the &quot;WHERE&quot;) that evaluates to &quot;true&quot; if a record should be deleted, for example, &quot;Hand_Crafted_for_Demo_Scenario__c = false&quot;. Leave blank if all records of this object are to be deleted.</inlineHelpText>
+    <label>SOQL WHERE Clause</label>
+    <length>32768</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

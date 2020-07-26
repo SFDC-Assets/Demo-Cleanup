@@ -1,0 +1,9 @@
+/.sfdx/orgs/**
+/.prettierrc
+**/.prettierignore
+**/.DS_Store
+/.vscode/settings.json
+/uncrustify.cfg
+/.uncrustify.cfg.swp
+/.sfdx/tools/**
+/.sfdx/sfdx-config.json

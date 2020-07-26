@@ -1,0 +1,161 @@
+<template>
+	<lightning-card>
+		<header slot="title" class="slds-media slds-media_center">
+			<div class="slds-media__figure slds-icon_container">
+				<svg class="slds-icon slds-icon_small" xmlns="http://www.w3.org/2000/svg">
+					<use xlink:href={iconUrl}></use>
+				</svg>
+			</div>
+			<div class="slds-media__body">
+				<h2><strong>{cardTitle}</strong></h2>
+			</div>
+		</header>
+		<div slot="actions">
+			<lightning-button-icon-stateful
+				variant="neutral"
+				label="Help"
+				icon-name="utility:question"
+				selected={helpSectionVisible}
+				onclick={handleHelpButton}
+			></lightning-button-icon-stateful>
+		</div>
+
+		<header class="slds-var-p-top_medium slds-var-p-horizontal_large">
+			Delete any spurious or temporary records that were created during a demo or during testing, leaving the org in a clean
+			state for the next demo.
+		</header>
+
+		<template if:true={spinnerVisible}>
+			<lightning-spinner variant="brand" size="medium" title="Working ..." alternative-text="Working ..."></lightning-spinner>
+		</template>
+
+		<template if:false={cleanupTasksEmpty}>
+			<div class="slds-var-p-top_medium slds-var-p-horizontal_large">
+				<lightning-datatable
+					data={cleanupTasks}
+					columns={cleanupTasksColumns}
+					selected-rows={selectedRows}
+					key-field="itemId"
+					hide-checkbox-column="false"
+					onrowselection={handleRowSelection}
+				></lightning-datatable>
+			</div>
+			<lightning-layout multiple-rows="true">
+				<lightning-layout-item
+					size="12"
+					small-device-size="12"
+					medium-device-size="6"
+					large-device-size="6"
+					padding="around-medium"
+				>
+					<p class="slds-var-p-horizontal_small">
+						<strong>
+							Total Records: &nbsp;
+							<lightning-formatted-number
+								value={totalRecordsSelected}
+								class="slds-text-heading_large"
+							></lightning-formatted-number>
+						</strong>
+					</p>
+					<p class="slds-var-p-horizontal_small slds-var-p-top_medium">
+						<span class="slds-text-body_small slds-text-color_weak">
+							<em> Keep in mind that the total number of records deleted must be less than 10,000. </em>
+						</span>
+					</p>
+				</lightning-layout-item>
+				<lightning-layout-item
+					size="12"
+					small-device-size="12"
+					medium-device-size="6"
+					large-device-size="6"
+					padding="around-medium"
+				>
+					<div class="slds-var-p-horizontal_large slds-var-p-top_medium slds-align_absolute-center">
+						<lightning-button
+							variant="brand"
+							disabled={cleanupButtonDisabled}
+							label="Clean Up the Demo"
+							title="Clean Up the Demo"
+							icon-name="utility:record_delete"
+							onclick={handleCleanupButton}
+						></lightning-button>
+					</div>
+				</lightning-layout-item>
+			</lightning-layout>
+		</template>
+		<template if:true={cleanupTasksEmpty}>
+			<p class="slds-var-p-around_large">
+				<em>
+					You do not have any active reset task items. Create new records from the <strong>Demo Clranup Task</strong> tab
+					or activate existing ones.
+				</em>
+			</p>
+		</template>
+
+		<template if:true={helpSectionVisible}>
+			<section class="slds-var-p-horizontal_large">
+				<lightning-tile class="slds-tile_board slds-box slds-theme_shade">
+					<lightning-icon slot="media" icon-name="utility:info"></lightning-icon>
+					<h2 class="slds-var-p-bottom_medium"><strong>Motivation</strong></h2>
+					<p>
+						This component was motivated by a desire to provide a simple reset between demo presentations so that any
+						future demo can be started from a clean environment, deleting any records that were created by previous demo
+						or test runs. In the past, this framework was accomplished with lots of custom Apex, but there was a desire
+						to generalize it for use by SEs who are not yet comfortable with writing Apex. Given that most of the work
+						is simple record deletion, the non-Apex-writing SE can easily specify which records to delete using demo
+						reset tasks and the Apex expert SE can still run any custom Apex if he or she wants to.
+					</p>
+					<h2 class="slds-var-p-vertical_medium"><strong>How It Works</strong></h2>
+					<p>
+						Setting up the deletion tasks is easy: just navigate to the <strong>Demo Reset Task</strong> tab and create
+						as many tasks as you need. Each one will require a description, which will appear in the task list, the API
+						name of the object whose records you want to delete, and a
+						<lightning-formatted-url
+							label="SOQL WHERE clause expression"
+							value="https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_conditionexpression.htm"
+						></lightning-formatted-url>
+						to specify which records of that object are deleted. Additionally, you can use a checkbox to specify whether
+						or not the task is active, in case you wanted to deactivate it temporarily.
+					</p>
+					<p class="slds-var-p-top_medium">
+						Power users can select the <strong>Run custom Apex</strong> checkbox and the component will execute the code
+						contained in the <code>DemoResetCustomApex.runCustomApex</code> method after all the records from the demo
+						reset tasks are deleted. This could be useful for resetting demo parameters that do not involve deleting
+						records, such as activating or deactivating users.
+					</p>
+					<h2 class="slds-var-p-vertical_medium"><strong>Fail-Safe</strong></h2>
+					<p>
+						There are several precautions taken to make sure that only the records you want to delete are deleted.
+						First, the component populates the <strong>Records</strong> column by running a test query using the object
+						API name and SOQL WHERE clause expression you supplied for each demo reset task. If any are in error, the
+						component will display an error toast and return 0 records for that task. You should also always check the
+						record counts for each of the demo reset tasks to make sure that an unusually large number of records is not
+						being deleted.
+					</p>
+					<p class="slds-var-p-top_medium">
+						Second, a modal dialog will pop up when you click the <strong>Reset the Demo</strong> button, confirming the
+						actions that will be taken.
+					</p>
+					<p class="slds-var-p-top_medium">
+						And lastly, the component does not perform a permanent deletion, so any deleted records should be in the
+						<lightning-formatted-url
+							label="Recycle Bin"
+							value="https://help.salesforce.com/articleView?id=recycle_bin.htm&amp;type=5"
+						>
+						</lightning-formatted-url>
+						, subject to the normal limits on the size of the bin.
+					</p>
+					<h2 class="slds-var-p-vertical_medium"><strong>Reference</strong></h2>
+					<p>
+						You can always find the latest version of this component in
+						<lightning-formatted-url
+							label="this GitHub repository"
+							value="https://github.com/johnsfdemo/Demo-Reset-Tools"
+						></lightning-formatted-url
+						>.
+					</p>
+				</lightning-tile>
+			</section>
+		</template>
+	</lightning-card>
+</template>
