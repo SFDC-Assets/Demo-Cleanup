@@ -19,81 +19,170 @@
 				onclick={handleHelpButton}
 			></lightning-button-icon-stateful>
 		</div>
-
-		<header class="slds-var-p-top_medium slds-var-p-horizontal_large">
-			Delete any spurious or temporary records that were created during a demo or during testing, leaving the org in a clean
-			state for the next demo.
-		</header>
-
-		<template if:true={spinnerVisible}>
-			<lightning-spinner variant="brand" size="medium" title="Working ..." alternative-text="Working ..."></lightning-spinner>
+		<template if:false={deletionInProgress}>
+			<header class="slds-var-p-top_medium slds-p-horizontal_large">
+				Delete any spurious or temporary records that were created during a demo or during testing, leaving the org in a
+				clean state for the next demo.
+			</header>
+			<template if:true={spinnerVisible}>
+				<lightning-spinner
+					variant="brand"
+					size="medium"
+					title="Working ..."
+					alternative-text="Working ..."
+				></lightning-spinner>
+			</template>
+			<template if:false={cleanupTasksEmpty}>
+				<div class="slds-var-p-top_medium slds-p-horizontal_large">
+					<lightning-datatable
+						data={cleanupTasks}
+						columns={cleanupTasksColumns}
+						selected-rows={selectedRows}
+						key-field="itemId"
+						hide-checkbox-column="false"
+						onrowselection={handleRowSelection}
+					></lightning-datatable>
+				</div>
+				<lightning-layout multiple-rows="true">
+					<lightning-layout-item
+						size="12"
+						small-device-size="12"
+						medium-device-size="6"
+						large-device-size="6"
+						padding="around-medium"
+					>
+						<p class="slds-p-horizontal_small">
+							<strong>
+								Total Records: &nbsp;
+								<lightning-formatted-number
+									value={totalRecordsSelected}
+									class="slds-text-heading_large"
+								></lightning-formatted-number>
+							</strong>
+						</p>
+					</lightning-layout-item>
+					<lightning-layout-item
+						size="12"
+						small-device-size="12"
+						medium-device-size="6"
+						large-device-size="6"
+						padding="around-medium"
+					>
+						<div class="slds-p-horizontal_large slds-var-p-top_medium slds-align_absolute-center">
+							<lightning-button
+								variant="brand"
+								disabled={cleanupButtonDisabled}
+								label="Clean Up the Demo"
+								title="Clean Up the Demo"
+								icon-name="utility:record_delete"
+								onclick={handleCleanupButton}
+							></lightning-button>
+						</div>
+					</lightning-layout-item>
+				</lightning-layout>
+			</template>
+			<template if:true={cleanupTasksEmpty}>
+				<p class="slds-var-p-around_large">
+					<em>
+						You do not have any active reset task items. Create new records from the
+						<strong>Demo Clranup Task</strong> tab or activate existing ones.
+					</em>
+				</p>
+			</template>
 		</template>
-
-		<template if:false={cleanupTasksEmpty}>
-			<div class="slds-var-p-top_medium slds-var-p-horizontal_large">
-				<lightning-datatable
-					data={cleanupTasks}
-					columns={cleanupTasksColumns}
-					selected-rows={selectedRows}
-					key-field="itemId"
-					hide-checkbox-column="false"
-					onrowselection={handleRowSelection}
-				></lightning-datatable>
-			</div>
-			<lightning-layout multiple-rows="true">
-				<lightning-layout-item
-					size="12"
-					small-device-size="12"
-					medium-device-size="6"
-					large-device-size="6"
-					padding="around-medium"
-				>
-					<p class="slds-var-p-horizontal_small">
-						<strong>
-							Total Records: &nbsp;
-							<lightning-formatted-number
-								value={totalRecordsSelected}
-								class="slds-text-heading_large"
-							></lightning-formatted-number>
-						</strong>
-					</p>
-					<p class="slds-var-p-horizontal_small slds-var-p-top_medium">
-						<span class="slds-text-body_small slds-text-color_weak">
-							<em> Keep in mind that the total number of records deleted must be less than 10,000. </em>
-						</span>
-					</p>
-				</lightning-layout-item>
-				<lightning-layout-item
-					size="12"
-					small-device-size="12"
-					medium-device-size="6"
-					large-device-size="6"
-					padding="around-medium"
-				>
-					<div class="slds-var-p-horizontal_large slds-var-p-top_medium slds-align_absolute-center">
-						<lightning-button
-							variant="brand"
-							disabled={cleanupButtonDisabled}
-							label="Clean Up the Demo"
-							title="Clean Up the Demo"
-							icon-name="utility:record_delete"
-							onclick={handleCleanupButton}
-						></lightning-button>
-					</div>
-				</lightning-layout-item>
-			</lightning-layout>
-		</template>
-		<template if:true={cleanupTasksEmpty}>
-			<p class="slds-var-p-around_large">
-				<em>
-					You do not have any active reset task items. Create new records from the <strong>Demo Clranup Task</strong> tab
-					or activate existing ones.
-				</em>
-			</p>
+		<template if:true={deletionInProgress}>
+			<section class="slds-var-p-horizontal_medium">
+				<p class="slds-var-p-bottom_medium slds-hyphenate">
+					If you navigate away from this page or tab, the date shifting will continue, but you will not be able to monitor
+					the progress.
+				</p>
+				<div class="slds-var-p-vertical_medium slds-var-p-horizontal_x-large">
+					<table class="slds-text-body_small">
+						<tbody>
+							<template for:each={cleanupTasks} for:item="ct">
+								<tr class="slds-p-around_none" key={ct.itemId}>
+									<td class="runningObject">
+										<strong
+											><lightning-formatted-text
+												value={ct.itemLabelPlural}
+												class="slds-truncate"
+											></lightning-formatted-text
+										></strong>
+									</td>
+									<td class="runningCounts">
+										<lightning-formatted-number value={ct.itemRunningTotal}></lightning-formatted-number
+										>&nbsp;/&nbsp;<lightning-formatted-number value={ct.itemCount}></lightning-formatted-number
+										>&nbsp;&nbsp;(<lightning-formatted-number
+											value={ct.itemPercentage}
+										></lightning-formatted-number
+										>%)
+									</td>
+									<td class="runningRemaining">
+										<template if:true={ct.itemDeletionFinished}>
+											<template if:true={ct.itemNumberOfErrors}>
+												<strong><span class="slds-text-color_error">Done</span></strong>
+											</template>
+											<template if:false={ct.itemNumberOfErrors}>
+												<strong><span class="slds-text-color_success">Done</span></strong>
+											</template>
+										</template>
+										<template if:false={ct.itemDeletionFinished}>
+											<lightning-formatted-number
+												value={ct.itemRemaining}
+												class="slds-text-align_right"
+											></lightning-formatted-number>
+										</template>
+									</td>
+									<td class="runningErrors">
+										<template if:true={ct.itemNumberOfErrors}>
+											<span class="slds-text-color_error">
+												<lightning-formatted-number
+													value={ct.itemNumberOfErrors}
+												></lightning-formatted-number
+												>&nbsp;error(s)
+											</span>
+										</template>
+									</td>
+								</tr>
+								<tr key={ct.itemAPIName}>
+									<td class="runningProgressBar" colspan="4">
+										<div class="slds-var-p-bottom_medium">
+											<lightning-progress-bar
+												size="large"
+												value={ct.itemPercentage}
+												aria-valuemin="0"
+												aria-valuemax={ct.itemCount}
+												aria-valuenow={ct.itemRunningTotal}
+												role="progressbar"
+											></lightning-progress-bar>
+										</div>
+									</td>
+								</tr>
+							</template>
+						</tbody>
+					</table>
+				</div>
+				<template if:true={deletionFinished}>
+					<template if:true={deletionHadErrors}>
+						<p class="slds-var-p-bottom_medium slds-text-color_error">
+							The following errors occurred during the cleanup. Only these records were affected and all others were
+							deleted properly.
+						</p>
+						<div class="slds-var-p-bottom_medium slds-scrollable scrollerSize">
+							<lightning-datatable
+								columns={errorListColumns}
+								data={errorList}
+								key-field="id"
+								hide-checkbox-column="true"
+							></lightning-datatable>
+						</div>
+					</template>
+				</template>
+			</section>
 		</template>
 
 		<template if:true={helpSectionVisible}>
-			<section class="slds-var-p-horizontal_large">
+			<section class="slds-p-horizontal_large">
 				<lightning-tile class="slds-tile_board slds-box slds-theme_shade">
 					<lightning-icon slot="media" icon-name="utility:info"></lightning-icon>
 					<h2 class="slds-var-p-bottom_medium"><strong>Motivation</strong></h2>

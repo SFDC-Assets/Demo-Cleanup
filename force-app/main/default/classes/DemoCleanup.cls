@@ -8,9 +8,11 @@ public without sharing class DemoCleanup {
     
     public class CleanupTask {
         @AuraEnabled public Id itemId;
+        @AuraEnabled public String itemObjectApiName;
+        @AuraEnabled public String itemLabelPlural;
         @AuraEnabled public String itemDescription;
+        @AuraEnabled public String itemWhereClause;
         @AuraEnabled public Boolean itemPermanentlyDelete;
-        @AuraEnabled public String itemLink;
         @AuraEnabled public Integer itemCount;
         @AuraEnabled public Boolean itemQueryError;
     }
@@ -33,7 +35,8 @@ public without sharing class DemoCleanup {
             for (Demo_Cleanup_Task__c cleanupItem : demoCleanupTasks) {
                 CleanupTask item = new CleanupTask();
                 item.itemId = cleanupItem.Id;
-                item.itemLink = '/lightning/r/Demo_Cleanup_Task__c/' + cleanupItem.Id + '/view';
+                item.itemObjectApiName = cleanupItem.Object_API_Name__c;
+                item.itemLabelPlural = Schema.getGlobalDescribe().get(cleanupItem.Object_API_Name__c).getDescribe().getLabelPlural();
                 item.itemDescription = cleanupItem.Description__c;
                 item.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
                 try {
@@ -54,11 +57,11 @@ public without sharing class DemoCleanup {
     //  Resets the demo by deleting superfluous records created during previous demo runs.
     
     @AuraEnabled
-    public static void demoCleanup (List<Id> taskItems) {
+    public static void demoCleanup (List<Id> cleanupTaskIds) {
         List<Demo_Cleanup_Task__c> cleanupTasks = [
             SELECT Object_API_Name__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
             FROM   Demo_Cleanup_Task__c
-            WHERE  Id IN :taskItems AND Active__c = true
+            WHERE  Id IN :cleanupTaskIds AND Active__c = true
             ORDER BY Name ASC
         ];
         for (Demo_Cleanup_Task__c item : cleanupTasks)

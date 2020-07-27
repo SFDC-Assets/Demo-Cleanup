@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Permanently_Delete__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Checked if records of this object should bypass the recycle bin and be permanently deleted.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Checked if records of this object should bypass the recycle bin and be permanently deleted.</inlineHelpText>
+    <label>Permanently Delete</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

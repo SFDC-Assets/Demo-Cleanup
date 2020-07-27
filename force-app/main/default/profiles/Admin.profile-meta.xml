@@ -50,6 +50,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Demo_Cleanup_Task__c.Permanently_Delete__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Demo_Cleanup_Task__c.SOQL_WHERE_Clause__c</field>
         <readable>false</readable>
     </fieldPermissions>

@@ -3,9 +3,6 @@ import DemoCleanupIcon from "@salesforce/resourceUrl/DemoCleanupIcon";
 import getCleanupTasks from "@salesforce/apex/DemoCleanup.getCleanupTasks";
 
 export default class DemoCleanup extends LightningElement {
-	@api cardTitle = "Demo Cleanup";
-	iconUrl = DemoCleanupIcon + "#icon";
-
 	cleanupTasksColumns = [
 		{
 			label: "Records",
@@ -36,6 +33,45 @@ export default class DemoCleanup extends LightningElement {
 			}
 		}
 	];
+	errorListColumns = [
+		{
+			label: "Record",
+			fieldName: "link",
+			type: "url",
+			initialWidth: 200,
+			iconName: "standard:record",
+			cellAttributes: {
+				alignment: "left",
+				iconName: "utility:new_window",
+				iconAlternativeText: "Go To Record"
+			},
+			typeAttributes: {
+				label: { fieldName: "name" },
+				tooltip: { fieldName: "id" },
+				target: "_parent"
+			}
+		},
+		{
+			label: "Problem Fields",
+			fieldName: "fields",
+			type: "text",
+			iconName: "standard:first_non_empty",
+			initialWidth: 200,
+			wrapText: true,
+			cellAttributes: { alignment: "left" }
+		},
+		{
+			label: "Error Message",
+			fieldName: "message",
+			type: "text",
+			iconName: "standard:live_chat",
+			wrapText: true,
+			cellAttributes: { alignment: "left" }
+		}
+	];
+
+	@api cardTitle = "Demo Cleanup";
+	iconUrl = DemoCleanupIcon + "#icon";
 
 	@track cleanupTasks = [];
 	selectedRows = [];
@@ -47,15 +83,43 @@ export default class DemoCleanup extends LightningElement {
 		return this.totalRowsSelected === 0;
 	}
 
-	errorList = {};
+	@track errorList = [];
 
 	helpSectionVisible = false;
 	spinnerVisible = false;
+	deletionInProgress = false;
+	deletionFinished = false;
+	deletionHadErrors = false;
 
-	@wire(getCleanupTasks) cleanupTasks;
+	@wire(getCleanupTasks)
+	wired_getCleanupTasks({ data, error }) {
+		this.cleanupTasks = [];
+		if (data) {
+			data.forEach((ct) => {
+				this.cleanupTasks.push({
+					itemId: ct.itemId,
+					itemObjectApiName: ct.itemObjectApiName,
+					itemLabelPlural: ct.itemLabelPlural,
+					itemWhereClause: ct.itemWhereClause,
+					itemDescription: ct.itemDescription,
+					itemPermanentlyDelete: ct.itemPermanentlyDelete,
+					itemCount: ct.itemCount,
+					itemQueryError: ct.itemQueryError,
+					itemLink: "/lightning/r/Demo_Cleanup_Task__c/" + ct.itemId + "/view",
+					itemRunningTotal: 0,
+					itemRemaining: 0,
+					itemPercentage: 0,
+					itemNumberOfErrors: 0,
+					itemDeletionFinished: false
+				});
+			});
+		} else if (error) {
+		}
+	}
 
 	handleRowSelection(event) {
 		this.selectedRows = event.detail.selectedRows;
+		this.totalRowsSelected = this.selectedRows.length;
 	}
 
 	handleCleanupButton(event) {}

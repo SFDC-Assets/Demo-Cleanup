@@ -9,9 +9,9 @@ global with sharing class DemoCleanupBatch implements Database.Batchable<sObject
     private String sObjectAPIName;
     private String sObjectLabel;
     private String whereClause;
-    private Boolean permanentDelete;
+    private Boolean permanentlyDelete;
 
-    private Integer totalRecordsProcessed = 0;   
+    private Integer totalRecordsProcessed = 0;
     private Integer totalErrors = 0;
     
     
@@ -26,7 +26,7 @@ global with sharing class DemoCleanupBatch implements Database.Batchable<sObject
         sObjectAPIName = objectAPIName;
         sObjectLabel = Schema.getGlobalDescribe().get(objectAPIName).getDescribe().getLabel();
         whereClause = whereCl;
-        permanentDelete = permanent;
+        permanentlyDelete = permanent;
     }
     
     
@@ -52,7 +52,7 @@ global with sharing class DemoCleanupBatch implements Database.Batchable<sObject
                     totalErrors++;
                 }
             }
-        if (permanentDelete)
+        if (permanentlyDelete)
             for (Database.EmptyRecycleBinResult result : Database.emptyRecycleBin(scope))
                 if (!result.isSuccess()) {
                     Id recordId = result.getId();
