@@ -4,7 +4,7 @@
 //  Contact: john.meyer@salesforce.com
 
 
-global with sharing class DemoCleanupBatch implements Database.Batchable<sObject>, Database.Stateful, Database.RaisesPlatformEvents {
+global without sharing class DemoCleanupBatch implements Database.Batchable<sObject>, Database.Stateful, Database.RaisesPlatformEvents {
     
     private String sObjectAPIName;
     private String sObjectLabel;
@@ -53,15 +53,7 @@ global with sharing class DemoCleanupBatch implements Database.Batchable<sObject
                 }
             }
         if (permanentlyDelete)
-            for (Database.EmptyRecycleBinResult result : Database.emptyRecycleBin(scope))
-                if (!result.isSuccess()) {
-                    Id recordId = result.getId();
-                    for (Database.Error error : result.getErrors()) {
-                        errorJSON += '{"id":"' + recordId + '","name":"' + sObjectLabel + '","link":"/lightning/r/' + sObjectAPIName + '/' + recordId + 
-                            '/view","fields":"' + String.join(error.getFields(),',') + '","message":"' + error.getMessage().escapeEcmaScript() + '"},';
-                        totalErrors++;
-                    }
-                }
+            Database.emptyRecycleBin(scope);
 
         errorJSON = '[' + errorJSON.substringBeforeLast(',') + ']';   // Remove final ',' from error list
        
