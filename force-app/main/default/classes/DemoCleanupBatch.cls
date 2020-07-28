@@ -33,7 +33,7 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
     //  Start the query.
     
     global Database.QueryLocator start (Database.BatchableContext bc) {
-        return Database.getQueryLocator('SELECT Id FROM ' + sObjectAPIName + whereClause == null ? '' : ' WHERE ' + whereClause);
+        return Database.getQueryLocator('SELECT Id FROM ' + sObjectAPIName + (whereClause == null ? '' : ' WHERE ' + whereClause));
     }
     
     

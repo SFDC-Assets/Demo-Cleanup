@@ -79,14 +79,13 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 
 	@track cleanupTasks = [];
 	@track selectedRows = [];
-	totalRowsSelected = 0;
 	totalRecords = 0;
 	currentTask = 0;
 	get cleanupTasksEmpty() {
 		return this.cleanupTasks.length === 0;
 	}
 	get cleanupButtonDisabled() {
-		return this.totalRowsSelected === 0;
+		return this.totalRecords === 0;
 	}
 
 	@track errorList = [];
@@ -127,7 +126,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemId: ct.itemId,
 					itemObjectApiName: ct.itemObjectApiName,
 					itemLabelPlural: ct.itemLabelPlural,
-					itemWhereClause: ct.itemWhereClause,
+					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
 					itemDescription: ct.itemDescription,
 					itemPermanentlyDelete: ct.itemPermanentlyDelete,
 					itemIcon: ct.itemPermanentlyDelete ? "utility:delete" : "utility:recycle_bin_empty",
@@ -157,10 +156,11 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		this.selectedRows = [];
 		this.totalRecords = 0;
 		event.detail.selectedRows.forEach((row) => {
-			this.selectedRows.push(row);
-			this.totalRecords += row.itemCount;
+			if (row.itemCount !== 0) {
+				this.selectedRows.push(row);
+				this.totalRecords += row.itemCount;
+			}
 		});
-		this.totalRowsSelected = this.selectedRows.length;
 	}
 
 	handleCleanupButton(event) {
@@ -177,16 +177,22 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 
 	startDeletionTask(taskIndex) {
 		let item = this.selectedRows[taskIndex];
-		cleanup(item.itemObjectApiName, item.itemWhereClause, item.itemPermanentlyDelete).catch((error) => {
-			this.dispatchEvent(
-				new ShowToastEvent({
-					mode: "sticky",
-					variant: "error",
-					title: `Error occurred trying to execute "${item.itemDescription}"`,
-					message: `${JSON.stringify(error)}`
-				})
-			);
-		});
+		cleanup({
+			objectApiName: item.itemObjectApiName,
+			whereClause: item.itemWhereClause,
+			permanentlyDelete: item.itemPermanentlyDelete
+		})
+			.then(() => {})
+			.catch((error) => {
+				this.dispatchEvent(
+					new ShowToastEvent({
+						mode: "sticky",
+						variant: "error",
+						title: `Error occurred trying to execute "${item.itemDescription}"`,
+						message: `${JSON.stringify(error)}`
+					})
+				);
+			});
 	}
 
 	handleBatchEvent(event) {
@@ -199,14 +205,22 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		JSON.parse(event.data.payload.Error_JSON_String__c).forEach((error) => {
 			this.errorList.push(error);
 		});
+		console.log(`cleanupTask: ${JSON.stringify(cleanupTask)}`);
 		if (cleanupTask.itemDeletionFinished) {
 			if (this.currentTask < this.selectedRows.length - 1) {
 				this.currentTask++;
 				this.startDeletionTask(this.currentTask);
-			} else
+			} else {
 				unsubscribe(this.subscription, () => {
 					this.subscription = {};
 				});
+				this.dispatchEvent(
+					new ShowToastEvent({
+						variant: "info",
+						message: "Deletion of records completed.s"
+					})
+				);
+			}
 		}
 	}
 }
