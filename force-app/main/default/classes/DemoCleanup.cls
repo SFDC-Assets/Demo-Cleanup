@@ -22,9 +22,9 @@ public without sharing class DemoCleanup {
     public static List<CleanupTask> getCleanupTasks () {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
-            SELECT Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
-            FROM   Demo_Cleanup_Task__c
-            WHERE  Active__c = true
+            SELECT  Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
+            FROM    Demo_Cleanup_Task__c
+            WHERE   Active__c = true
             ORDER BY Name ASC
         ];
         
@@ -33,21 +33,22 @@ public without sharing class DemoCleanup {
         else {
             List<CleanupTask> cleanupTasks = new List<CleanupTask>();
             for (Demo_Cleanup_Task__c cleanupItem : demoCleanupTasks) {
-                CleanupTask item = new CleanupTask();
-                item.itemId = cleanupItem.Id;
-                item.itemObjectApiName = cleanupItem.Object_API_Name__c;
-                item.itemLabelPlural = Schema.getGlobalDescribe().get(cleanupItem.Object_API_Name__c).getDescribe().getLabelPlural();
-                item.itemDescription = cleanupItem.Description__c;
-                item.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
+                CleanupTask cuTask = new CleanupTask();
+                cuTask.itemId = cleanupItem.Id;
+                cuTask.itemObjectApiName = cleanupItem.Object_API_Name__c;
+                cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
+                cuTask.itemLabelPlural = Schema.getGlobalDescribe().get(cleanupItem.Object_API_Name__c).getDescribe().getLabelPlural();
+                cuTask.itemDescription = cleanupItem.Description__c;
+                cuTask.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
                 try {
-                    item.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
+                    cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
                         cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : '');
-                    item.itemQueryError = false;
+                    cuTask.itemQueryError = false;
                 } catch (QueryException e) {
-                    item.itemCount = 0;
-                    item.itemQueryError = true;
+                    cuTask.itemCount = 0;
+                    cuTask.itemQueryError = true;
                 }                
-                cleanupTasks.add(item);
+                cleanupTasks.add(cuTask);
             }
             return cleanupTasks;
         }        
@@ -57,14 +58,7 @@ public without sharing class DemoCleanup {
     //  Resets the demo by deleting superfluous records created during previous demo runs.
     
     @AuraEnabled
-    public static void demoCleanup (List<Id> cleanupTaskIds) {
-        List<Demo_Cleanup_Task__c> cleanupTasks = [
-            SELECT Object_API_Name__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
-            FROM   Demo_Cleanup_Task__c
-            WHERE  Id IN :cleanupTaskIds AND Active__c = true
-            ORDER BY Name ASC
-        ];
-        for (Demo_Cleanup_Task__c item : cleanupTasks)
-            Database.executeBatch(new DemoCleanupBatch(item.Object_API_Name__c, item.SOQL_WHERE_Clause__c, item.Permanently_Delete__c));
+    public static void cleanup (String objectApiName, String whereClause, Boolean permanentlyDelete) {
+        Database.executeBatch(new DemoCleanupBatch(objectApiName, whereClause, permanentlyDelete));
     }
 }

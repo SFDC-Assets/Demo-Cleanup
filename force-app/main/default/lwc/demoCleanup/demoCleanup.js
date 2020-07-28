@@ -1,6 +1,9 @@
 import { LightningElement, wire, track, api } from "lwc";
+import { subscribe, unsubscribe } from "lightning/empApi";
+import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import DemoCleanupIcon from "@salesforce/resourceUrl/DemoCleanupIcon";
 import getCleanupTasks from "@salesforce/apex/DemoCleanup.getCleanupTasks";
+import cleanup from "@salesforce/apex/DemoCleanup.cleanup";
 
 export default class DemoCleanup extends LightningElement {
 	cleanupTasksColumns = [
@@ -74,8 +77,9 @@ export default class DemoCleanup extends LightningElement {
 	iconUrl = DemoCleanupIcon + "#icon";
 
 	@track cleanupTasks = [];
-	selectedRows = [];
+	@track selectedRows = [];
 	totalRowsSelected = 0;
+	currentTask = 0;
 	get cleanupTasksEmpty() {
 		return this.cleanupTasks.length === 0;
 	}
@@ -84,6 +88,8 @@ export default class DemoCleanup extends LightningElement {
 	}
 
 	@track errorList = [];
+
+	subscription = {};
 
 	helpSectionVisible = false;
 	spinnerVisible = false;
@@ -107,7 +113,7 @@ export default class DemoCleanup extends LightningElement {
 					itemQueryError: ct.itemQueryError,
 					itemLink: "/lightning/r/Demo_Cleanup_Task__c/" + ct.itemId + "/view",
 					itemRunningTotal: 0,
-					itemRemaining: 0,
+					itemRemaining: ct.itemCount,
 					itemPercentage: 0,
 					itemNumberOfErrors: 0,
 					itemDeletionFinished: false
@@ -119,12 +125,53 @@ export default class DemoCleanup extends LightningElement {
 
 	handleRowSelection(event) {
 		this.selectedRows = event.detail.selectedRows;
-		this.totalRowsSelected = this.selectedRows.length;
+		this.totalRowsSelected = event.detail.selectedRows.length;
 	}
 
-	handleCleanupButton(event) {}
+	handleCleanupButton(event) {
+		this.deletionInProgress = true;
+		subscribe("/event/Demo_Cleanup_Event__e", -1, this.handleBatchEvent.bind(this)).then((result) => {
+			this.subscription = result;
+		});
+		this.startDeletionTask(0);
+	}
 
 	handleHelpButton(event) {
 		this.helpSectionVisible = !this.helpSectionVisible;
+	}
+
+	startDeletionTask(taskIndex) {
+		let item = this.selectedRows[taskIndex];
+		cleanup(item.itemObjectApiName, item.itemWhereClause, item.itemPermanentlyDelete).catch((error) => {
+			this.dispatchEvent(
+				new ShowToastEvent({
+					mode: "sticky",
+					variant: "error",
+					title: `Error occurred trying to execute "${item.itemDescription}"`,
+					message: `${JSON.stringify(error)}`
+				})
+			);
+		});
+	}
+
+	handleBatchEvent(event) {
+		let cleanupTask = this.selectedRows[this.currentTask];
+		cleanupTask.itemRunningTotal = event.data.payload.Total_Records_Deleted__c;
+		cleanupTask.itemRemaining = cleanupTask.itemCount - cleanupTask.itemRunningTotal;
+		cleanupTask.itemPercentage = Math.round((100 * cleanupTask.itemRunningTotal) / cleanupTask.itemCount);
+		cleanupTask.itemNumberOfErrors = event.data.payload.Total_Errors__c;
+		cleanupTask.itemDeletionFinished = cleanupTask.itemRunningTotal >= cleanupTask.itemCount;
+		JSON.parse(event.data.payload.Error_JSON_String__c).forEach((error) => {
+			this.errorList.push(error);
+		});
+		if (cleanupTask.itemDeletionFinished) {
+			if (this.currentTask < this.selectedRows.length - 1) {
+				this.currentTask++;
+				this.startDeletionTask(this.currentTask);
+			} else
+				unsubscribe(this.subscription, () => {
+					this.subscription = {};
+				});
+		}
 	}
 }
