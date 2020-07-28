@@ -42,7 +42,7 @@ public without sharing class DemoCleanup {
                 cuTask.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
                 try {
                     cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
-                        cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : '');
+                        (cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : ''));
                     cuTask.itemQueryError = false;
                 } catch (QueryException e) {
                     cuTask.itemCount = 0;

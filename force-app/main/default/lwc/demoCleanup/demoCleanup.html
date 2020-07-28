@@ -37,9 +37,7 @@
 					<lightning-datatable
 						data={cleanupTasks}
 						columns={cleanupTasksColumns}
-						selected-rows={selectedRows}
 						key-field="itemId"
-						hide-checkbox-column="false"
 						onrowselection={handleRowSelection}
 					></lightning-datatable>
 				</div>
@@ -54,10 +52,7 @@
 						<p class="slds-p-horizontal_small">
 							<strong>
 								Total Records: &nbsp;
-								<lightning-formatted-number
-									value={totalRecordsSelected}
-									class="slds-text-heading_large"
-								></lightning-formatted-number>
+								<lightning-formatted-number value={totalRecords}></lightning-formatted-number>
 							</strong>
 						</p>
 					</lightning-layout-item>
@@ -68,7 +63,7 @@
 						large-device-size="6"
 						padding="around-medium"
 					>
-						<div class="slds-p-horizontal_large slds-var-p-top_medium slds-align_absolute-center">
+						<div class="slds-p-horizontal_large slds-align_absolute-center">
 							<lightning-button
 								variant="brand"
 								disabled={cleanupButtonDisabled}
@@ -84,8 +79,11 @@
 			<template if:true={cleanupTasksEmpty}>
 				<p class="slds-var-p-around_large">
 					<em>
-						You do not have any active reset task items. Create new records from the
-						<strong>Demo Clranup Task</strong> tab or activate existing ones.
+						You do not have any active reset task items. Create new records from the &nbsp;<lightning-formatted-url
+							value={cleanupTaskListViewURL}
+							label="Cleanup Tasks page"
+						></lightning-formatted-url
+						>&nbsp; or activate existing ones.
 					</em>
 				</p>
 			</template>

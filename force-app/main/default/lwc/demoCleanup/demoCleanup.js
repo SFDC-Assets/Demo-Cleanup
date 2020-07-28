@@ -1,11 +1,12 @@
 import { LightningElement, wire, track, api } from "lwc";
+import { NavigationMixin } from "lightning/navigation";
 import { subscribe, unsubscribe } from "lightning/empApi";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import DemoCleanupIcon from "@salesforce/resourceUrl/DemoCleanupIcon";
 import getCleanupTasks from "@salesforce/apex/DemoCleanup.getCleanupTasks";
 import cleanup from "@salesforce/apex/DemoCleanup.cleanup";
 
-export default class DemoCleanup extends LightningElement {
+export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	cleanupTasksColumns = [
 		{
 			label: "Records",
@@ -15,10 +16,10 @@ export default class DemoCleanup extends LightningElement {
 			cellAttributes: { alignment: "right" }
 		},
 		{
-			label: "Perm Delete",
+			label: "Permanently Delete",
 			fieldName: "itemPermanentlyDelete",
 			type: "boolean",
-			initialWidth: 100,
+			initialWidth: 150,
 			cellAttributes: { alignment: "center" }
 		},
 		{
@@ -26,7 +27,7 @@ export default class DemoCleanup extends LightningElement {
 			fieldName: "itemLink",
 			type: "url",
 			cellAttributes: {
-				iconName: "standard:task",
+				iconName: { fieldName: "itemIcon" },
 				alignment: "left"
 			},
 			typeAttributes: {
@@ -79,6 +80,7 @@ export default class DemoCleanup extends LightningElement {
 	@track cleanupTasks = [];
 	@track selectedRows = [];
 	totalRowsSelected = 0;
+	totalRecords = 0;
 	currentTask = 0;
 	get cleanupTasksEmpty() {
 		return this.cleanupTasks.length === 0;
@@ -92,13 +94,32 @@ export default class DemoCleanup extends LightningElement {
 	subscription = {};
 
 	helpSectionVisible = false;
-	spinnerVisible = false;
+	spinnerVisible = true;
 	deletionInProgress = false;
 	deletionFinished = false;
 	deletionHadErrors = false;
 
+	cleanupTaskListViewURL = "";
+	cleanupTaskListViewSpec = {
+		type: "standard__objectPage",
+		attributes: {
+			objectApiName: "Demo_Cleanup_Task__c",
+			actionName: "list"
+		},
+		state: {
+			filterName: "All"
+		}
+	};
+
+	connectedCallback() {
+		this[NavigationMixin.GenerateUrl](this.cleanupTaskListViewSpec).then((url) => {
+			this.cleanupTaskListViewURL = url;
+		});
+	}
+
 	@wire(getCleanupTasks)
 	wired_getCleanupTasks({ data, error }) {
+		this.spinnerVisible = false;
 		this.cleanupTasks = [];
 		if (data) {
 			data.forEach((ct) => {
@@ -109,6 +130,7 @@ export default class DemoCleanup extends LightningElement {
 					itemWhereClause: ct.itemWhereClause,
 					itemDescription: ct.itemDescription,
 					itemPermanentlyDelete: ct.itemPermanentlyDelete,
+					itemIcon: ct.itemPermanentlyDelete ? "utility:delete" : "utility:recycle_bin_empty",
 					itemCount: ct.itemCount,
 					itemQueryError: ct.itemQueryError,
 					itemLink: "/lightning/r/Demo_Cleanup_Task__c/" + ct.itemId + "/view",
@@ -118,14 +140,27 @@ export default class DemoCleanup extends LightningElement {
 					itemNumberOfErrors: 0,
 					itemDeletionFinished: false
 				});
+				if (ct.itemQueryError)
+					this.dispatchEvent(
+						new ShowToastEvent({
+							message: `Item "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause for any bad syntax.`,
+							variant: "error",
+							mode: "sticky"
+						})
+					);
 			});
 		} else if (error) {
 		}
 	}
 
 	handleRowSelection(event) {
-		this.selectedRows = event.detail.selectedRows;
-		this.totalRowsSelected = event.detail.selectedRows.length;
+		this.selectedRows = [];
+		this.totalRecords = 0;
+		event.detail.selectedRows.forEach((row) => {
+			this.selectedRows.push(row);
+			this.totalRecords += row.itemCount;
+		});
+		this.totalRowsSelected = this.selectedRows.length;
 	}
 
 	handleCleanupButton(event) {

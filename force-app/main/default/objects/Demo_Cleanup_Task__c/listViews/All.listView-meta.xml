@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>Active__c</columns>
+    <columns>NAME</columns>
+    <columns>Description__c</columns>
+    <columns>Object_API_Name__c</columns>
+    <columns>SOQL_WHERE_Clause__c</columns>
+    <columns>Permanently_Delete__c</columns>
+    <filterScope>Mine</filterScope>
+    <label>All</label>
+</ListView>
