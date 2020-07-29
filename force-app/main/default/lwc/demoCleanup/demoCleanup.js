@@ -4,6 +4,7 @@ import { subscribe, unsubscribe } from "lightning/empApi";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import DemoCleanupIcon from "@salesforce/resourceUrl/DemoCleanupIcon";
 import getCleanupTasks from "@salesforce/apex/DemoCleanup.getCleanupTasks";
+import runCustomApex from "@salesforce/apex/DemoCleanupCustomApex.runCustomApex";
 import cleanup from "@salesforce/apex/DemoCleanup.cleanup";
 
 export default class DemoCleanup extends NavigationMixin(LightningElement) {
@@ -181,18 +182,16 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			objectApiName: item.itemObjectApiName,
 			whereClause: item.itemWhereClause,
 			permanentlyDelete: item.itemPermanentlyDelete
-		})
-			.then(() => {})
-			.catch((error) => {
-				this.dispatchEvent(
-					new ShowToastEvent({
-						mode: "sticky",
-						variant: "error",
-						title: `Error occurred trying to execute "${item.itemDescription}"`,
-						message: `${JSON.stringify(error)}`
-					})
-				);
-			});
+		}).catch((error) => {
+			this.dispatchEvent(
+				new ShowToastEvent({
+					mode: "sticky",
+					variant: "error",
+					title: `Error occurred trying to execute "${item.itemDescription}"`,
+					message: `${JSON.stringify(error)}`
+				})
+			);
+		});
 	}
 
 	handleBatchEvent(event) {
@@ -214,10 +213,20 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 				unsubscribe(this.subscription, () => {
 					this.subscription = {};
 				});
+				runCustomApex().catch((error) => {
+					this.dispatchEvent(
+						new ShowToastEvent({
+							mode: "sticky",
+							variant: "error",
+							title: `Error occurred trying to run custom apex`,
+							message: `${JSON.stringify(error)}`
+						})
+					);
+				});
 				this.dispatchEvent(
 					new ShowToastEvent({
 						variant: "info",
-						message: "Deletion of records completed.s"
+						message: "Deletion of records completed"
 					})
 				);
 			}
