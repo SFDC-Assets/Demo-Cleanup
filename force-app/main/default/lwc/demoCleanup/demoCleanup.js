@@ -122,33 +122,41 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		this.spinnerVisible = false;
 		this.cleanupTasks = [];
 		if (data) {
-			data.forEach((ct) => {
-				this.cleanupTasks.push({
-					itemId: ct.itemId,
-					itemObjectApiName: ct.itemObjectApiName,
-					itemLabelPlural: ct.itemLabelPlural,
-					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
-					itemDescription: ct.itemDescription,
-					itemPermanentlyDelete: ct.itemPermanentlyDelete,
-					itemIcon: ct.itemPermanentlyDelete ? "utility:delete" : "utility:recycle_bin_empty",
-					itemCount: ct.itemCount,
-					itemQueryError: ct.itemQueryError,
-					itemLink: "/lightning/r/Demo_Cleanup_Task__c/" + ct.itemId + "/view",
-					itemRunningTotal: 0,
-					itemRemaining: ct.itemCount,
-					itemPercentage: 0,
-					itemNumberOfErrors: 0,
-					itemDeletionFinished: false
-				});
-				if (ct.itemQueryError)
-					this.dispatchEvent(
-						new ShowToastEvent({
-							message: `Item "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause for any bad syntax.`,
-							variant: "error",
-							mode: "sticky"
-						})
-					);
-			});
+			switch (data.status) {
+				case "SUCCESS":
+					data.cleanupTasks.forEach((ct) => {
+						this.cleanupTasks.push({
+							itemId: ct.itemId,
+							itemObjectApiName: ct.itemObjectApiName,
+							itemLabelPlural: ct.itemLabelPlural,
+							itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
+							itemDescription: ct.itemDescription,
+							itemPermanentlyDelete: ct.itemPermanentlyDelete,
+							itemIcon: ct.itemPermanentlyDelete ? "utility:delete" : "utility:recycle_bin_empty",
+							itemCount: ct.itemCount,
+							itemQueryError: ct.itemQueryError,
+							itemLink: "/lightning/r/Demo_Cleanup_Task__c/" + ct.itemId + "/view",
+							itemRunningTotal: 0,
+							itemRemaining: ct.itemCount,
+							itemPercentage: 0,
+							itemNumberOfErrors: 0,
+							itemDeletionFinished: false
+						});
+						if (ct.itemQueryError)
+							this.dispatchEvent(
+								new ShowToastEvent({
+									message: `Item "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause for any bad syntax.`,
+									variant: "error",
+									mode: "sticky"
+								})
+							);
+					});
+					break;
+				case "EMPTY":
+					break;
+				case "TOO_MANY":
+					break;
+			}
 		} else if (error) {
 		}
 	}

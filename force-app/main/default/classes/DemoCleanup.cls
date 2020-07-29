@@ -5,6 +5,8 @@
 
 
 public without sharing class DemoCleanup {
+
+    public static final Integer MAXIMUM_CLEANUP_TASKS = 90;
     
     public class CleanupTask {
         @AuraEnabled public Id itemId;
@@ -16,10 +18,15 @@ public without sharing class DemoCleanup {
         @AuraEnabled public Integer itemCount;
         @AuraEnabled public Boolean itemQueryError;
     }
+
+    public class RetrieveStatus {
+        @AuraEnabled public String status;
+        @AuraEnabled public List<CleanupTask> cleanupTasks;
+    }
     
     
     @AuraEnabled(cacheable=true)
-    public static List<CleanupTask> getCleanupTasks () {
+    public static RetrieveStatus getCleanupTasks () {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
             SELECT  Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
@@ -27,10 +34,16 @@ public without sharing class DemoCleanup {
             WHERE   Active__c = true
             ORDER BY Name ASC
         ];
+        RetrieveStatus rStatus = new RetrieveStatus();
         
-        if (demoCleanupTasks.IsEmpty())
-            return null;
-        else {
+        if (demoCleanupTasks.IsEmpty()) {
+            rStatus.status = 'EMPTY';
+            rStatus.cleanupTasks = null;
+        } else if (demoCleanupTasks.size() > MAXIMUM_CLEANUP_TASKS) {
+            rStatus.status = 'TOO_MANY';
+            rStatus.cleanupTasks = null;
+        } else {
+            rStatus.status = 'SUCCESS';
             List<CleanupTask> cleanupTasks = new List<CleanupTask>();
             for (Demo_Cleanup_Task__c cleanupItem : demoCleanupTasks) {
                 CleanupTask cuTask = new CleanupTask();
@@ -50,8 +63,10 @@ public without sharing class DemoCleanup {
                 }                
                 cleanupTasks.add(cuTask);
             }
-            return cleanupTasks;
-        }        
+            rStatus.cleanupTasks = cleanupTasks;
+        }
+        
+        return rStatus;
     }    
     
     

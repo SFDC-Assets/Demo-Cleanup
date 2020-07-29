@@ -65,11 +65,11 @@
 					>
 						<div class="slds-p-horizontal_large slds-align_absolute-center">
 							<lightning-button
-								variant="brand"
+								variant="destructive"
 								disabled={cleanupButtonDisabled}
 								label="Clean Up the Demo"
 								title="Clean Up the Demo"
-								icon-name="utility:record_delete"
+								icon-name="utility:delete"
 								onclick={handleCleanupButton}
 							></lightning-button>
 						</div>
@@ -81,7 +81,7 @@
 					<em>
 						You do not have any active reset task items. Create new records from the &nbsp;<lightning-formatted-url
 							value={cleanupTaskListViewURL}
-							label="Cleanup Tasks page"
+							label="Demo Cleanup Tasks page"
 						></lightning-formatted-url
 						>&nbsp; or activate existing ones.
 					</em>
