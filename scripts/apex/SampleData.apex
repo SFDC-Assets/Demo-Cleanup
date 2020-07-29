@@ -14,3 +14,17 @@ for (Integer i = 0; i < 5000; i++)
         ActualDeliveryDate = now.addDays(i)
     ));
 insert shipments;
+
+List<Account> first2 = [SELECT Id FROM Account LIMIT 2];
+insert new Opportunity (
+    Name = 'Test 1',
+    AccountId = first2[0].Id,
+    CloseDate = Date.today(),
+    StageName = 'Prospecting'
+);
+insert new Opportunity (
+    Name = 'Test 2',
+    AccountId = first2[1].Id,
+    CloseDate = Date.today(),
+    StageName = 'Prospecting'
+);
