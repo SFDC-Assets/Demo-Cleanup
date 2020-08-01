@@ -1,6 +1,6 @@
 List<Account> accounts = new List<Account>();
 for (Integer i = 1; i <= 100; i++)
-    accounts.add(new Account(
+    accounts.add(new Account (
         Name = 'Account' + i,
         Sic = 'Test'
         ));
@@ -15,18 +15,11 @@ for (Integer i = 0; i < 1000; i++)
     ));
 insert shipments;
 
-List<Account> first2 = [SELECT Id FROM Account LIMIT 2];
-insert new Opportunity (
-    Name = 'Test 1',
-    AccountId = first2[0].Id,
-    CloseDate = Date.today(),
-    StageName = 'Prospecting'
-);
-insert new Opportunity (
-    Name = 'Test 2',
-    AccountId = first2[1].Id,
-    CloseDate = Date.today(),
-    StageName = 'Prospecting'
-);
-
-insert new Contact (FirstName = 'John', LastName = 'Meyer', AccountId = first2[0].Id);
+List<Contact> contacts = new List<Contact>();
+for (Integer i = 0; i < 100; i++)
+    contacts.add(new Contact (
+        FirstName = 'John',
+        LastName = 'Meyer',
+        AccountId = accounts[i].Id
+    ));
+insert contacts;

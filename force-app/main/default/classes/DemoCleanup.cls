@@ -1,12 +1,10 @@
-//  Controller for the DemoCleanup Lightning component.
+//  Controller for the Demo Cleanup Lightning component.
 //  
 //  This code is provided AS IS, with no warranty or guarantee of suitability for use.
 //  Contact: john.meyer@salesforce.com
 
 
 public without sharing class DemoCleanup {
-
-    public static final Integer MAXIMUM_CLEANUP_TASKS = 90;
     
     public class CleanupTask {
         @AuraEnabled public Id itemId;
@@ -18,15 +16,10 @@ public without sharing class DemoCleanup {
         @AuraEnabled public Integer itemCount;
         @AuraEnabled public Boolean itemQueryError;
     }
-
-    public class RetrieveStatus {
-        @AuraEnabled public String status;
-        @AuraEnabled public List<CleanupTask> cleanupTasks;
-    }
     
     
     @AuraEnabled(cacheable=true)
-    public static RetrieveStatus getCleanupTasks () {
+    public static List<CleanupTask> getCleanupTasks () {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
             SELECT  Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
@@ -34,39 +27,28 @@ public without sharing class DemoCleanup {
             WHERE   Active__c = true
             ORDER BY Name ASC
         ];
-        RetrieveStatus rStatus = new RetrieveStatus();
-        
-        if (demoCleanupTasks.IsEmpty()) {
-            rStatus.status = 'EMPTY';
-            rStatus.cleanupTasks = null;
-        } else if (demoCleanupTasks.size() > MAXIMUM_CLEANUP_TASKS) {
-            rStatus.status = 'TOO_MANY';
-            rStatus.cleanupTasks = null;
-        } else {
-            rStatus.status = 'SUCCESS';
-            List<CleanupTask> cleanupTasks = new List<CleanupTask>();
-            for (Demo_Cleanup_Task__c cleanupItem : demoCleanupTasks) {
-                CleanupTask cuTask = new CleanupTask();
-                cuTask.itemId = cleanupItem.Id;
-                cuTask.itemObjectApiName = cleanupItem.Object_API_Name__c;
-                cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
-                cuTask.itemLabelPlural = Schema.getGlobalDescribe().get(cleanupItem.Object_API_Name__c).getDescribe().getLabelPlural();
-                cuTask.itemDescription = cleanupItem.Description__c;
-                cuTask.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
-                try {
-                    cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
-                        (cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : ''));
-                    cuTask.itemQueryError = false;
-                } catch (QueryException e) {
-                    cuTask.itemCount = 0;
-                    cuTask.itemQueryError = true;
-                }                
-                cleanupTasks.add(cuTask);
-            }
-            rStatus.cleanupTasks = cleanupTasks;
+
+        List<CleanupTask> cleanupTasks = new List<CleanupTask>();
+        for (Demo_Cleanup_Task__c cleanupItem : demoCleanupTasks) {
+            CleanupTask cuTask = new CleanupTask();
+            cuTask.itemId = cleanupItem.Id;
+            cuTask.itemObjectApiName = cleanupItem.Object_API_Name__c;
+            cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
+            cuTask.itemLabelPlural = Schema.getGlobalDescribe().get(cleanupItem.Object_API_Name__c).getDescribe().getLabelPlural();
+            cuTask.itemDescription = cleanupItem.Description__c;
+            cuTask.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
+            try {
+                cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
+                    (cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : ''));
+                cuTask.itemQueryError = false;
+            } catch (QueryException e) {
+                cuTask.itemCount = 0;
+                cuTask.itemQueryError = true;
+            }                
+            cleanupTasks.add(cuTask);
         }
         
-        return rStatus;
+        return cleanupTasks;
     }    
     
     

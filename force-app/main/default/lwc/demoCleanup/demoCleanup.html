@@ -1,5 +1,8 @@
 <template>
 	<lightning-card>
+		<template if:true={spinnerVisible}>
+			<lightning-spinner variant="brand" size="medium" title="Working ..." alternative-text="Working ..."></lightning-spinner>
+		</template>
 		<header slot="title" class="slds-media slds-media_center">
 			<div class="slds-media__figure slds-icon_container">
 				<svg class="slds-icon slds-icon_small" xmlns="http://www.w3.org/2000/svg">
@@ -17,73 +20,83 @@
 				icon-name="utility:question"
 				selected={helpSectionVisible}
 				onclick={handleHelpButton}
-			></lightning-button-icon-stateful>
+			>
+			</lightning-button-icon-stateful>
 		</div>
 		<template if:false={deletionInProgress}>
 			<header class="slds-var-p-top_medium slds-p-horizontal_large">
 				Delete any spurious or temporary records that were created during a demo or during testing, leaving the org in a
 				clean state for the next demo.
 			</header>
-			<template if:true={spinnerVisible}>
-				<lightning-spinner
-					variant="brand"
-					size="medium"
-					title="Working ..."
-					alternative-text="Working ..."
-				></lightning-spinner>
-			</template>
 			<template if:false={cleanupTasksEmpty}>
-				<div class="slds-var-p-top_medium slds-p-horizontal_large">
-					<lightning-datatable
-						data={cleanupTasks}
-						columns={cleanupTasksColumns}
-						key-field="itemId"
-						onrowselection={handleRowSelection}
-					></lightning-datatable>
-				</div>
-				<lightning-layout multiple-rows="true">
-					<lightning-layout-item
-						size="12"
-						small-device-size="12"
-						medium-device-size="6"
-						large-device-size="6"
-						padding="around-medium"
-					>
-						<p class="slds-p-horizontal_small">
-							<strong>
-								Total Records: &nbsp;
-								<lightning-formatted-number value={totalRecords}></lightning-formatted-number>
-							</strong>
-						</p>
-					</lightning-layout-item>
-					<lightning-layout-item
-						size="12"
-						small-device-size="12"
-						medium-device-size="6"
-						large-device-size="6"
-						padding="around-medium"
-					>
-						<div class="slds-p-horizontal_large slds-align_absolute-center">
-							<lightning-button
-								variant="destructive"
-								disabled={cleanupButtonDisabled}
-								label="Clean Up the Demo"
-								title="Clean Up the Demo"
-								icon-name="utility:delete"
-								onclick={handleCleanupButton}
-							></lightning-button>
-						</div>
-					</lightning-layout-item>
-				</lightning-layout>
+				<template if:true={tooManyCleanupTasks}>
+					<p class="slds-var-p-around_large">
+						<em>
+							You have&nbsp;
+							<lightning-formatted-number value={totalCleanupTasks}> </lightning-formatted-number> &nbsp;tasks to run
+							and the maximum is
+							<lightning-formatted-number value={maximumCleanupTasks}> </lightning-formatted-number>
+							. Either deselect some of the tasks or deactivate some from the&nbsp;
+							<lightning-formatted-url value={cleanupTaskListViewURL} label="Demo Cleanup Tasks page">
+							</lightning-formatted-url>
+							.
+						</em>
+					</p>
+				</template>
+				<template if:false={tooManyCleanupTasks}>
+					<div class="slds-var-p-top_medium slds-p-horizontal_large">
+						<lightning-datatable
+							data={cleanupTasks}
+							columns={cleanupTasksColumns}
+							key-field="itemId"
+							onrowselection={handleRowSelection}
+						>
+						</lightning-datatable>
+					</div>
+					<lightning-layout multiple-rows="true">
+						<lightning-layout-item
+							size="12"
+							small-device-size="12"
+							medium-device-size="6"
+							large-device-size="6"
+							padding="around-medium"
+						>
+							<p class="slds-p-horizontal_small">
+								<strong>
+									Total Records: &nbsp;
+									<lightning-formatted-number value={totalRecords}> </lightning-formatted-number>
+								</strong>
+							</p>
+						</lightning-layout-item>
+						<lightning-layout-item
+							size="12"
+							small-device-size="12"
+							medium-device-size="6"
+							large-device-size="6"
+							padding="around-medium"
+						>
+							<div class="slds-p-horizontal_large slds-align_absolute-center">
+								<lightning-button
+									variant="destructive"
+									disabled={cleanupButtonDisabled}
+									label="Clean Up the Demo"
+									title="Clean Up the Demo"
+									icon-name="utility:delete"
+									onclick={handleCleanupButton}
+								>
+								</lightning-button>
+							</div>
+						</lightning-layout-item>
+					</lightning-layout>
+				</template>
 			</template>
 			<template if:true={cleanupTasksEmpty}>
 				<p class="slds-var-p-around_large">
 					<em>
-						You do not have any active reset task items. Create new records from the &nbsp;<lightning-formatted-url
-							value={cleanupTaskListViewURL}
-							label="Demo Cleanup Tasks page"
-						></lightning-formatted-url
-						>&nbsp; or activate existing ones.
+						You do not have any active reset task items. Create new records from the&nbsp;
+						<lightning-formatted-url value={cleanupTaskListViewURL} label="Demo Cleanup Tasks page">
+						</lightning-formatted-url>
+						&nbsp;or activate existing ones.
 					</em>
 				</p>
 			</template>
@@ -100,20 +113,18 @@
 							<template for:each={selectedRows} for:item="ct">
 								<tr class="slds-p-around_none" key={ct.itemId}>
 									<td class="runningObject">
-										<strong
-											><lightning-formatted-text
-												value={ct.itemLabelPlural}
-												class="slds-truncate"
-											></lightning-formatted-text
-										></strong>
+										<strong>
+											<lightning-formatted-text value={ct.itemLabelPlural} class="slds-truncate">
+											</lightning-formatted-text>
+										</strong>
 									</td>
 									<td class="runningCounts">
-										<lightning-formatted-number value={ct.itemRunningTotal}></lightning-formatted-number
-										>&nbsp;/&nbsp;<lightning-formatted-number value={ct.itemCount}></lightning-formatted-number
-										>&nbsp;&nbsp;(<lightning-formatted-number
-											value={ct.itemPercentage}
-										></lightning-formatted-number
-										>%)
+										<lightning-formatted-number value={ct.itemRunningTotal}> </lightning-formatted-number>
+										&nbsp;/&nbsp;
+										<lightning-formatted-number value={ct.itemCount}> </lightning-formatted-number>
+										&nbsp;&nbsp;(
+										<lightning-formatted-number value={ct.itemPercentage}> </lightning-formatted-number>
+										%)
 									</td>
 									<td class="runningRemaining">
 										<template if:true={ct.itemDeletionFinished}>
@@ -125,19 +136,16 @@
 											</template>
 										</template>
 										<template if:false={ct.itemDeletionFinished}>
-											<lightning-formatted-number
-												value={ct.itemRemaining}
-												class="slds-text-align_right"
-											></lightning-formatted-number>
+											<lightning-formatted-number value={ct.itemRemaining} class="slds-text-align_right">
+											</lightning-formatted-number>
 										</template>
 									</td>
 									<td class="runningErrors">
 										<template if:true={ct.itemNumberOfErrors}>
 											<span class="slds-text-color_error">
-												<lightning-formatted-number
-													value={ct.itemNumberOfErrors}
-												></lightning-formatted-number
-												>&nbsp;error(s)
+												<lightning-formatted-number value={ct.itemNumberOfErrors}>
+												</lightning-formatted-number>
+												&nbsp;error(s)
 											</span>
 										</template>
 									</td>
@@ -152,7 +160,8 @@
 												aria-valuemax={ct.itemCount}
 												aria-valuenow={ct.itemRunningTotal}
 												role="progressbar"
-											></lightning-progress-bar>
+											>
+											</lightning-progress-bar>
 										</div>
 									</td>
 								</tr>
@@ -172,7 +181,8 @@
 								data={errorList}
 								key-field="id"
 								hide-checkbox-column="true"
-							></lightning-datatable>
+							>
+							</lightning-datatable>
 						</div>
 					</template>
 				</template>
@@ -182,7 +192,7 @@
 		<template if:true={helpSectionVisible}>
 			<section class="slds-p-horizontal_large">
 				<lightning-tile class="slds-tile_board slds-box slds-theme_shade">
-					<lightning-icon slot="media" icon-name="utility:info"></lightning-icon>
+					<lightning-icon slot="media" icon-name="utility:info"> </lightning-icon>
 					<h2 class="slds-var-p-bottom_medium"><strong>Motivation</strong></h2>
 					<p>
 						This component was motivated by a desire to provide a simple reset between demo presentations so that any
@@ -194,16 +204,16 @@
 					</p>
 					<h2 class="slds-var-p-vertical_medium"><strong>How It Works</strong></h2>
 					<p>
-						Setting up the clean up tasks is easy: just navigate to the &nbsp;<lightning-formatted-url
-							value={cleanupTaskListViewURL}
-							label="Demo Cleanup Tasks page"
-						></lightning-formatted-url
-						>&nbsp; page and create as many tasks as you need. Each one will require a description, which will appear in
+						Setting up the clean up tasks is easy: just navigate to the&nbsp;
+						<lightning-formatted-url value={cleanupTaskListViewURL} label="Demo Cleanup Tasks page">
+						</lightning-formatted-url>
+						&nbsp;page and create as many tasks as you need. Each one will require a description, which will appear in
 						the task list, the API name of the object whose records you want to delete, and a
 						<lightning-formatted-url
 							label="SOQL WHERE clause expression"
 							value="https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_conditionexpression.htm"
-						></lightning-formatted-url>
+						>
+						</lightning-formatted-url>
 						to specify which records of that object are deleted. Additionally, you can use a checkbox to specify whether
 						or not the task is active, in case you wanted to deactivate it temporarily.
 					</p>
@@ -241,8 +251,9 @@
 						<lightning-formatted-url
 							label="this GitHub repository"
 							value="https://github.com/johnsfdemo/Demo-Reset-Tools"
-						></lightning-formatted-url
-						>.
+						>
+						</lightning-formatted-url>
+						.
 					</p>
 				</lightning-tile>
 			</section>

@@ -81,9 +81,12 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	@track cleanupTasks = [];
 	@track selectedRows = [];
 	totalRecords = 0;
-	currentTask = 0;
 	get cleanupTasksEmpty() {
 		return this.cleanupTasks.length === 0;
+	}
+	maximumCleanupTasks = 90;
+	get tooManyCleanupTasks() {
+		return this.cleanupTasks.length > this.maximumCleanupTasks;
 	}
 	get cleanupButtonDisabled() {
 		return this.totalRecords === 0;
@@ -122,42 +125,42 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		this.spinnerVisible = false;
 		this.cleanupTasks = [];
 		if (data) {
-			switch (data.status) {
-				case "SUCCESS":
-					data.cleanupTasks.forEach((ct) => {
-						this.cleanupTasks.push({
-							itemId: ct.itemId,
-							itemObjectApiName: ct.itemObjectApiName,
-							itemLabelPlural: ct.itemLabelPlural,
-							itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
-							itemDescription: ct.itemDescription,
-							itemPermanentlyDelete: ct.itemPermanentlyDelete,
-							itemIcon: ct.itemPermanentlyDelete ? "utility:delete" : "utility:recycle_bin_empty",
-							itemCount: ct.itemCount,
-							itemQueryError: ct.itemQueryError,
-							itemLink: "/lightning/r/Demo_Cleanup_Task__c/" + ct.itemId + "/view",
-							itemRunningTotal: 0,
-							itemRemaining: ct.itemCount,
-							itemPercentage: 0,
-							itemNumberOfErrors: 0,
-							itemDeletionFinished: false
-						});
-						if (ct.itemQueryError)
-							this.dispatchEvent(
-								new ShowToastEvent({
-									message: `Item "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause for any bad syntax.`,
-									variant: "error",
-									mode: "sticky"
-								})
-							);
-					});
-					break;
-				case "EMPTY":
-					break;
-				case "TOO_MANY":
-					break;
-			}
+			data.forEach((ct) => {
+				this.cleanupTasks.push({
+					itemId: ct.itemId,
+					itemObjectApiName: ct.itemObjectApiName,
+					itemLabelPlural: ct.itemLabelPlural,
+					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
+					itemDescription: ct.itemDescription,
+					itemPermanentlyDelete: ct.itemPermanentlyDelete,
+					itemIcon: ct.itemPermanentlyDelete ? "utility:delete" : "utility:recycle_bin_empty",
+					itemCount: ct.itemCount,
+					itemQueryError: ct.itemQueryError,
+					itemLink: "/lightning/r/Demo_Cleanup_Task__c/" + ct.itemId + "/view",
+					itemRunningTotal: 0,
+					itemRemaining: ct.itemCount,
+					itemPercentage: 0,
+					itemNumberOfErrors: 0,
+					itemDeletionFinished: false
+				});
+				if (ct.itemQueryError)
+					this.dispatchEvent(
+						new ShowToastEvent({
+							message: `Item "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause for any bad syntax.`,
+							variant: "error",
+							mode: "sticky"
+						})
+					);
+			});
 		} else if (error) {
+			this.dispatchEvent(
+				new ShowToastEvent({
+					mode: "sticky",
+					variant: "error",
+					title: "Error occurred trying to retrieve Demo Cleanup Tasks",
+					message: `${JSON.stringify(error)}`
+				})
+			);
 		}
 	}
 
