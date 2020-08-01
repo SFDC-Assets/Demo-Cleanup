@@ -239,7 +239,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 						new ShowToastEvent({
 							mode: "sticky",
 							variant: "error",
-							title: "Error occurred trying to run custom apex",
+							title: "Error occurred trying to run custom Apex",
 							message: `${JSON.stringify(error)}`
 						})
 					);
@@ -247,7 +247,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			this.dispatchEvent(
 				new ShowToastEvent({
 					variant: "info",
-					message: "Deletion of records completed"
+					message: "Demo cleanup completed."
 				})
 			);
 		}

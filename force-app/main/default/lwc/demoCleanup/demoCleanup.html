@@ -91,8 +91,8 @@
 		<template if:true={deletionInProgress}>
 			<section class="slds-var-p-horizontal_medium">
 				<p class="slds-var-p-bottom_medium slds-hyphenate">
-					If you navigate away from this page or tab, the record deletions will continue, but you will not be able to monitor
-					the progress.
+					If you navigate away from this page or tab, the record deletions will continue, but you will not be able to
+					monitor the progress.
 				</p>
 				<div class="slds-var-p-vertical_medium slds-var-p-horizontal_x-large">
 					<table class="slds-text-body_small">
@@ -194,9 +194,12 @@
 					</p>
 					<h2 class="slds-var-p-vertical_medium"><strong>How It Works</strong></h2>
 					<p>
-						Setting up the deletion tasks is easy: just navigate to the <strong>Demo Reset Task</strong> tab and create
-						as many tasks as you need. Each one will require a description, which will appear in the task list, the API
-						name of the object whose records you want to delete, and a
+						Setting up the clean up tasks is easy: just navigate to the &nbsp;<lightning-formatted-url
+							value={cleanupTaskListViewURL}
+							label="Demo Cleanup Tasks page"
+						></lightning-formatted-url
+						>&nbsp; page and create as many tasks as you need. Each one will require a description, which will appear in
+						the task list, the API name of the object whose records you want to delete, and a
 						<lightning-formatted-url
 							label="SOQL WHERE clause expression"
 							value="https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_conditionexpression.htm"
