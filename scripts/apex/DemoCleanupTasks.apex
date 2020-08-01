@@ -8,6 +8,7 @@ insert new Demo_Cleanup_Task(
 insert new Demo_Cleanup_Task(
     Object_API_Name__c = 'Account',
     Description__c = 'Delete all accounts where SIC code is "Test"',
-    Permanently_Delete = false,
-    Active = true
-)
+    SOQL_Where_Clause__c = 'Sic = \'Test\'',
+    Permanently_Delete__c = false,
+    Active__c = true
+);

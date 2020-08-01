@@ -32,7 +32,7 @@ public without sharing class DemoCleanupCustomApex {
         // toast.toastMode = 'sticky';
         // toast.toastVariant = 'info';
         // toasts.add(toast);
-        
+       
         return toasts;
     }
 }

@@ -177,67 +177,79 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		subscribe("/event/Demo_Cleanup_Event__e", -1, this.handleBatchEvent.bind(this)).then((result) => {
 			this.subscription = result;
 		});
-		this.startDeletionTask(0);
+		this.selectedRows.forEach((item) => {
+			cleanup({
+				objectApiName: item.itemObjectApiName,
+				whereClause: item.itemWhereClause,
+				permanentlyDelete: item.itemPermanentlyDelete
+			}).catch((error) => {
+				this.dispatchEvent(
+					new ShowToastEvent({
+						mode: "sticky",
+						variant: "error",
+						title: `Error occurred trying to execute "${item.itemDescription}"`,
+						message: `${JSON.stringify(error)}`
+					})
+				);
+			});
+		});
 	}
 
 	handleHelpButton(event) {
 		this.helpSectionVisible = !this.helpSectionVisible;
 	}
 
-	startDeletionTask(taskIndex) {
-		let item = this.selectedRows[taskIndex];
-		cleanup({
-			objectApiName: item.itemObjectApiName,
-			whereClause: item.itemWhereClause,
-			permanentlyDelete: item.itemPermanentlyDelete
-		}).catch((error) => {
-			this.dispatchEvent(
-				new ShowToastEvent({
-					mode: "sticky",
-					variant: "error",
-					title: `Error occurred trying to execute "${item.itemDescription}"`,
-					message: `${JSON.stringify(error)}`
-				})
-			);
-		});
-	}
-
 	handleBatchEvent(event) {
-		let cleanupTask = this.selectedRows[this.currentTask];
-		cleanupTask.itemRunningTotal = event.data.payload.Total_Records_Deleted__c;
-		cleanupTask.itemRemaining = cleanupTask.itemCount - cleanupTask.itemRunningTotal;
-		cleanupTask.itemPercentage = Math.round((100 * cleanupTask.itemRunningTotal) / cleanupTask.itemCount);
-		cleanupTask.itemNumberOfErrors = event.data.payload.Total_Errors__c;
-		cleanupTask.itemDeletionFinished = cleanupTask.itemRunningTotal >= cleanupTask.itemCount;
+		let deletionFinished = true;
+		let deletionHadErrors = false;
+		this.selectedRows.forEach((cleanupTask) => {
+			if (cleanupTask.itemObjectApiName === event.data.payload.Object_API_Name__c) {
+				cleanupTask.itemRunningTotal = event.data.payload.Total_Records_Deleted__c;
+				cleanupTask.itemRemaining = cleanupTask.itemCount - cleanupTask.itemRunningTotal;
+				cleanupTask.itemPercentage = Math.round((100 * cleanupTask.itemRunningTotal) / cleanupTask.itemCount);
+				cleanupTask.itemNumberOfErrors = event.data.payload.Total_Errors__c;
+				cleanupTask.itemDeletionFinished = cleanupTask.itemRunningTotal >= cleanupTask.itemCount;
+			}
+			deletionFinished = deletionFinished && cleanupTask.itemDeletionFinished;
+			deletionHadErrors = deletionHadErrors || cleanupTask.itemNumberOfErrors > 0;
+		});
+		this.deletionFinished = deletionFinished;
+		this.deletionHadErrors = deletionHadErrors;
 		JSON.parse(event.data.payload.Error_JSON_String__c).forEach((error) => {
 			this.errorList.push(error);
 		});
-		console.log(`cleanupTask: ${JSON.stringify(cleanupTask)}`);
-		if (cleanupTask.itemDeletionFinished) {
-			if (this.currentTask < this.selectedRows.length - 1) {
-				this.currentTask++;
-				this.startDeletionTask(this.currentTask);
-			} else {
-				unsubscribe(this.subscription, () => {
-					this.subscription = {};
-				});
-				runCustomApex().catch((error) => {
+		if (deletionFinished) {
+			unsubscribe(this.subscription, () => {
+				this.subscription = {};
+			});
+			runCustomApex()
+				.then((result) => {
+					result.forEach((toast) => {
+						this.dispatchEvent(
+							new ShowToastEvent({
+								mode: toast.toastMode,
+								variant: toast.toastVariant,
+								message: toast.toastMessage
+							})
+						);
+					});
+				})
+				.catch((error) => {
 					this.dispatchEvent(
 						new ShowToastEvent({
 							mode: "sticky",
 							variant: "error",
-							title: `Error occurred trying to run custom apex`,
+							title: "Error occurred trying to run custom apex",
 							message: `${JSON.stringify(error)}`
 						})
 					);
 				});
-				this.dispatchEvent(
-					new ShowToastEvent({
-						variant: "info",
-						message: "Deletion of records completed"
-					})
-				);
-			}
+			this.dispatchEvent(
+				new ShowToastEvent({
+					variant: "info",
+					message: "Deletion of records completed"
+				})
+			);
 		}
 	}
 }

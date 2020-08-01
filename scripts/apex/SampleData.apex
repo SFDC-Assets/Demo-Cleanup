@@ -1,5 +1,5 @@
 List<Account> accounts = new List<Account>();
-for (Integer i = 1; i <= 2000; i++)
+for (Integer i = 1; i <= 100; i++)
     accounts.add(new Account(
         Name = 'Account' + i,
         Sic = 'Test'
@@ -8,7 +8,7 @@ insert accounts;
 
 List<Shipment> shipments = new List<Shipment>();
 DateTime now = DateTime.now();
-for (Integer i = 0; i < 5000; i++)
+for (Integer i = 0; i < 1000; i++)
     shipments.add(new Shipment (
         ShipToName = 'Test Name',
         ActualDeliveryDate = now.addDays(i)
@@ -28,3 +28,5 @@ insert new Opportunity (
     CloseDate = Date.today(),
     StageName = 'Prospecting'
 );
+
+insert new Contact (FirstName = 'John', LastName = 'Meyer', AccountId = first2[0].Id);
