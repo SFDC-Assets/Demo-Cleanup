@@ -1,5 +1,5 @@
 List<Account> accounts = new List<Account>();
-for (Integer i = 1; i <= 100; i++)
+for (Integer i = 1; i <= 3000; i++)
     accounts.add(new Account (
         Name = 'Account' + i,
         Sic = 'Test'
@@ -16,7 +16,7 @@ for (Integer i = 0; i < 1000; i++)
 insert shipments;
 
 List<Contact> contacts = new List<Contact>();
-for (Integer i = 0; i < 100; i++)
+for (Integer i = 0; i < 3000; i++)
     contacts.add(new Contact (
         FirstName = 'John',
         LastName = 'Meyer',

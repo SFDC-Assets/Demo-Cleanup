@@ -169,22 +169,21 @@
 						</tbody>
 					</table>
 				</div>
-				<template if:true={deletionFinished}>
-					<template if:true={deletionHadErrors}>
-						<p class="slds-var-p-bottom_medium slds-text-color_error">
-							The following errors occurred during the cleanup. Only these records were affected and all others were
-							deleted properly.
-						</p>
-						<div class="slds-var-p-bottom_medium slds-scrollable scrollerSize">
-							<lightning-datatable
-								columns={errorListColumns}
-								data={errorList}
-								key-field="id"
-								hide-checkbox-column="true"
-							>
-							</lightning-datatable>
-						</div>
-					</template>
+				<template if:true={deletionHadErrors}>
+					<p class="slds-var-p-bottom_small slds-text-color_error">
+						The following errors occurred during the cleanup. Usually this means that the you deleted a parent record
+						whose child was also deleted while also attempting to delete the same child record in another Demo Cleanup
+						Task. You should find that all the records were, in fact, deleted.
+					</p>
+					<p class="slds-var-p-bottom_medium slds-text-color_error">
+						To make sure this does not occur again, please check your Demo Cleanup Tasks for any lookup possibilities
+						(<em>e.g.</em>, master-detail relationships) that could cause a child record to be deleted along with its
+						parent. Either deselect or de-activate the Demo Cleanup Task that contains the redundant child deletions.
+					</p>
+					<div class="slds-var-p-bottom_medium slds-scrollable scrollerSize">
+						<lightning-datatable columns={errorListColumns} data={errorList} key-field="id" hide-checkbox-column="true">
+						</lightning-datatable>
+					</div>
 				</template>
 			</section>
 		</template>

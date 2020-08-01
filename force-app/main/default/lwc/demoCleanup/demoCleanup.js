@@ -78,6 +78,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	@api cardTitle = "Demo Cleanup";
 	iconUrl = DemoCleanupIcon + "#icon";
 
+	timeoutValue = 1000 * 10;
+
 	@track cleanupTasks = [];
 	@track selectedRows = [];
 	totalRecords = 0;
@@ -141,7 +143,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemRemaining: ct.itemCount,
 					itemPercentage: 0,
 					itemNumberOfErrors: 0,
-					itemDeletionFinished: false
+					itemDeletionFinished: false,
+					itemTimeout: null
 				});
 				if (ct.itemQueryError)
 					this.dispatchEvent(
