@@ -10,5 +10,9 @@
     ],
     "namespace": "",
     "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "49.0"
+    "sourceApiVersion": "49.0",
+    "packageAliases": {
+        "Demo Cleanup": "0Ho2E000000007MSAQ",
+        "Demo Cleanup@1.0.0-0": "04t2E000003obwIQAQ"
+    }
 }
