@@ -101,7 +101,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	subscription = {};
 
 	helpSectionVisible = false;
-	spinnerVisible = true;
+	spinnerVisible = false;
 	deletionInProgress = false;
 	deletionFinished = false;
 	deletionHadErrors = false;
@@ -122,6 +122,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		this[NavigationMixin.GenerateUrl](this.cleanupTaskListViewSpec).then((url) => {
 			this.cleanupTaskListViewURL = url;
 		});
+		this.spinnerVisible = true;
 	}
 
 	@wire(getCleanupTasks)

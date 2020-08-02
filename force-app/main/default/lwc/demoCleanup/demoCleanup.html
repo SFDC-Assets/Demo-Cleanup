@@ -38,7 +38,7 @@
 						<em>
 							You have&nbsp;
 							<lightning-formatted-number value={totalCleanupTasks}> </lightning-formatted-number> &nbsp;tasks to run
-							and the maximum is
+							and the maximum is&nbsp;
 							<lightning-formatted-number value={maximumCleanupTasks}> </lightning-formatted-number>
 							. Either deselect some of the tasks or deactivate some from the&nbsp;
 							<lightning-formatted-url value={cleanupTaskListViewURL} label="Demo Cleanup Tasks page">
@@ -94,10 +94,17 @@
 
 		<template if:true={deletionInProgress}>
 			<section class="slds-p-horizontal_large">
-				<p class="slds-var-p-bottom_medium slds-hyphenate">
-					If you navigate away from this page or tab, the record deletions will continue, but you will not be able to
-					monitor the progress.
-				</p>
+				<template if:false={deletionFinished}>
+					<p class="slds-var-p-bottom_medium slds-hyphenate">
+						If you navigate away from this page or tab, the record deletions will continue, but you will not be able to
+						monitor the progress.
+					</p>
+				</template>
+				<template if:true={deletionFinished}>
+					<p class="slds-var-p-bottom_medium slds-hyphenate">
+						Demo cleanup has completed.
+					</p>
+				</template>
 				<div class="slds-var-p-vertical_medium slds-var-p-horizontal_x-large">
 					<table class="slds-text-body_small">
 						<tbody>
