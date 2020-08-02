@@ -46,7 +46,7 @@ private without sharing class DemoCleanupTest {
         List<Account> accounts = new List<Account>();
         for (Integer i = 1; i <= NUMBER_OF_RECORDS; i++)
             accounts.add(new Account (
-                Name = 'Account' + i,
+                Name = 'Account ' + i,
                 Sic = 'Test'
             ));
         insert accounts;
@@ -56,7 +56,7 @@ private without sharing class DemoCleanupTest {
             contacts.add(new Contact (
                 FirstName = 'John',
                 LastName = 'Meyer',
-                AccountId = accounts[i].Id
+                AccountId = accounts[NUMBER_OF_RECORDS - i - 1].Id
             ));
         insert contacts;
         

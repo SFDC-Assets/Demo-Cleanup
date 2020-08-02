@@ -1,88 +1,90 @@
-import { LightningElement, wire, track, api } from "lwc";
-import { NavigationMixin } from "lightning/navigation";
-import { subscribe, unsubscribe } from "lightning/empApi";
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import DemoCleanupIcon from "@salesforce/resourceUrl/DemoCleanupIcon";
-import getCleanupTasks from "@salesforce/apex/DemoCleanup.getCleanupTasks";
-import runCustomApex from "@salesforce/apex/DemoCleanupCustomApex.runCustomApex";
-import cleanup from "@salesforce/apex/DemoCleanup.cleanup";
+import { LightningElement, wire, track, api } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
+import { subscribe, unsubscribe } from 'lightning/empApi';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import DemoCleanupIcon from '@salesforce/resourceUrl/DemoCleanupIcon';
+import getCleanupTasks from '@salesforce/apex/DemoCleanup.getCleanupTasks';
+import runCustomApex from '@salesforce/apex/DemoCleanupCustomApex.runCustomApex';
+import cleanup from '@salesforce/apex/DemoCleanup.cleanup';
 
 export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	cleanupTasksColumns = [
 		{
-			label: "Records",
-			fieldName: "itemCount",
-			type: "number",
+			label: 'Records',
+			fieldName: 'itemCount',
+			type: 'number',
 			initialWidth: 100,
-			cellAttributes: { alignment: "right" }
+			cellAttributes: { alignment: 'right' }
 		},
 		{
-			label: "Permanently Delete",
-			fieldName: "itemPermanentlyDelete",
-			type: "boolean",
+			label: 'Permanently Delete',
+			fieldName: 'itemPermanentlyDelete',
+			type: 'boolean',
 			initialWidth: 150,
-			cellAttributes: { alignment: "center" }
+			cellAttributes: { alignment: 'center' }
 		},
 		{
-			label: "Demo Cleanup Tasks",
-			fieldName: "itemLink",
-			type: "url",
+			label: 'Demo Cleanup Tasks',
+			fieldName: 'itemLink',
+			type: 'url',
 			cellAttributes: {
-				iconName: { fieldName: "itemIcon" },
-				alignment: "left"
+				iconName: { fieldName: 'itemIcon' },
+				alignment: 'left'
 			},
 			typeAttributes: {
-				label: { fieldName: "itemDescription" },
-				tooltip: { fieldName: "itemDescription" },
-				target: "_parent"
+				label: { fieldName: 'itemDescription' },
+				tooltip: { fieldName: 'itemDescription' },
+				target: '_parent'
 			}
 		}
 	];
 	errorListColumns = [
 		{
-			label: "Record",
-			fieldName: "link",
-			type: "url",
+			label: 'Record',
+			fieldName: 'link',
+			type: 'url',
 			initialWidth: 200,
-			iconName: "standard:record",
+			iconName: 'standard:record',
 			cellAttributes: {
-				alignment: "left",
-				iconName: "utility:new_window",
-				iconAlternativeText: "Go To Record"
+				alignment: 'left',
+				iconName: 'utility:new_window',
+				iconAlternativeText: 'Go To Record'
 			},
 			typeAttributes: {
-				label: { fieldName: "name" },
-				tooltip: { fieldName: "id" },
-				target: "_parent"
+				label: { fieldName: 'name' },
+				tooltip: { fieldName: 'id' },
+				target: '_parent'
 			}
 		},
 		{
-			label: "Problem Fields",
-			fieldName: "fields",
-			type: "text",
-			iconName: "standard:first_non_empty",
+			label: 'Problem Fields',
+			fieldName: 'fields',
+			type: 'text',
+			iconName: 'standard:first_non_empty',
 			initialWidth: 200,
 			wrapText: true,
-			cellAttributes: { alignment: "left" }
+			cellAttributes: { alignment: 'left' }
 		},
 		{
-			label: "Error Message",
-			fieldName: "message",
-			type: "text",
-			iconName: "standard:live_chat",
+			label: 'Error Message',
+			fieldName: 'message',
+			type: 'text',
+			iconName: 'standard:live_chat',
 			wrapText: true,
-			cellAttributes: { alignment: "left" }
+			cellAttributes: { alignment: 'left' }
 		}
 	];
 
-	@api cardTitle = "Demo Cleanup";
-	iconUrl = DemoCleanupIcon + "#icon";
-
-	timeoutValue = 1000 * 10;
+	@api cardTitle = 'Demo Cleanup';
+	iconUrl = DemoCleanupIcon + '#icon';
+	modalVisible = false;
 
 	@track cleanupTasks = [];
 	@track selectedRows = [];
 	totalRecords = 0;
+	totalPermanent = 0;
+	totalRecycle = 0;
+
 	get cleanupTasksEmpty() {
 		return this.cleanupTasks.length === 0;
 	}
@@ -104,15 +106,15 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	deletionFinished = false;
 	deletionHadErrors = false;
 
-	cleanupTaskListViewURL = "";
+	cleanupTaskListViewURL = '';
 	cleanupTaskListViewSpec = {
-		type: "standard__objectPage",
+		type: 'standard__objectPage',
 		attributes: {
-			objectApiName: "Demo_Cleanup_Task__c",
-			actionName: "list"
+			objectApiName: 'Demo_Cleanup_Task__c',
+			actionName: 'list'
 		},
 		state: {
-			filterName: "All"
+			filterName: 'All'
 		}
 	};
 
@@ -135,10 +137,10 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
 					itemDescription: ct.itemDescription,
 					itemPermanentlyDelete: ct.itemPermanentlyDelete,
-					itemIcon: ct.itemPermanentlyDelete ? "utility:delete" : "utility:recycle_bin_empty",
+					itemIcon: ct.itemPermanentlyDelete ? 'utility:delete' : 'utility:recycle_bin_empty',
 					itemCount: ct.itemCount,
 					itemQueryError: ct.itemQueryError,
-					itemLink: "/lightning/r/Demo_Cleanup_Task__c/" + ct.itemId + "/view",
+					itemLink: '/lightning/r/Demo_Cleanup_Task__c/' + ct.itemId + '/view',
 					itemRunningTotal: 0,
 					itemRemaining: ct.itemCount,
 					itemPercentage: 0,
@@ -150,17 +152,17 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					this.dispatchEvent(
 						new ShowToastEvent({
 							message: `Item "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause for any bad syntax.`,
-							variant: "error",
-							mode: "sticky"
+							variant: 'error',
+							mode: 'sticky'
 						})
 					);
 			});
 		} else if (error) {
 			this.dispatchEvent(
 				new ShowToastEvent({
-					mode: "sticky",
-					variant: "error",
-					title: "Error occurred trying to retrieve Demo Cleanup Tasks",
+					mode: 'sticky',
+					variant: 'error',
+					title: 'Error occurred trying to retrieve Demo Cleanup Tasks',
 					message: `${JSON.stringify(error)}`
 				})
 			);
@@ -170,17 +172,30 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	handleRowSelection(event) {
 		this.selectedRows = [];
 		this.totalRecords = 0;
+		this.totalPermanent = 0;
+		this.totalRecycle = 0;
 		event.detail.selectedRows.forEach((row) => {
 			if (row.itemCount !== 0) {
 				this.selectedRows.push(row);
 				this.totalRecords += row.itemCount;
+				this.totalPermanent += row.itemPermanentlyDelete ? row.itemCount : 0;
+				this.totalRecycle += row.itemPermanentlyDelete ? 0 : row.itemCount;
 			}
 		});
 	}
 
+	showModal(event) {
+		this.modalVisible = true;
+	}
+
+	handleCancelButton(event) {
+		this.modalVisible = false;
+	}
+
 	handleCleanupButton(event) {
+		this.modalVisible = false;
 		this.deletionInProgress = true;
-		subscribe("/event/Demo_Cleanup_Event__e", -1, this.handleBatchEvent.bind(this)).then((result) => {
+		subscribe('/event/Demo_Cleanup_Event__e', -1, this.handleBatchEvent.bind(this)).then((result) => {
 			this.subscription = result;
 		});
 		this.selectedRows.forEach((item) => {
@@ -191,8 +206,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			}).catch((error) => {
 				this.dispatchEvent(
 					new ShowToastEvent({
-						mode: "sticky",
-						variant: "error",
+						mode: 'sticky',
+						variant: 'error',
 						title: `Error occurred trying to execute "${item.itemDescription}"`,
 						message: `${JSON.stringify(error)}`
 					})
@@ -243,17 +258,17 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 				.catch((error) => {
 					this.dispatchEvent(
 						new ShowToastEvent({
-							mode: "sticky",
-							variant: "error",
-							title: "Error occurred trying to run custom Apex",
+							mode: 'sticky',
+							variant: 'error',
+							title: 'Error occurred trying to run custom Apex',
 							message: `${JSON.stringify(error)}`
 						})
 					);
 				});
 			this.dispatchEvent(
 				new ShowToastEvent({
-					variant: "info",
-					message: "Demo cleanup completed."
+					variant: 'info',
+					message: 'Demo cleanup completed.'
 				})
 			);
 		}
