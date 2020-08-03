@@ -28,10 +28,10 @@
 		</div>
 
 		<template if:false={deletionInProgress}>
-			<header class="slds-p-horizontal_large slds-hyphenate">
+			<p class="slds-p-horizontal_large slds-hyphenate">
 				Delete any spurious or temporary records that were created during a demo or during testing, leaving the org in a
 				clean state for the next demo.
-			</header>
+			</p>
 			<template if:false={cleanupTasksEmpty}>
 				<template if:true={tooManyCleanupTasks}>
 					<p class="slds-var-p-around_large">
@@ -41,14 +41,14 @@
 							and the maximum is&nbsp;
 							<lightning-formatted-number value={maximumCleanupTasks}> </lightning-formatted-number>
 							. Either deselect some of the tasks or deactivate some from the&nbsp;
-							<lightning-formatted-url value={cleanupTaskListViewURL} label="Demo Cleanup Tasks page">
+							<lightning-formatted-url value={cleanupTaskListViewUrl} label="Demo Cleanup Tasks page">
 							</lightning-formatted-url>
 							.
 						</em>
 					</p>
 				</template>
 				<template if:false={tooManyCleanupTasks}>
-					<section class="slds-var-p-top_medium slds-var-p-horizontal_large">
+					<section class="slds-var-p-top_medium slds-p-horizontal_large">
 						<lightning-datatable
 							data={cleanupTasks}
 							columns={cleanupTasksColumns}
@@ -71,7 +71,7 @@
 									variant="destructive"
 									disabled={cleanupButtonDisabled}
 									label="Clean Up the Demo"
-									icon-name="utility:delete"
+									icon-name="utility:bucket"
 									onclick={showModal}
 								>
 								</lightning-button>
@@ -247,7 +247,7 @@
 					<h2 class="slds-p-top_large"><strong>Reference</strong></h2>
 					<p class="slds-p-top_small slds-hyphenate">
 						You can always find the latest version of this component in&nbsp;
-						<lightning-formatted-url label="this GitHub repository" value="https://github.com/johnsfdemo/Demo-Cleanup">
+						<lightning-formatted-url label="this GitHub repository" value="https://github.com/SFDC-Assets/Demo-Cleanup">
 						</lightning-formatted-url>
 						.
 					</p>
@@ -290,7 +290,7 @@
 							<lightning-formatted-number value={totalRecycle} class="slds-text-color_destructive">
 							</lightning-formatted-number>
 						</strong>
-						&nbsp;records will remain in the&nbsp;
+						&nbsp;record(s) will remain in the&nbsp;
 						<lightning-formatted-url
 							label="recycle bin"
 							value="https://help.salesforce.com/articleView?id=recycle_bin.htm&amp;type=5"
@@ -301,7 +301,7 @@
 							<lightning-formatted-number value={totalPermanent} class="slds-text-color_destructive">
 							</lightning-formatted-number>
 						</strong>
-						&nbsp;records will be deleted permanently and will not be kept in the recycle bin.
+						&nbsp;record(s) will be deleted immediately and permanently.
 					</p>
 				</div>
 				<footer class="slds-modal__footer">
@@ -314,7 +314,7 @@
 					>
 					</lightning-button>
 					<lightning-button
-						icon-name="utility:delete"
+						icon-name="utility:bucket"
 						label="Clean Up the Demo"
 						variant="destructive"
 						onclick={handleCleanupButton}

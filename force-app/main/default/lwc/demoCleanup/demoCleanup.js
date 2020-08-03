@@ -77,10 +77,11 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 
 	@api cardTitle = 'Demo Cleanup';
 	iconUrl = DemoCleanupIcon + '#icon';
-	modalVisible = false;
 
 	@track cleanupTasks = [];
 	@track selectedRows = [];
+	@track errorList = [];
+
 	totalRecords = 0;
 	totalPermanent = 0;
 	totalRecycle = 0;
@@ -96,17 +97,17 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		return this.totalRecords === 0;
 	}
 
-	@track errorList = [];
-
 	subscription = {};
 
 	helpSectionVisible = false;
 	spinnerVisible = false;
+	modalVisible = false;
+
 	deletionInProgress = false;
 	deletionFinished = false;
 	deletionHadErrors = false;
 
-	cleanupTaskListViewURL = '';
+	cleanupTaskListViewUrl = '';
 	cleanupTaskListViewSpec = {
 		type: 'standard__objectPage',
 		attributes: {
@@ -120,7 +121,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 
 	connectedCallback() {
 		this[NavigationMixin.GenerateUrl](this.cleanupTaskListViewSpec).then((url) => {
-			this.cleanupTaskListViewURL = url;
+			this.cleanupTaskListViewUrl = url;
 		});
 		this.spinnerVisible = true;
 	}
@@ -146,13 +147,12 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemRemaining: ct.itemCount,
 					itemPercentage: 0,
 					itemNumberOfErrors: 0,
-					itemDeletionFinished: false,
-					itemTimeout: null
+					itemDeletionFinished: false
 				});
 				if (ct.itemQueryError)
 					this.dispatchEvent(
 						new ShowToastEvent({
-							message: `Item "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause for any bad syntax.`,
+							message: `Cleanup task "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause expression for any bad syntax.`,
 							variant: 'error',
 							mode: 'sticky'
 						})
@@ -255,6 +255,15 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 							})
 						);
 					});
+					this.dispatchEvent(
+						new ShowToastEvent({
+							mode: 'sticky',
+							variant: this.deletionHadErrors ? 'error' : 'success',
+							message: this.deletionHadErrors
+								? 'Demo cleanup completed with errors.'
+								: 'Demo cleanup completed successfully.'
+						})
+					);
 				})
 				.catch((error) => {
 					this.dispatchEvent(
@@ -266,12 +275,6 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 						})
 					);
 				});
-			this.dispatchEvent(
-				new ShowToastEvent({
-					variant: 'info',
-					message: 'Demo cleanup completed.'
-				})
-			);
 		}
 	}
 }
