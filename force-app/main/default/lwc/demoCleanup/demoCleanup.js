@@ -146,8 +146,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 				this.cleanupTasks.push({
 					itemId: ct.itemId,
 					itemOrder: ct.itemOrder,
-					itemRecordType: ct.itemRecordType === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
-					itemRecordTypeIcon: ct.itemRecordType === 'Apex Cleanup Item' ? 'utility:apex' : 'utility:sobject',
+					itemRecordType: ct.itemRecordTypeName === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
+					itemRecordTypeIcon: ct.itemRecordTypeName === 'Apex Cleanup Item' ? 'utility:apex' : 'utility:sobject',
 					itemObjectApiName: ct.itemObjectApiName,
 					itemLabelPlural: ct.itemLabelPlural,
 					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,

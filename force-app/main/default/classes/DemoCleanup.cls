@@ -8,7 +8,7 @@ public without sharing class DemoCleanup {
     
     public class CleanupTask {
         @AuraEnabled public Id itemId;
-        @AuraEnabled public String itemRecordType;
+        @AuraEnabled public String itemRecordTypeName;
         @AuraEnabled public Integer itemOrder;
         @AuraEnabled public String itemObjectApiName;
         @AuraEnabled public String itemLabelPlural;
@@ -40,15 +40,14 @@ public without sharing class DemoCleanup {
         for (Demo_Cleanup_Task__c cleanupItem : demoCleanupTasks) {
             CleanupTask cuTask = new CleanupTask();
             cuTask.itemId = cleanupItem.Id;
-            cuTask.itemRecordType = cleanupItem.RecordType.Name;
+            cuTask.itemRecordTypeName = cleanupItem.RecordType.Name;
             cuTask.itemDescription = cleanupItem.Description__c;
             cuTask.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
             cuTask.itemOrder = Math.round(cleanupItem.Order_In_List__c);
             switch on cleanupItem.RecordType.Name {
                 when 'Apex Cleanup Item' {
                     try {
-                        DemoCleanupApexItem apexItem = (DemoCleanupApexItem) Type.forName(cleanupItem.Apex_Class_Name__c).newInstance();
-                        cuTask.itemCount = apexItem.getRowCount();
+                        cuTask.itemCount = ((DemoCleanupApexItem) Type.forName(cleanupItem.Apex_Class_Name__c).newInstance()).getRowCount();
                         cuTask.itemQueryError = false;
                     } catch (Exception e) {
                         cuTask.itemCount = 0;
