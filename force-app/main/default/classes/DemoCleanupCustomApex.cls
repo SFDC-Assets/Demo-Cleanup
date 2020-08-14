@@ -7,18 +7,17 @@
 //  Contact: john.meyer@salesforce.com
 
 
-public without sharing class DemoCleanupCustomApex {
-    
-    public class Toast {
-        @AuraEnabled public String toastMessage;
-        @AuraEnabled public String toastVariant;
-        @AuraEnabled public String toastMode;
-    }
+public without sharing class DemoCleanupCustomApex implements DemoCleanupApexItem {
 
     @AuraEnabled
-    public static List<Toast> runCustomApex () {
-        Toast toast = new Toast();
-        List<Toast> toasts = new List<Toast>();
+    public static Integer getRowCount () {
+        return 0;
+    }
+    
+    @AuraEnabled
+    public static List<DemoCleanup.Toast> execute (Boolean permanentlyDelete) {
+        DemoCleanup.Toast toast = new DemoCleanup.Toast();
+        List<DemoCleanup.Toast> toasts = new List<DemoCleanup.Toast>();
         
         //  Change anything you want in here.
         

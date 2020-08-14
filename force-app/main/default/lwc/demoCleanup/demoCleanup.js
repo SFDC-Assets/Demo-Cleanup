@@ -4,7 +4,6 @@ import { subscribe, unsubscribe } from 'lightning/empApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import DemoCleanupIcon from '@salesforce/resourceUrl/DemoCleanupIcon';
 import getCleanupTasks from '@salesforce/apex/DemoCleanup.getCleanupTasks';
-import runCustomApex from '@salesforce/apex/DemoCleanupCustomApex.runCustomApex';
 import cleanup from '@salesforce/apex/DemoCleanup.cleanup';
 
 export default class DemoCleanup extends NavigationMixin(LightningElement) {
@@ -22,6 +21,16 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			type: 'boolean',
 			initialWidth: 150,
 			cellAttributes: { alignment: 'center' }
+		},
+		{
+			label: 'Type',
+			fieldName: 'itemRecordType',
+			type: 'text',
+			initialWidth: 100,
+			cellAttributes: {
+				iconName: { fieldName: 'itemRecordTypeIcon' },
+				alignment: 'center'
+			}
 		},
 		{
 			label: 'Demo Cleanup Tasks',
@@ -85,6 +94,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	totalRecords = 0;
 	totalPermanent = 0;
 	totalRecycle = 0;
+	totalSoql = 0;
+	totalApex = 0;
 
 	get cleanupTasksEmpty() {
 		return this.cleanupTasks.length === 0;
@@ -94,7 +105,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		return this.cleanupTasks.length > this.maximumCleanupTasks;
 	}
 	get cleanupButtonDisabled() {
-		return this.totalRecords === 0;
+		return this.totalSoql === 0 && this.totalApex === 0;
 	}
 
 	subscription = {};
@@ -134,6 +145,9 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			data.forEach((ct) => {
 				this.cleanupTasks.push({
 					itemId: ct.itemId,
+					itemOrder: ct.itemOrder,
+					itemRecordType: ct.itemRecordType === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
+					itemRecordTypeIcon: ct.itemRecordType === 'Apex Cleanup Item' ? 'utility:apex' : 'utility:sobject',
 					itemObjectApiName: ct.itemObjectApiName,
 					itemLabelPlural: ct.itemLabelPlural,
 					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
@@ -152,7 +166,11 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 				if (ct.itemQueryError)
 					this.dispatchEvent(
 						new ShowToastEvent({
-							message: `Cleanup task "${ct.itemDescription}" has an error. Please check the object API name and WHERE clause expression for any bad syntax.`,
+							title: `Cleanup task "${ct.itemDescription}" has an error.`,
+							message:
+								ct.itemRecordType === 'Apex Cleanup Item'
+									? 'Please check the Apex class name and make sure it implements the DemoCleanupApexItem interface.'
+									: 'Please check the object API name and WHERE clause expression for any bad syntax.',
 							variant: 'error',
 							mode: 'sticky'
 						})
@@ -175,12 +193,23 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		this.totalRecords = 0;
 		this.totalPermanent = 0;
 		this.totalRecycle = 0;
+		this.totalSoql = 0;
+		this.totalApex = 0;
 		event.detail.selectedRows.forEach((row) => {
-			if (row.itemCount !== 0) {
-				this.selectedRows.push(row);
-				this.totalRecords += row.itemCount;
-				this.totalPermanent += row.itemPermanentlyDelete ? row.itemCount : 0;
-				this.totalRecycle += row.itemPermanentlyDelete ? 0 : row.itemCount;
+			if (!row.itemQueryError) {
+				if (row.itemRecordType === 'Apex') {
+					this.selectedRows.push(row);
+					this.totalApex++;
+					this.totalRecords += row.itemCount;
+					this.totalPermanent += row.itemPermanentlyDelete ? row.itemCount : 0;
+					this.totalRecycle += row.itemPermanentlyDelete ? 0 : row.itemCount;
+				} else if (row.itemCount !== 0) {
+					this.selectedRows.push(row);
+					this.totalSoql++;
+					this.totalRecords += row.itemCount;
+					this.totalPermanent += row.itemPermanentlyDelete ? row.itemCount : 0;
+					this.totalRecycle += row.itemPermanentlyDelete ? 0 : row.itemCount;
+				}
 			}
 		});
 	}
@@ -244,37 +273,6 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			unsubscribe(this.subscription, () => {
 				this.subscription = {};
 			});
-			runCustomApex()
-				.then((result) => {
-					result.forEach((toast) => {
-						this.dispatchEvent(
-							new ShowToastEvent({
-								mode: toast.toastMode,
-								variant: toast.toastVariant,
-								message: toast.toastMessage
-							})
-						);
-					});
-					this.dispatchEvent(
-						new ShowToastEvent({
-							mode: 'sticky',
-							variant: this.deletionHadErrors ? 'error' : 'success',
-							message: this.deletionHadErrors
-								? 'Demo cleanup completed with errors.'
-								: 'Demo cleanup completed successfully.'
-						})
-					);
-				})
-				.catch((error) => {
-					this.dispatchEvent(
-						new ShowToastEvent({
-							mode: 'sticky',
-							variant: 'error',
-							title: 'Error occurred trying to run custom Apex',
-							message: `${JSON.stringify(error)}`
-						})
-					);
-				});
 		}
 	}
 }

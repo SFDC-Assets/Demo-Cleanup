@@ -8,6 +8,8 @@ public without sharing class DemoCleanup {
     
     public class CleanupTask {
         @AuraEnabled public Id itemId;
+        @AuraEnabled public String itemRecordType;
+        @AuraEnabled public Integer itemOrder;
         @AuraEnabled public String itemObjectApiName;
         @AuraEnabled public String itemLabelPlural;
         @AuraEnabled public String itemDescription;
@@ -16,35 +18,57 @@ public without sharing class DemoCleanup {
         @AuraEnabled public Integer itemCount;
         @AuraEnabled public Boolean itemQueryError;
     }
+
+    public class Toast {
+        @AuraEnabled public String toastMessage;
+        @AuraEnabled public String toastVariant;
+        @AuraEnabled public String toastMode;
+    }
     
     
     @AuraEnabled(cacheable=true)
     public static List<CleanupTask> getCleanupTasks () {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
-            SELECT  Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
+            SELECT  RecordType.Name, Order_In_List__c, Apex_Class_Name__c, Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
             FROM    Demo_Cleanup_Task__c
             WHERE   Active__c = true
-            ORDER BY Name ASC
+            ORDER BY Order_In_List__c ASC
         ];
 
         List<CleanupTask> cleanupTasks = new List<CleanupTask>();
         for (Demo_Cleanup_Task__c cleanupItem : demoCleanupTasks) {
             CleanupTask cuTask = new CleanupTask();
             cuTask.itemId = cleanupItem.Id;
-            cuTask.itemObjectApiName = cleanupItem.Object_API_Name__c;
-            cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
-            cuTask.itemLabelPlural = Schema.getGlobalDescribe().get(cleanupItem.Object_API_Name__c).getDescribe().getLabelPlural();
+            cuTask.itemRecordType = cleanupItem.RecordType.Name;
             cuTask.itemDescription = cleanupItem.Description__c;
             cuTask.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
-            try {
-                cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
-                    (cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : ''));
-                cuTask.itemQueryError = false;
-            } catch (QueryException e) {
-                cuTask.itemCount = 0;
-                cuTask.itemQueryError = true;
-            }                
+            cuTask.itemOrder = Math.round(cleanupItem.Order_In_List__c);
+            switch on cleanupItem.RecordType.Name {
+                when 'Apex Cleanup Item' {
+                    try {
+                        DemoCleanupApexItem apexItem = (DemoCleanupApexItem) Type.forName(cleanupItem.Apex_Class_Name__c).newInstance();
+                        cuTask.itemCount = apexItem.getRowCount();
+                        cuTask.itemQueryError = false;
+                    } catch (Exception e) {
+                        cuTask.itemCount = 0;
+                        cuTask.itemQueryError = true;
+                    }
+                }
+                when 'SOQL Cleanup Item' {
+                    cuTask.itemObjectApiName = cleanupItem.Object_API_Name__c;
+                    cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
+                    cuTask.itemLabelPlural = Schema.getGlobalDescribe().get(cleanupItem.Object_API_Name__c).getDescribe().getLabelPlural();
+                    try {
+                        cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
+                            (cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : ''));
+                        cuTask.itemQueryError = false;
+                    } catch (QueryException e) {
+                        cuTask.itemCount = 0;
+                        cuTask.itemQueryError = true;
+                    }
+                }
+            }            
             cleanupTasks.add(cuTask);
         }
         
