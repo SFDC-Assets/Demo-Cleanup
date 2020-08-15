@@ -17,10 +17,10 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			cellAttributes: { alignment: 'right' }
 		},
 		{
-			label: 'Permanently Delete',
+			label: 'Permanent',
 			fieldName: 'itemPermanentlyDelete',
 			type: 'boolean',
-			initialWidth: 150,
+			initialWidth: 100,
 			cellAttributes: { alignment: 'center' }
 		},
 		{
@@ -86,12 +86,13 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	];
 
 	@api cardTitle = 'Demo Cleanup';
-	iconUrl = DemoCleanupIcon + '#icon';
+	iconUrl = `${DemoCleanupIcon}#icon`;
 
 	@track cleanupTasks = [];
 	@track selectedRows = [];
 	@track errorList = [];
 
+	totalSoqlRecordsRetrieved = 0;
 	totalRecords = 0;
 	totalPermanent = 0;
 	totalRecycle = 0;
@@ -103,7 +104,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	}
 	maximumCleanupTasks = 90;
 	get tooManyCleanupTasks() {
-		return this.totalSoql > this.maximumCleanupTasks;
+		return this.totalSoqlRecordsRetrieved > this.maximumCleanupTasks;
 	}
 	get cleanupButtonDisabled() {
 		return this.totalSoql === 0 && this.totalApex === 0;
@@ -145,6 +146,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	wired_getCleanupTasks({ data, error }) {
 		this.spinnerVisible = false;
 		this.cleanupTasks = [];
+		this.totalSoqlRecordsRetrieved = 0;
 		if (data) {
 			data.forEach((ct) => {
 				this.cleanupTasks.push({
@@ -168,6 +170,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemNumberOfErrors: 0,
 					itemDeletionFinished: false
 				});
+				if (ct.itemRecordTypeName === 'SOQL Cleanup Item') this.totalSoqlRecordsRetrieved++;
 				if (ct.itemQueryError)
 					this.dispatchEvent(
 						new ShowToastEvent({
@@ -272,6 +275,10 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 
 	handleHelpButton(event) {
 		this.helpSectionVisible = !this.helpSectionVisible;
+	}
+
+	handleGoToDemoCleanupTasksButton(event) {
+		this[NavigationMixin.Navigate](this.cleanupTaskListViewSpec);
 	}
 
 	handleBatchEvent(event) {
