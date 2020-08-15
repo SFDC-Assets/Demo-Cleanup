@@ -5,6 +5,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import DemoCleanupIcon from '@salesforce/resourceUrl/DemoCleanupIcon';
 import getCleanupTasks from '@salesforce/apex/DemoCleanup.getCleanupTasks';
 import cleanup from '@salesforce/apex/DemoCleanup.cleanup';
+import executeApex from '@salesforce/apex/DemoCleanup.executeApex';
 
 export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	cleanupTasksColumns = [
@@ -102,7 +103,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	}
 	maximumCleanupTasks = 90;
 	get tooManyCleanupTasks() {
-		return this.cleanupTasks.length > this.maximumCleanupTasks;
+		return this.totalSoql > this.maximumCleanupTasks;
 	}
 	get cleanupButtonDisabled() {
 		return this.totalSoql === 0 && this.totalApex === 0;
@@ -113,6 +114,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	helpSectionVisible = false;
 	spinnerVisible = false;
 	modalVisible = false;
+	errorListVisible = false;
 
 	deletionInProgress = false;
 	deletionFinished = false;
@@ -129,6 +131,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			filterName: 'All'
 		}
 	};
+
+	error;
 
 	connectedCallback() {
 		this[NavigationMixin.GenerateUrl](this.cleanupTaskListViewSpec).then((url) => {
@@ -148,6 +152,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemOrder: ct.itemOrder,
 					itemRecordType: ct.itemRecordTypeName === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
 					itemRecordTypeIcon: ct.itemRecordTypeName === 'Apex Cleanup Item' ? 'utility:apex' : 'utility:sobject',
+					itemApexClassName: ct.itemApexClassName,
 					itemObjectApiName: ct.itemObjectApiName,
 					itemLabelPlural: ct.itemLabelPlural,
 					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
@@ -168,7 +173,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 						new ShowToastEvent({
 							title: `Cleanup task "${ct.itemDescription}" has an error.`,
 							message:
-								ct.itemRecordType === 'Apex Cleanup Item'
+								ct.itemRecordTypeName === 'Apex Cleanup Item'
 									? 'Please check the Apex class name and make sure it implements the DemoCleanupApexItem interface.'
 									: 'Please check the object API name and WHERE clause expression for any bad syntax.',
 							variant: 'error',
@@ -229,20 +234,39 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			this.subscription = result;
 		});
 		this.selectedRows.forEach((item) => {
-			cleanup({
-				objectApiName: item.itemObjectApiName,
-				whereClause: item.itemWhereClause,
-				permanentlyDelete: item.itemPermanentlyDelete
-			}).catch((error) => {
-				this.dispatchEvent(
-					new ShowToastEvent({
-						mode: 'sticky',
-						variant: 'error',
-						title: `Error occurred trying to execute "${item.itemDescription}"`,
-						message: `${JSON.stringify(error)}`
+			switch (item.itemRecordType) {
+				case 'SOQL':
+					cleanup({
+						taskId: item.itemId,
+						objectApiName: item.itemObjectApiName,
+						whereClause: item.itemWhereClause,
+						permanentlyDelete: item.itemPermanentlyDelete
+					}).catch((error) => {
+						this.showErrorToast(error, `Error occurred trying to execute "${item.itemDescription}"`);
+					});
+					break;
+				case 'Apex':
+					executeApex({
+						taskId: item.itemId,
+						apexClassName: item.itemApexClassName,
+						permanentlyDelete: item.itemPermanentlyDelete
 					})
-				);
-			});
+						.then((result) => {
+							result.forEach((toast) => {
+								this.dispatchEvent(
+									new ShowToastEvent({
+										mode: toast.toastMode,
+										variant: toast.toastVariant,
+										message: toast.toastMessage
+									})
+								);
+							});
+						})
+						.catch((error) => {
+							this.showErrorToast(error, `Error occurred trying to execute "${item.itemDescription}"`);
+						});
+					break;
+			}
 		});
 	}
 
@@ -254,25 +278,49 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		let deletionFinished = true;
 		let deletionHadErrors = false;
 		this.selectedRows.forEach((cleanupTask) => {
-			if (cleanupTask.itemObjectApiName === event.data.payload.Object_API_Name__c) {
-				cleanupTask.itemRunningTotal = event.data.payload.Total_Records_Deleted__c;
-				cleanupTask.itemRemaining = cleanupTask.itemCount - cleanupTask.itemRunningTotal;
-				cleanupTask.itemPercentage = Math.round((100 * cleanupTask.itemRunningTotal) / cleanupTask.itemCount);
+			if (cleanupTask.itemId === event.data.payload.Task_Id__c) {
+				switch (cleanupTask.itemRecordType) {
+					case 'SOQL':
+						cleanupTask.itemRunningTotal = event.data.payload.Total_Records_Deleted__c;
+						cleanupTask.itemRemaining = cleanupTask.itemCount - cleanupTask.itemRunningTotal;
+						JSON.parse(event.data.payload.Error_JSON_String__c).forEach((error) => {
+							this.errorList.push(error);
+						});
+						break;
+					case 'Apex':
+						break;
+				}
+				cleanupTask.itemDeletionFinished = event.data.payload.Finished__c;
+				cleanupTask.itemPercentage = cleanupTask.itemDeletionFinished
+					? 100
+					: Math.round((100 * cleanupTask.itemRunningTotal) / cleanupTask.itemCount);
 				cleanupTask.itemNumberOfErrors = event.data.payload.Total_Errors__c;
-				cleanupTask.itemDeletionFinished = cleanupTask.itemRunningTotal >= cleanupTask.itemCount;
+				cleanupTask.itemDeletionFinished = event.data.payload.Finished__c;
 			}
 			deletionFinished = deletionFinished && cleanupTask.itemDeletionFinished;
 			deletionHadErrors = deletionHadErrors || cleanupTask.itemNumberOfErrors > 0;
 		});
 		this.deletionFinished = deletionFinished;
 		this.deletionHadErrors = deletionHadErrors;
-		JSON.parse(event.data.payload.Error_JSON_String__c).forEach((error) => {
-			this.errorList.push(error);
-		});
-		if (deletionFinished) {
+		if (this.deletionFinished) {
+			this.errorListVisible = this.deletionHadErrors;
 			unsubscribe(this.subscription, () => {
 				this.subscription = {};
 			});
 		}
+	}
+
+	showErrorToast(error, title) {
+		this.error = 'Unknown error';
+		if (Array.isArray(error.body)) this.error = error.body.map((err) => err.message).join(', ');
+		else if (typeof error.body.message === 'string') this.error = error.body.message;
+		this.dispatchEvent(
+			new ShowToastEvent({
+				mode: 'sticky',
+				variant: 'error',
+				title: title,
+				message: this.error
+			})
+		);
 	}
 }

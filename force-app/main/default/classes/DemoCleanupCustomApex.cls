@@ -27,10 +27,10 @@ public without sharing class DemoCleanupCustomApex implements DemoCleanupApexIte
         //     toastMode: the mode of the toast, i.e., "sticky", "dismissable", etc.
         //     toastVariant: the variant of the toast, i.e., "info", "error", "success".
         
-        // toast.toastMessage = 'If you would like to run custom Apex, please modify DemoCleanupCustomApex.runCustomApex.';
-        // toast.toastMode = 'sticky';
-        // toast.toastVariant = 'info';
-        // toasts.add(toast);
+        toast.toastMessage = 'If you would like to run custom Apex, please modify DemoCleanupCustomApex.runCustomApex.';
+        toast.toastMode = 'sticky';
+        toast.toastVariant = 'info';
+        toasts.add(toast);
        
         return toasts;
     }

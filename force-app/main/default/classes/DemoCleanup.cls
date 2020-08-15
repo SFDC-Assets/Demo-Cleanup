@@ -10,6 +10,7 @@ public without sharing class DemoCleanup {
         @AuraEnabled public Id itemId;
         @AuraEnabled public String itemRecordTypeName;
         @AuraEnabled public Integer itemOrder;
+        @AuraEnabled public String itemApexClassName;
         @AuraEnabled public String itemObjectApiName;
         @AuraEnabled public String itemLabelPlural;
         @AuraEnabled public String itemDescription;
@@ -47,6 +48,7 @@ public without sharing class DemoCleanup {
             switch on cleanupItem.RecordType.Name {
                 when 'Apex Cleanup Item' {
                     try {
+                        cuTask.itemApexClassName = cleanupItem.Apex_Class_Name__c;
                         cuTask.itemCount = ((DemoCleanupApexItem) Type.forName(cleanupItem.Apex_Class_Name__c).newInstance()).getRowCount();
                         cuTask.itemQueryError = false;
                     } catch (Exception e) {
@@ -78,7 +80,21 @@ public without sharing class DemoCleanup {
     //  Resets the demo by deleting superfluous records created during previous demo runs.
     
     @AuraEnabled
-    public static void cleanup (String objectApiName, String whereClause, Boolean permanentlyDelete) {
-        Database.executeBatch(new DemoCleanupBatch(objectApiName, whereClause, permanentlyDelete));
+    public static void cleanup (Id taskId, String objectApiName, String whereClause, Boolean permanentlyDelete) {
+        Database.executeBatch(new DemoCleanupBatch(taskId, objectApiName, whereClause, permanentlyDelete));
+    }
+
+    @AuraEnabled
+    public static List<Toast> executeApex (Id taskId, String apexClassName, Boolean permanentlyDelete) {
+        List<Toast> toasts = ((DemoCleanupApexItem) Type.forName(apexClassName).newInstance()).execute(permanentlyDelete);
+        EventBus.publish (new Demo_Cleanup_Event__e (
+            Task_Id__c = taskId,
+            Finished__c = true,
+            Object_API_Name__c = null,
+            Total_Records_Deleted__c = 0,
+            Total_Errors__c = 0,
+            Error_JSON_String__c = '[]'
+        ));
+        return toasts;
     }
 }

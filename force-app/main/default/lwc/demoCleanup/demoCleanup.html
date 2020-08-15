@@ -112,7 +112,7 @@
 								<tr class="slds-p-around_none" key={ct.itemId}>
 									<td class="runningObject">
 										<strong>
-											<lightning-formatted-text value={ct.itemLabelPlural} class="slds-truncate">
+											<lightning-formatted-text value={ct.itemDescription} class="slds-truncate">
 											</lightning-formatted-text>
 										</strong>
 									</td>
@@ -167,7 +167,7 @@
 						</tbody>
 					</table>
 				</div>
-				<template if:true={deletionHadErrors}>
+				<template if:true={errorListVisible}>
 					<p class="slds-var-p-bottom_small slds-text-color_error slds-hyphenate">
 						The following errors occurred during the cleanup. Usually this means that the you deleted a parent record
 						and its child while also attempting to delete the same child record in another Demo Cleanup Task. You should

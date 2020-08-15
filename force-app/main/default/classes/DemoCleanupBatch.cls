@@ -6,6 +6,7 @@
 
 global without sharing class DemoCleanupBatch implements Database.Batchable<sObject>, Database.Stateful, Database.RaisesPlatformEvents {
     
+    private Id taskId;
     private String sObjectAPIName;
     private String sObjectLabel;
     private String whereClause;
@@ -22,7 +23,8 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
     //      whereCl:  the SOQL WHERE clause that identifies the records to be deleted.
     //      permanent:  True if the records are to bypass the recycle bin and be permanently deleted.
     
-    global DemoCleanupBatch (String objectAPIName, String whereCl, Boolean permanent) {
+    global DemoCleanupBatch (Id cleanupTaskId, String objectAPIName, String whereCl, Boolean permanent) {
+        taskId = cleanupTaskId;
         sObjectAPIName = objectAPIName;
         sObjectLabel = Schema.getGlobalDescribe().get(objectAPIName).getDescribe().getLabel();
         whereClause = whereCl;
@@ -60,6 +62,8 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
         totalRecordsProcessed += scope.size();
         
         EventBus.publish (new Demo_Cleanup_Event__e (
+            Task_Id__c = taskId,
+            Finished__c = false,
             Object_API_Name__c = sObjectAPIName,
             Total_Records_Deleted__c = totalRecordsProcessed,
             Total_Errors__c = totalErrors,
@@ -70,6 +74,14 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
     
     
     global void finish (Database.BatchableContext bc) {        
+        EventBus.publish (new Demo_Cleanup_Event__e (
+            Task_Id__c = taskId,
+            Finished__c = true,
+            Object_API_Name__c = sObjectAPIName,
+            Total_Records_Deleted__c = totalRecordsProcessed,
+            Total_Errors__c = totalErrors,
+            Error_JSON_String__c = '[]'
+        ));
     }
 
 }
