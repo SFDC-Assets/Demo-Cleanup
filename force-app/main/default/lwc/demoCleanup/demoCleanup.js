@@ -1,3 +1,8 @@
+//  Javascript controller for the Demo Cleanup Lightning component.
+//
+//  This code is provided AS IS, with no warranty or guarantee of suitability for use.
+//  Contact: john.meyer@salesforce.com
+
 import { LightningElement, wire, track, api } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, unsubscribe } from 'lightning/empApi';
@@ -17,10 +22,16 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			cellAttributes: { alignment: 'right' }
 		},
 		{
-			label: 'Permanent',
-			fieldName: 'itemPermanentlyDelete',
-			type: 'boolean',
+			label: 'Permanence',
+			type: 'button-icon',
 			initialWidth: 100,
+			typeAttributes: {
+				iconName: { fieldName: 'itemIcon' },
+				variant: 'bare',
+				class: 'slds-icon_large',
+				iconClass: { fieldName: 'itemIconColor' },
+				title: { fieldName: 'itemIconTooltip' }
+			},
 			cellAttributes: { alignment: 'center' }
 		},
 		{
@@ -28,19 +39,13 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			fieldName: 'itemRecordType',
 			type: 'text',
 			initialWidth: 100,
-			cellAttributes: {
-				iconName: { fieldName: 'itemRecordTypeIcon' },
-				alignment: 'center'
-			}
+			cellAttributes: { alignment: 'center' }
 		},
 		{
 			label: 'Demo Cleanup Tasks',
 			fieldName: 'itemLink',
 			type: 'url',
-			cellAttributes: {
-				iconName: { fieldName: 'itemIcon' },
-				alignment: 'left'
-			},
+			cellAttributes: { alignment: 'left' },
 			typeAttributes: {
 				label: { fieldName: 'itemDescription' },
 				tooltip: { fieldName: 'itemDescription' },
@@ -153,14 +158,22 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemId: ct.itemId,
 					itemOrder: ct.itemOrder,
 					itemRecordType: ct.itemRecordTypeName === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
-					itemRecordTypeIcon: ct.itemRecordTypeName === 'Apex Cleanup Item' ? 'utility:apex' : 'utility:sobject',
 					itemApexClassName: ct.itemApexClassName,
 					itemObjectApiName: ct.itemObjectApiName,
 					itemLabelPlural: ct.itemLabelPlural,
 					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
 					itemDescription: ct.itemDescription,
 					itemPermanentlyDelete: ct.itemPermanentlyDelete,
-					itemIcon: ct.itemPermanentlyDelete ? 'utility:delete' : 'utility:recycle_bin_empty',
+					itemIcon:
+						ct.itemRecordTypeName === 'Apex Cleanup Item'
+							? 'utility:apex'
+							: ct.itemPermanentlyDelete
+							? 'utility:delete'
+							: 'utility:recycle_bin_empty',
+					itemIconColor: ct.itemPermanentlyDelete ? 'slds-icon-text-error' : 'slds-icon-text-success',
+					itemIconTooltip: ct.itemPermanentlyDelete
+						? 'Records will be permanently deleted'
+						: 'Deleted records will be kept in recycle bin',
 					itemCount: ct.itemCount,
 					itemQueryError: ct.itemQueryError,
 					itemLink: '/lightning/r/Demo_Cleanup_Task__c/' + ct.itemId + '/view',
@@ -290,9 +303,10 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					case 'SOQL':
 						cleanupTask.itemRunningTotal = event.data.payload.Total_Records_Deleted__c;
 						cleanupTask.itemRemaining = cleanupTask.itemCount - cleanupTask.itemRunningTotal;
-						JSON.parse(event.data.payload.Error_JSON_String__c).forEach((error) => {
-							this.errorList.push(error);
-						});
+						if (event.data.payload.Error_JSON_String__c)
+							JSON.parse(event.data.payload.Error_JSON_String__c).forEach((error) => {
+								this.errorList.push(error);
+							});
 						break;
 					case 'Apex':
 						break;

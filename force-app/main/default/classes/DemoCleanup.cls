@@ -86,15 +86,16 @@ public without sharing class DemoCleanup {
 
     @AuraEnabled
     public static List<Toast> executeApex (Id taskId, String apexClassName, Boolean permanentlyDelete) {
-        List<Toast> toasts = ((DemoCleanupApexItem) Type.forName(apexClassName).newInstance()).execute(permanentlyDelete);
+
+        List<Toast> toasts = ((DemoCleanupApexItem) Type.forName(apexClassName).newInstance()).execute(taskId, permanentlyDelete);
+
         EventBus.publish (new Demo_Cleanup_Event__e (
             Task_Id__c = taskId,
             Finished__c = true,
-            Object_API_Name__c = null,
             Total_Records_Deleted__c = 0,
-            Total_Errors__c = 0,
-            Error_JSON_String__c = '[]'
+            Total_Errors__c = 0
         ));
+        
         return toasts;
     }
 }

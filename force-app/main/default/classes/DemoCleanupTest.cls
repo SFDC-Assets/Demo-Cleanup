@@ -109,8 +109,18 @@ private without sharing class DemoCleanupTest {
         System.assertEquals(6, cleanupTasks.size());
 
         for (DemoCleanup.CleanupTask item : cleanupTasks)
-            if (item.itemCount != 0)
-                DemoCleanup.cleanup (item.itemObjectApiName, item.itemWhereClause, item.itemPermanentlyDelete);
+            switch on item.itemRecordTypeName {
+                when 'SOQL Cleanup Item' {
+                    if (item.itemCount != 0)
+                        DemoCleanup.cleanup (item.itemId, item.itemObjectApiName, item.itemWhereClause, item.itemPermanentlyDelete);
+                }
+                when 'Apex Cleanup Item' {
+                    try {
+                        List<DemoCleanup.Toast> toasts = DemoCleanup.executeApex(item.itemId, item.itemApexClassName, item.itemPermanentlyDelete);
+                    } catch (Exception e) {                        
+                    }
+                }
+            }
 
         // Cannot test for these since the work is done asynchronously ...
         // System.assertEquals(0, [SELECT count() FROM Account]);
