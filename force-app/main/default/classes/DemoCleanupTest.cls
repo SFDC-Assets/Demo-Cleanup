@@ -20,8 +20,7 @@ private without sharing class DemoCleanupTest {
 
         List<Demo_Cleanup_Task__c> tasks = new List<Demo_Cleanup_Task__c> {
             new Demo_Cleanup_Task__c (
-                RecordTypeId = soqlRecordTypeId,
-                Order_In_List__c = 1,            
+                RecordTypeId = soqlRecordTypeId,           
                 Object_API_Name__c = 'Shipment',
                 Description__c = 'Delete all shipments',
                 Permanently_Delete__c = true,
@@ -29,7 +28,6 @@ private without sharing class DemoCleanupTest {
             ),   
             new Demo_Cleanup_Task__c (
                 RecordTypeId = soqlRecordTypeId,
-                Order_In_List__c = 2,
                 Object_API_Name__c = 'Account',
                 Description__c = 'Delete all accounts where SIC code is "Test"',
                 SOQL_Where_Clause__c = 'Sic = \'Test\'',
@@ -37,16 +35,14 @@ private without sharing class DemoCleanupTest {
                 Active__c = true
             ),
             new Demo_Cleanup_Task__c (
-                RecordTypeId = soqlRecordTypeId,
-                Order_In_List__c = 3,            
+                RecordTypeId = soqlRecordTypeId,           
                 Object_API_Name__c = 'Contact',
                 Description__c = 'Delete all contacts, which should generate an error',
                 Permanently_Delete__c = true,
                 Active__c = true
             ), 
             new Demo_Cleanup_Task__c (
-                RecordTypeId = soqlRecordTypeId,
-                Order_In_List__c = 4,            
+                RecordTypeId = soqlRecordTypeId,            
                 Object_API_Name__c = 'Opportunity',
                 Description__c = 'Delete all opportunities with a bad WHERE clause',
                 SOQL_Where_Clause__c = 'john',
@@ -55,7 +51,6 @@ private without sharing class DemoCleanupTest {
             ),
             new Demo_Cleanup_Task__c (
                 RecordTypeId = apexRecordTypeId,
-                Order_In_List__c = 5,
                 Apex_Class_Name__c = 'DemoCleanupCustomApex',
                 Description__c = 'Run custom Apex',
                 Permanently_Delete__c = false,
@@ -63,7 +58,6 @@ private without sharing class DemoCleanupTest {
             ),
             new Demo_Cleanup_Task__c (
                 RecordTypeId = apexRecordTypeId,
-                Order_In_List__c = 6,
                 Apex_Class_Name__c = 'BadApexClass',
                 Description__c = 'Run bad custom Apex class',
                 Permanently_Delete__c = false,

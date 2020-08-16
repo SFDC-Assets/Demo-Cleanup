@@ -7,7 +7,6 @@ import { LightningElement, wire, track, api } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, unsubscribe } from 'lightning/empApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import DemoCleanupIcon from '@salesforce/resourceUrl/DemoCleanupIcon';
 import getCleanupTasks from '@salesforce/apex/DemoCleanup.getCleanupTasks';
 import cleanup from '@salesforce/apex/DemoCleanup.cleanup';
 import executeApex from '@salesforce/apex/DemoCleanup.executeApex';
@@ -91,28 +90,27 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	];
 
 	@api cardTitle = 'Demo Cleanup';
-	iconUrl = `${DemoCleanupIcon}#icon`;
 
 	@track cleanupTasks = [];
 	@track selectedRows = [];
 	@track errorList = [];
 
-	totalSoqlRecordsRetrieved = 0;
-	totalRecords = 0;
-	totalPermanent = 0;
-	totalRecycle = 0;
-	totalSoql = 0;
-	totalApex = 0;
+	totalSoqlItemsRetrieved = 0;
+	totalRecordsSelected = 0;
+	totalPermanentRecordsSelected = 0;
+	totalRecycleRecordsSelected = 0;
+	totalSoqlItemsSelected = 0;
+	totalApexItemsSelected = 0;
 
 	get cleanupTasksEmpty() {
 		return this.cleanupTasks.length === 0;
 	}
 	maximumCleanupTasks = 90;
 	get tooManyCleanupTasks() {
-		return this.totalSoqlRecordsRetrieved > this.maximumCleanupTasks;
+		return this.totalSoqlItemsRetrieved > this.maximumCleanupTasks;
 	}
 	get cleanupButtonDisabled() {
-		return this.totalSoql === 0 && this.totalApex === 0;
+		return this.totalSoqlItemsSelected === 0 && this.totalApexItemsSelected === 0;
 	}
 
 	subscription = {};
@@ -151,45 +149,44 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	wired_getCleanupTasks({ data, error }) {
 		this.spinnerVisible = false;
 		this.cleanupTasks = [];
-		this.totalSoqlRecordsRetrieved = 0;
+		this.totalSoqlItemsRetrieved = 0;
 		if (data) {
-			data.forEach((ct) => {
+			data.forEach((task) => {
 				this.cleanupTasks.push({
-					itemId: ct.itemId,
-					itemOrder: ct.itemOrder,
-					itemRecordType: ct.itemRecordTypeName === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
-					itemApexClassName: ct.itemApexClassName,
-					itemObjectApiName: ct.itemObjectApiName,
-					itemLabelPlural: ct.itemLabelPlural,
-					itemWhereClause: ct.itemWhereClause === undefined ? null : ct.itemWhereClause,
-					itemDescription: ct.itemDescription,
-					itemPermanentlyDelete: ct.itemPermanentlyDelete,
+					itemId: task.itemId,
+					itemRecordType: task.itemRecordTypeName === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
+					itemApexClassName: task.itemApexClassName,
+					itemObjectApiName: task.itemObjectApiName,
+					itemLabelPlural: task.itemLabelPlural,
+					itemWhereClause: task.itemWhereClause === undefined ? null : task.itemWhereClause,
+					itemDescription: task.itemDescription,
+					itemPermanentlyDelete: task.itemPermanentlyDelete,
 					itemIcon:
-						ct.itemRecordTypeName === 'Apex Cleanup Item'
+						task.itemRecordTypeName === 'Apex Cleanup Item'
 							? 'utility:apex'
-							: ct.itemPermanentlyDelete
+							: task.itemPermanentlyDelete
 							? 'utility:delete'
 							: 'utility:recycle_bin_empty',
-					itemIconColor: ct.itemPermanentlyDelete ? 'slds-icon-text-error' : 'slds-icon-text-success',
-					itemIconTooltip: ct.itemPermanentlyDelete
+					itemIconColor: task.itemPermanentlyDelete ? 'slds-icon-text-error' : 'slds-icon-text-success',
+					itemIconTooltip: task.itemPermanentlyDelete
 						? 'Records will be permanently deleted'
 						: 'Deleted records will be kept in recycle bin',
-					itemCount: ct.itemCount,
-					itemQueryError: ct.itemQueryError,
-					itemLink: '/lightning/r/Demo_Cleanup_Task__c/' + ct.itemId + '/view',
+					itemCount: task.itemCount,
+					itemQueryError: task.itemQueryError,
+					itemLink: '/lightning/r/Demo_Cleanup_Task__c/' + task.itemId + '/view',
 					itemRunningTotal: 0,
-					itemRemaining: ct.itemCount,
+					itemRemaining: task.itemCount,
 					itemPercentage: 0,
 					itemNumberOfErrors: 0,
 					itemDeletionFinished: false
 				});
-				if (ct.itemRecordTypeName === 'SOQL Cleanup Item') this.totalSoqlRecordsRetrieved++;
-				if (ct.itemQueryError)
+				if (task.itemRecordTypeName === 'SOQL Cleanup Item') this.totalSoqlItemsRetrieved++;
+				if (task.itemQueryError)
 					this.dispatchEvent(
 						new ShowToastEvent({
-							title: `Cleanup task "${ct.itemDescription}" has an error.`,
+							title: `Cleanup task "${task.itemDescription}" has an error.`,
 							message:
-								ct.itemRecordTypeName === 'Apex Cleanup Item'
+								task.itemRecordTypeName === 'Apex Cleanup Item'
 									? 'Please check the Apex class name and make sure it implements the DemoCleanupApexItem interface.'
 									: 'Please check the object API name and WHERE clause expression for any bad syntax.',
 							variant: 'error',
@@ -211,25 +208,27 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 
 	handleRowSelection(event) {
 		this.selectedRows = [];
-		this.totalRecords = 0;
-		this.totalPermanent = 0;
-		this.totalRecycle = 0;
-		this.totalSoql = 0;
-		this.totalApex = 0;
-		event.detail.selectedRows.forEach((row) => {
-			if (!row.itemQueryError) {
-				if (row.itemRecordType === 'Apex') {
-					this.selectedRows.push(row);
-					this.totalApex++;
-					this.totalRecords += row.itemCount;
-					this.totalPermanent += row.itemPermanentlyDelete ? row.itemCount : 0;
-					this.totalRecycle += row.itemPermanentlyDelete ? 0 : row.itemCount;
-				} else if (row.itemCount !== 0) {
-					this.selectedRows.push(row);
-					this.totalSoql++;
-					this.totalRecords += row.itemCount;
-					this.totalPermanent += row.itemPermanentlyDelete ? row.itemCount : 0;
-					this.totalRecycle += row.itemPermanentlyDelete ? 0 : row.itemCount;
+		this.totalRecordsSelected = 0;
+		this.totalPermanentRecordsSelected = 0;
+		this.totalRecycleRecordsSelected = 0;
+		this.totalSoqlItemsSelected = 0;
+		this.totalApexItemsSelected = 0;
+		event.detail.selectedRows.forEach((item) => {
+			if (!item.itemQueryError) {
+				if (item.itemRecordType === 'Apex') {
+					this.selectedRows.push(item);
+					this.totalApexItemsSelected++;
+					if (item.itemCount !== undefined && item.itemCount !== null) {
+						this.totalRecordsSelected += item.itemCount;
+						this.totalPermanentRecordsSelected += item.itemPermanentlyDelete ? item.itemCount : 0;
+						this.totalRecycleRecordsSelected += item.itemPermanentlyDelete ? 0 : item.itemCount;
+					}
+				} else if (item.itemCount !== 0) {
+					this.selectedRows.push(item);
+					this.totalSoqlItemsSelected++;
+					this.totalRecordsSelected += item.itemCount;
+					this.totalPermanentRecordsSelected += item.itemPermanentlyDelete ? item.itemCount : 0;
+					this.totalRecycleRecordsSelected += item.itemPermanentlyDelete ? 0 : item.itemCount;
 				}
 			}
 		});

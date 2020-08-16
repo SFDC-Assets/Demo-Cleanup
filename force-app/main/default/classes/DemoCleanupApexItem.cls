@@ -8,7 +8,7 @@
 
 public interface DemoCleanupApexItem {
 
-    // Returns the number of rows that will be deleted by this cleanup task.  Can be 0 if no rows are deleted.
+    // Returns the number of rows that will be deleted by this cleanup task.  Can be null if no rows are deleted.
     // This could also be interpreted as the number of subtasks to be completed in a generic Apex run.
 
     Integer getRowCount ();

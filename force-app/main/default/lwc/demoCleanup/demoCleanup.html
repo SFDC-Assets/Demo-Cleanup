@@ -7,8 +7,16 @@
 
 		<header slot="title" class="slds-media slds-media_center">
 			<div class="slds-media__figure slds-icon_container">
-				<svg class="slds-icon slds-icon_small" xmlns="http://www.w3.org/2000/svg">
-					<use xlink:href={iconUrl}></use>
+				<!-- prettier-ignore -->
+				<svg class="slds-icon slds-icon_small" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 52 52" style="enable-background:new 0 0 52 52;" xml:space="preserve">
+					<g>
+						<path fill="#057E46" d="M49,11c0-6.2-9.8-9-19-9s-19,2.8-19,9c0,0.1,0,0.3,0,0.4C2.4,14,1,19.5,1,22.6c0,3,1.5,6.1,4.1,8.3
+							c2.3,1.9,5.1,3,7.9,3.1v0c0.1,0,0.2,0,0.4,0c0,0,0.1,0,0.1,0c0.1,0,0.2,0,0.3,0c6.5-0.2,12.9-2.3,14.7-5.9C27.6,27.4,27,26.2,27,25
+							c0-2.2,1.8-4,4-4s4,1.8,4,4c0,1.7-1,3.1-2.5,3.7c-2,5.6-10,9.3-19.5,9.3v6c0,3.3,7.6,6,17,6s17-2.7,17-6V15.3
+							C48.3,14.1,49,12.7,49,11z M30,8c6.6,0,10.8,1.5,12.4,2.6c0.3,0.2,0.3,0.6,0,0.8C40.8,12.5,36.6,14,30,14s-10.8-1.5-12.4-2.6
+							c-0.3-0.2-0.3-0.6,0-0.8C19.2,9.5,23.4,8,30,8z M7.7,27.8C6,26.4,5,24.5,5,22.6c0-4.5,4.1-6.6,7.7-7.5c0.1,0.1,0.2,0.2,0.3,0.3V30
+							C11.1,29.9,9.2,29.1,7.7,27.8z"></path>
+					</g>
 				</svg>
 			</div>
 			<div class="slds-media__body">
@@ -499,9 +507,14 @@
 						>
 						</lightning-formatted-url>
 						&nbsp;to specify which records of that object should be deleted. Additionally, you can specify whether or
-						not the records bypass the recycle bin, resulting in a permanent deletion. Finally, you can choose to
-						activate or deactivate the task to specify whether or not it appears in the list of available tasks in the
-						component.
+						not the records bypass the&nbsp;
+						<lightning-formatted-url
+							label="recycle bin"
+							value="https://help.salesforce.com/articleView?id=recycle_bin.htm&amp;type=5"
+						>
+						</lightning-formatted-url>
+						, resulting in a permanent deletion. Finally, you can choose to activate or deactivate the task to specify
+						whether or not it appears in the list of available tasks in the component.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
 						Power users wishing to create Apex tasks can choose the Apex cleanup task record type and fill in the name
@@ -562,28 +575,44 @@
 				</header>
 				<div class="slds-modal__content">
 					<p class="slds-p-around_large slds-hyphenate">
-						You are about to delete&nbsp;
-						<strong>
-							<lightning-formatted-number value={totalRecords} class="slds-text-color_destructive">
-							</lightning-formatted-number>
-						</strong>
-						&nbsp;record(s). &nbsp;
-						<strong>
-							<lightning-formatted-number value={totalRecycle} class="slds-text-color_destructive">
-							</lightning-formatted-number>
-						</strong>
-						&nbsp;record(s) will remain in the&nbsp;
-						<lightning-formatted-url
-							label="recycle bin"
-							value="https://help.salesforce.com/articleView?id=recycle_bin.htm&amp;type=5"
-						>
-						</lightning-formatted-url>
-						&nbsp;for up to 15 days, subject to the usual size limits of the bin. &nbsp;
-						<strong>
-							<lightning-formatted-number value={totalPermanent} class="slds-text-color_destructive">
-							</lightning-formatted-number>
-						</strong>
-						&nbsp;record(s) will be deleted immediately and permanently.
+						<template if:true={totalRecordsSelected}>
+							You are about to delete&nbsp;
+							<strong>
+								<lightning-formatted-number value={totalRecordsSelected} class="slds-text-color_destructive">
+								</lightning-formatted-number>
+							</strong>
+							&nbsp;record(s). &nbsp;
+						</template>
+						<template if:true={totalRecycleRecordsSelected}>
+							<strong>
+								<lightning-formatted-number value={totalRecycleRecordsSelected} class="slds-text-color_destructive">
+								</lightning-formatted-number>
+							</strong>
+							&nbsp;record(s) will remain in the&nbsp;
+							<lightning-formatted-url
+								label="recycle bin"
+								value="https://help.salesforce.com/articleView?id=recycle_bin.htm&amp;type=5"
+							>
+							</lightning-formatted-url>
+							&nbsp;for up to 15 days, subject to the usual size limits of the bin.&nbsp;
+						</template>
+						<template if:true={totalPermanentRecordsSelected}>
+							<strong>
+								<lightning-formatted-number
+									value={totalPermanentRecordsSelected}
+									class="slds-text-color_destructive"
+								>
+								</lightning-formatted-number>
+							</strong>
+							&nbsp;record(s) will be deleted immediately and permanently.&nbsp;
+						</template>
+						<template if:true={totalApexItemsSelected}>
+							<strong>
+								<lightning-formatted-number value={totalApexItemsSelected} class="slds-text-color_destructive">
+								</lightning-formatted-number>
+							</strong>
+							&nbsp;Apex class(es) will be executed.
+						</template>
 					</p>
 				</div>
 				<footer class="slds-modal__footer">

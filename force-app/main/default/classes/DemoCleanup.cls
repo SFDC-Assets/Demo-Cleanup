@@ -9,7 +9,6 @@ public without sharing class DemoCleanup {
     public class CleanupTask {
         @AuraEnabled public Id itemId;
         @AuraEnabled public String itemRecordTypeName;
-        @AuraEnabled public Integer itemOrder;
         @AuraEnabled public String itemApexClassName;
         @AuraEnabled public String itemObjectApiName;
         @AuraEnabled public String itemLabelPlural;
@@ -31,10 +30,10 @@ public without sharing class DemoCleanup {
     public static List<CleanupTask> getCleanupTasks () {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
-            SELECT  RecordType.Name, Order_In_List__c, Apex_Class_Name__c, Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
+            SELECT  RecordType.Name, Apex_Class_Name__c, Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
             FROM    Demo_Cleanup_Task__c
             WHERE   Active__c = true
-            ORDER BY Order_In_List__c ASC
+            ORDER BY Name ASC
         ];
 
         List<CleanupTask> cleanupTasks = new List<CleanupTask>();
@@ -44,7 +43,6 @@ public without sharing class DemoCleanup {
             cuTask.itemRecordTypeName = cleanupItem.RecordType.Name;
             cuTask.itemDescription = cleanupItem.Description__c;
             cuTask.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
-            cuTask.itemOrder = Math.round(cleanupItem.Order_In_List__c);
             switch on cleanupItem.RecordType.Name {
                 when 'Apex Cleanup Item' {
                     try {

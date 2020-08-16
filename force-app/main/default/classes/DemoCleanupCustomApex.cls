@@ -1,7 +1,9 @@
-//  Class for executing arbitrary Apex cade as part of the DemoCleanup Lightning component.
+//  Template class for executing arbitrary Apex cade as part of the DemoCleanup Lightning component.
 //
 //  This is distributed as an empty shell, with a simple Lightning toast message displayed. The shell illustrates how to display
 //  a list of toasts for informational purposes.
+//
+//  If you wish to use this template, make a copy of it as any changes to this file will be overwritten in a package update.
 //  
 //  This code is provided AS IS, with no warranty or guarantee of suitability for use.
 //  Contact: john.meyer@salesforce.com
@@ -9,12 +11,12 @@
 
 public without sharing class DemoCleanupCustomApex implements DemoCleanupApexItem {
 
-    // Returns the number of rows that will be deleted by this cleanup task.  Can be 0 if no rows are deleted.
+    // Returns the number of rows that will be deleted by this cleanup task.  Can be null if no rows are deleted.
     // This could also be interpreted as the number of subtasks to be completed in a generic Apex run.
 
     @AuraEnabled
     public static Integer getRowCount () {
-        return 0;
+        return null;
     }
  
 
