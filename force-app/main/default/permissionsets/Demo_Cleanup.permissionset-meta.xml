@@ -35,11 +35,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Demo_Cleanup_Task__c.Order_in_List__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Permanently_Delete__c</field>
         <readable>true</readable>
     </fieldPermissions>

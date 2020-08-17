@@ -4,8 +4,8 @@
             "path": "force-app",
             "default": true,
             "package": "Demo Cleanup",
-            "versionName": "Version 1.0.1",
-            "versionNumber": "1.0.1.0"
+            "versionName": "Version 1.1",
+            "versionNumber": "1.1.0.0"
         }
     ],
     "namespace": "",
