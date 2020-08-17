@@ -157,7 +157,6 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemRecordType: task.itemRecordTypeName === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
 					itemApexClassName: task.itemApexClassName,
 					itemObjectApiName: task.itemObjectApiName,
-					itemLabelPlural: task.itemLabelPlural,
 					itemWhereClause: task.itemWhereClause === undefined ? null : task.itemWhereClause,
 					itemDescription: task.itemDescription,
 					itemPermanentlyDelete: task.itemPermanentlyDelete,

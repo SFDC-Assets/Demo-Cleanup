@@ -11,7 +11,6 @@ public without sharing class DemoCleanup {
         @AuraEnabled public String itemRecordTypeName;
         @AuraEnabled public String itemApexClassName;
         @AuraEnabled public String itemObjectApiName;
-        @AuraEnabled public String itemLabelPlural;
         @AuraEnabled public String itemDescription;
         @AuraEnabled public String itemWhereClause;
         @AuraEnabled public Boolean itemPermanentlyDelete;
@@ -57,7 +56,6 @@ public without sharing class DemoCleanup {
                 when 'SOQL Cleanup Item' {
                     cuTask.itemObjectApiName = cleanupItem.Object_API_Name__c;
                     cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
-                    cuTask.itemLabelPlural = Schema.getGlobalDescribe().get(cleanupItem.Object_API_Name__c).getDescribe().getLabelPlural();
                     try {
                         cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
                             (cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : ''));
