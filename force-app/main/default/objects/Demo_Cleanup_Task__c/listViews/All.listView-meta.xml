@@ -9,6 +9,6 @@
     <columns>Object_API_Name__c</columns>
     <columns>SOQL_WHERE_Clause__c</columns>
     <columns>Permanently_Delete__c</columns>
-    <filterScope>Mine</filterScope>
+    <filterScope>Everything</filterScope>
     <label>All</label>
 </ListView>

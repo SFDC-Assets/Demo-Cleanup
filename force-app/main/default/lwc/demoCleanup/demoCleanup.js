@@ -48,7 +48,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			typeAttributes: {
 				label: { fieldName: 'itemDescription' },
 				tooltip: { fieldName: 'itemDescription' },
-				target: '_parent'
+				target: '_blank'
 			}
 		}
 	];
