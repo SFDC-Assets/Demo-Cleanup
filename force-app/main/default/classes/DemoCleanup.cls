@@ -24,6 +24,8 @@ public without sharing class DemoCleanup {
         @AuraEnabled public String toastMode;
     }
     
+ 
+    //  Get the list of demo cleanup tasks in the org.
     
     @AuraEnabled(cacheable=true)
     public static List<CleanupTask> getCleanupTasks () {
@@ -73,12 +75,15 @@ public without sharing class DemoCleanup {
     }    
     
     
-    //  Resets the demo by deleting superfluous records created during previous demo runs.
+    //  Executes a single SOQL demo cleanup task.
     
     @AuraEnabled
     public static void cleanup (Id taskId, String objectApiName, String whereClause, Boolean permanentlyDelete) {
         Database.executeBatch(new DemoCleanupBatch(taskId, objectApiName, whereClause, permanentlyDelete));
     }
+
+
+    //  Executes a single Apex demo cleanup task.
 
     @AuraEnabled
     public static List<Toast> executeApex (Id taskId, String apexClassName, Boolean permanentlyDelete) {
