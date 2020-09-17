@@ -20,7 +20,7 @@ This component simply executes a number of demo cleanup tasks based either on cr
 
 Read the disclaimer below and click on the **Install the Package** link. This will install all the components, objects, and other metadata to your org.
 
-![Installation](/images/Installation.png)
+![Installation](/images/Install.png)
 
 When installing, select the "Compile only the Apex in the package" option under the Advanced Options.
 
