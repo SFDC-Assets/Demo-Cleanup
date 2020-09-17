@@ -24,7 +24,11 @@ Assign the `Demo Cleanup` permission set to anyone else who needs to use the com
 
 Once the package is deployed, you will need to create a Lightning app page with the Lightning App Builder and drag the `Demo Cleanup` custom component on the page where you would like to place it.
 
-On the `Demo Cleanup Tasks` tab, click the `New` button and choose which kind of cleanup task you wish to create:
+Right after you first install the package and place the component, you will have no demo cleanup tasks:
+
+![No Demo Cleanup Tasks](/images/Demo_Cleanup_No_Tasks.png)
+
+Click the "Take Me There" button to go to the `Demo Cleanup Tasks` tab, click the `New` button and choose which kind of cleanup task you wish to create:
 
 - SOQL cleanup tasks use a SOQL WHERE clause to determine which records of an object to delete. Supply an object API name, a description, and an optional SOQL WHERE clause which specifies which records of that object should be deleted. For each task, you can also choose to permanently the records, or keep them in the recycle bin. Repeat for all of the objects whose records you would like to delete.
 - Apex cleanup tasks allow the Apex developer to create arbitrary code to perform cleanup tasks that SOQL cannot handle by itselt. For these kinds of tasks, you need to enter the name of an Apex class that implements the `DemoCleanupApexItem` interface, and a description.
