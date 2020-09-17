@@ -20,6 +20,10 @@ This component simply executes a number of demo cleanup tasks based either on cr
 
 Read the disclaimer below and click on the **Install the Package** link. This will install all the components, objects, and other metadata to your org.
 
+![Installation](/images/Installation.png)
+
+When installing, select the "Compile only the Apex in the package" option under the Advanced Options.
+
 Assign the `Demo Cleanup` permission set to anyone who needs to use the component.
 
 Once the package is deployed, you will need to create a Lightning app page with the Lightning App Builder and drag the `Demo Cleanup` custom component on the page where you would like to place it.
