@@ -54,6 +54,7 @@ public without sharing class DemoCleanupCustomApex implements DemoCleanupApexIte
         //     toastVariant: the variant of the toast, i.e., "info", "error", "success".
         
         DemoCleanup.Toast toast = new DemoCleanup.Toast();
+        toast.toastTitle = null;
         toast.toastMessage = 'If you would like to run custom Apex, please modify DemoCleanupCustomApex.execute.';
         toast.toastMode = 'sticky';
         toast.toastVariant = 'info';

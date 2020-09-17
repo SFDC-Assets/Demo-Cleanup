@@ -1,9 +1,9 @@
-![Creative Commons License](https://img.shields.io/badge/license-Creative%20Commons-success) ![In Development](https://img.shields.io/badge/status-Released-success) ![Code Coverage](https://img.shields.io/badge/code%20coverage-90%25-success)
+![Creative Commons License](https://img.shields.io/badge/license-Creative%20Commons-success) ![In Development](https://img.shields.io/badge/status-Released-success) ![Code Coverage](https://img.shields.io/badge/code%20coverage-93%25-success)
 
 
 <h1 align="center">DEMO CLEANUP</h1>
 <p align="center">
-This package contains a Lightning component and other support to help cleanup demos between demo presentations, dry runs, and tests.
+This package contains a Lightning component and other support to help clean up demos between demo presentations, dry runs, and tests.
 </p>
 
 ![Demo Cleanup](/images/Demo_Cleanup.png)
@@ -14,22 +14,21 @@ This package contains a Lightning component and other support to help cleanup de
 
 I often find myself in a situation where I need to dust off a demo long after I originally presented it and have forgotten if certain records are required for the demo, were generated during my testing, or were created during the last presentation. This makes getting the demo in a clean state for the next presentation more time-consuming and risky.
 
-This component simply executes a number of demo cleanup tasks based on criteria specified in a SOQL WHERE clause.  Optionally, the component will follow up the deletions with an invocation of a custom Apex class which can handle any other cleanup operations that do not involve simple deletions.
+This component simply executes a number of demo cleanup tasks based either on criteria specified in a SOQL WHERE clause or through custom Apex actions.
 
 ## Installation and Setup
 
 Read the disclaimer below and click on the **Install the Package** link. This will install all the components, objects, and other metadata to your org.
 
-Assign the `Demo Cleanup` permission set to the System Administrator or anyone else who needs to use the component.
+Assign the `Demo Cleanup` permission set to anyone else who needs to use the component.
 
 Once the package is deployed, you will need to create a Lightning app page with the Lightning App Builder and drag the `Demo Cleanup` custom component on the page where you would like to place it.
 
-Next, open the App Launcher and click on the `Demo Cleanup Tasks` tab, click the `New` button and supply an object API name, a description, and an optional SOQL WHERE clause which specifies which records of that object should be deleted. For each task, you can also choose to permanently the records, or keep them in the recycle bin. Repeat for all of the objects whose records you would like to delete.
+On the `Demo Cleanup Tasks` tab, click the `New` button and choose which kind of cleanup task you wish to create:
+-SOQL cleanup tasks use a SOQL WHERE clause to determine which records of an object to delete. Supply an object API name, a description, and an optional SOQL WHERE clause which specifies which records of that object should be deleted. For each task, you can also choose to permanently the records, or keep them in the recycle bin. Repeat for all of the objects whose records you would like to delete.
+-Apex cleanup tasks allow the Apex developer to create arbitrary code to perform cleanup tasks that SOQL cannot handle by itselt. For these kinds of tasks, you need to enter the name of an Apex class that implements the `DemoCleanupApexItem` interface, and a description.
 
 ![Demo Cleanup Task](/images/Demo_Cleanup_Task.png)
-
-If you are familiar with [Apex](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_intro_what_is_apex.htm) you can modify the supplied `DemoCleanupCustomApex.runCustomApex` method to perform any other operations that can't be done with simple record deletions, such as activating or deactivating users.
-
 
 ## How to Deploy This Package to Your Org
 

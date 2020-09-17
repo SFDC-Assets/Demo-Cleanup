@@ -1,3 +1,8 @@
+//  Generates sample demo cleanup tasks for the Demo Cleanup Lightning component.
+//
+//  This code is provided AS IS, with no warranty or guarantee of suitability for use.
+//  Contact: john.meyer@salesforce.com
+
 Map<String,Schema.RecordTypeInfo> rtInfo = Demo_Cleanup_Task__c.SObjectType.getDescribe().getRecordTypeInfosByName();
 Id soqlRecordTypeId = rtInfo.get('SOQL Cleanup Item').getRecordTypeId();
 Id apexRecordTypeId = rtInfo.get('Apex Cleanup Item').getRecordTypeId();

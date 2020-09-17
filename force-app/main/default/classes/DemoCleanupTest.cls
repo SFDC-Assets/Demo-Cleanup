@@ -58,8 +58,15 @@ private without sharing class DemoCleanupTest {
             ),
             new Demo_Cleanup_Task__c (
                 RecordTypeId = apexRecordTypeId,
-                Apex_Class_Name__c = 'BadApexClass',
-                Description__c = 'Run bad custom Apex class',
+                Apex_Class_Name__c = 'BadApexClassName',
+                Description__c = 'Run bad custom Apex class name',
+                Permanently_Delete__c = false,
+                Active__c = true
+            ),
+            new Demo_Cleanup_Task__c (
+                RecordTypeId = apexRecordTypeId,
+                Apex_Class_Name__c = 'DemoCleanupBadApexTest',
+                Description__c = 'Run Apex class that throws an uncaught exception',
                 Permanently_Delete__c = false,
                 Active__c = true
             )
@@ -100,19 +107,16 @@ private without sharing class DemoCleanupTest {
         Test.startTest();
 
         List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks();
-        System.assertEquals(6, cleanupTasks.size());
+        System.assertEquals(7, cleanupTasks.size());
 
         for (DemoCleanup.CleanupTask item : cleanupTasks)
             switch on item.itemRecordTypeName {
                 when 'SOQL Cleanup Item' {
                     if (item.itemCount != 0)
-                        DemoCleanup.cleanup (item.itemId, item.itemObjectApiName, item.itemWhereClause, item.itemPermanentlyDelete);
+                        DemoCleanup.cleanup (item.itemId, item.itemObjectApiName, item.itemNameField, item.itemWhereClause, item.itemPermanentlyDelete);
                 }
                 when 'Apex Cleanup Item' {
-                    try {
-                        List<DemoCleanup.Toast> toasts = DemoCleanup.executeApex(item.itemId, item.itemApexClassName, item.itemPermanentlyDelete);
-                    } catch (Exception e) {                        
-                    }
+                    List<DemoCleanup.Toast> toasts = DemoCleanup.executeApex(item.itemId, item.itemApexClassName, item.itemPermanentlyDelete);
                 }
             }
 

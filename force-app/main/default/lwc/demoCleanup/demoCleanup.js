@@ -60,9 +60,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			initialWidth: 200,
 			iconName: 'standard:record',
 			cellAttributes: {
-				alignment: 'left',
-				iconName: 'utility:new_window',
-				iconAlternativeText: 'Go To Record'
+				alignment: 'left'
 			},
 			typeAttributes: {
 				label: { fieldName: 'name' },
@@ -157,6 +155,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemRecordType: task.itemRecordTypeName === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
 					itemApexClassName: task.itemApexClassName,
 					itemObjectApiName: task.itemObjectApiName,
+					itemNameField: task.itemNameField,
 					itemWhereClause: task.itemWhereClause === undefined ? null : task.itemWhereClause,
 					itemDescription: task.itemDescription,
 					itemPermanentlyDelete: task.itemPermanentlyDelete,
@@ -170,7 +169,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemIconTooltip: task.itemPermanentlyDelete
 						? 'Records will be permanently deleted'
 						: 'Deleted records will be kept in recycle bin',
-					itemCount: task.itemCount,
+					itemCount: task.itemCount === null || task.itemCount === undefined ? 0 : task.itemCount,
 					itemQueryError: task.itemQueryError,
 					itemLink: '/lightning/r/Demo_Cleanup_Task__c/' + task.itemId + '/view',
 					itemRunningTotal: 0,
@@ -239,6 +238,12 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 
 	handleCancelButton(event) {
 		this.modalVisible = false;
+		this.dispatchEvent(
+			new ShowToastEvent({
+				variant: 'success',
+				message: 'No Demo Cleanup Tasks were executed.'
+			})
+		);
 	}
 
 	handleCleanupButton(event) {
@@ -253,6 +258,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					cleanup({
 						taskId: item.itemId,
 						objectApiName: item.itemObjectApiName,
+						nameField: item.itemNameField,
 						whereClause: item.itemWhereClause,
 						permanentlyDelete: item.itemPermanentlyDelete
 					}).catch((error) => {
@@ -269,6 +275,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 							result.forEach((toast) => {
 								this.dispatchEvent(
 									new ShowToastEvent({
+										title: toast.toastTitle,
 										mode: toast.toastMode,
 										variant: toast.toastVariant,
 										message: toast.toastMessage
