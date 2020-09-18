@@ -25,6 +25,10 @@ When installing, select the "Compile only the Apex in the package" option under 
 
 Assign the `Demo Cleanup` permission set to anyone who needs to use the component.
 
+Finally, be sure to check the page layout assignments for the Demo Cleanup Task object. It should look like this:
+
+![Page Layout Assignments](/images/Page_Layout_Assignments.png)
+
 Once the package is deployed, you will need to create a Lightning app page with the Lightning App Builder and drag the `Demo Cleanup` custom component on the page where you would like to place it.
 
 Right after you first install the package and place the component, you will have no demo cleanup tasks:
