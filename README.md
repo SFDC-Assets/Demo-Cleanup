@@ -34,8 +34,8 @@ Right after you first install the package and place the component, you will have
 
 Click the "Take Me There" button to go to the `Demo Cleanup Tasks` tab, click the `New` button and choose which kind of cleanup task you wish to create:
 
-- SOQL cleanup tasks use a SOQL WHERE clause to determine which records of an object to delete. Supply an object API name, a description, and an optional SOQL WHERE clause which specifies which records of that object should be deleted. For each task, you can also choose to permanently the records, or keep them in the recycle bin. Repeat for all of the objects whose records you would like to delete.
-- Apex cleanup tasks allow the Apex developer to create arbitrary code to perform cleanup tasks that SOQL cannot handle by itselt. For these kinds of tasks, you need to enter the name of an Apex class that implements the `DemoCleanupApexItem` interface, and a description.
+- SOQL cleanup tasks use a SOQL WHERE clause to determine which records of an object to delete. Supply an object API name, a description, and an optional SOQL WHERE clause expression which specifies which records of that object should be deleted. For each task, you can also choose to permanently the records, or keep them in the recycle bin. Repeat for all of the objects whose records you would like to delete.
+- Apex cleanup tasks allow the Apex developer to create arbitrary code to perform cleanup tasks that SOQL cannot handle by itselt. For these kinds of tasks, you need to enter the name of an Apex class that implements the `DemoCleanupApexItem` interface, and a description. A template Apex class called `DemoCleanupCustomApex` is included as part of the package which you can copy and fill out to suit your needs (Note: do not modify the original class since it will be overwritten the next time you upgrade the package).
 
 ![Demo Cleanup Task](/images/Demo_Cleanup_Task.png)
 
