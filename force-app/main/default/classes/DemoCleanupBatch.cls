@@ -43,11 +43,7 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 	//  Specify the query.
 
 	global Database.QueryLocator start(Database.BatchableContext bc) {
-		return Database.getQueryLocator(
-			'SELECT ' +
-			this.nameField +
-			' FROM ' +
-			this.sObjectApiName +
+		return Database.getQueryLocator('SELECT ' + this.nameField + ' FROM ' + this.sObjectApiName +
 			(this.whereClause == null ? '' : ' WHERE ' + this.whereClause)
 		);
 	}

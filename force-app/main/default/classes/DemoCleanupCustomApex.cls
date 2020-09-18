@@ -55,7 +55,7 @@ public without sharing class DemoCleanupCustomApex implements DemoCleanupApexIte
         
         DemoCleanup.Toast toast = new DemoCleanup.Toast();
         toast.toastTitle = null;
-        toast.toastMessage = 'If you would like to run custom Apex, please modify DemoCleanupCustomApex.execute.';
+        toast.toastMessage = 'If you would like to run custom Apex, please copy and modify DemoCleanupCustomApex.';
         toast.toastMode = 'sticky';
         toast.toastVariant = 'info';
         toasts.add(toast);
