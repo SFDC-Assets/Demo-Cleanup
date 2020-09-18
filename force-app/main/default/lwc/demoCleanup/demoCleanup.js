@@ -59,13 +59,11 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			type: 'url',
 			initialWidth: 200,
 			iconName: 'standard:record',
-			cellAttributes: {
-				alignment: 'left'
-			},
+			cellAttributes: { alignment: 'left' },
 			typeAttributes: {
 				label: { fieldName: 'name' },
 				tooltip: { fieldName: 'id' },
-				target: '_parent'
+				target: '_blank'
 			}
 		},
 		{

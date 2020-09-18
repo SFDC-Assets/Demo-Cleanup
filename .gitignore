@@ -8,3 +8,5 @@
 /.sfdx/tools/**
 /.sfdx/typings/**
 /.sfdx/sfdx-config.json
+package-lock.json
+node_modules
