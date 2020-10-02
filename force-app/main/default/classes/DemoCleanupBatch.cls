@@ -50,17 +50,17 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 
 	//  Delete records by the batch.
 
-	global void execute(Database.BatchableContext bc, List<sObject> scope) {
+	global void execute(Database.BatchableContext bc, List<sObject> chunk) {
 		Integer recordNumber = 0;
 		List<ErrorSpec> errors = new List<ErrorSpec>();
 
-		for (Database.DeleteResult result : Database.delete(scope, false)) {
+		for (Database.DeleteResult result : Database.delete(chunk, false)) {
 			if (!result.isSuccess())
 				for (Database.Error dberror : result.getErrors()) {
 					ErrorSpec error = new ErrorSpec();
 					error.id = result.getId();
-					error.name = (String) scope[recordNumber].get(this.nameField);
-					error.link = '/lightning/r/' + this.sObjectApiName + '/' + result.getId() + '/view"';
+					error.name = (String) chunk[recordNumber].get(this.nameField);
+					error.link = '/lightning/r/' + this.sObjectApiName + '/' + result.getId() + '/view';
 					error.fields = String.join(dberror.getFields(), ', ');
 					error.message = dberror.getMessage();
 					errors.add(error);
@@ -68,9 +68,9 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 			recordNumber++;
 		}
 		if (this.permanentlyDelete)
-			Database.emptyRecycleBin(scope);
+			Database.emptyRecycleBin(chunk);
 
-		this.totalRecordsProcessed += scope.size();
+		this.totalRecordsProcessed += chunk.size();
 		this.totalErrors += errors.size();
 
 		EventBus.publish(
