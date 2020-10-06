@@ -4,6 +4,7 @@
 //  Contact: john.meyer@salesforce.com
 
 global without sharing class DemoCleanupBatch implements Database.Batchable<sObject>, Database.Stateful, Database.RaisesPlatformEvents {
+
 	private Id taskId;
 	private String sObjectApiName;
 	private String nameField;
@@ -51,6 +52,7 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 	//  Delete records by the batch.
 
 	global void execute(Database.BatchableContext bc, List<sObject> chunk) {
+
 		Integer recordNumber = 0;
 		List<ErrorSpec> errors = new List<ErrorSpec>();
 

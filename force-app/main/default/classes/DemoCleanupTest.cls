@@ -20,13 +20,6 @@ private without sharing class DemoCleanupTest {
 
         List<Demo_Cleanup_Task__c> tasks = new List<Demo_Cleanup_Task__c> {
             new Demo_Cleanup_Task__c (
-                RecordTypeId = soqlRecordTypeId,           
-                Object_API_Name__c = 'Shipment',
-                Description__c = 'Delete all shipments',
-                Permanently_Delete__c = true,
-                Active__c = true
-            ),   
-            new Demo_Cleanup_Task__c (
                 RecordTypeId = soqlRecordTypeId,
                 Object_API_Name__c = 'Account',
                 Description__c = 'Delete all accounts where SIC code is "Test"',
@@ -89,15 +82,6 @@ private without sharing class DemoCleanupTest {
                 AccountId = accounts[NUMBER_OF_RECORDS - i - 1].Id
             ));
         insert contacts;
-        
-        List<Shipment> shipments = new List<Shipment>();
-        DateTime now = DateTime.now();
-        for (Integer i = 0; i < NUMBER_OF_RECORDS; i++)
-            shipments.add(new Shipment (
-                ShipToName = 'Test Name',
-                ActualDeliveryDate = now.addDays(i)
-            ));
-        insert shipments;
     }
 
 
@@ -107,7 +91,7 @@ private without sharing class DemoCleanupTest {
         Test.startTest();
 
         List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks();
-        System.assertEquals(7, cleanupTasks.size());
+        System.assertEquals(6, cleanupTasks.size());
 
         for (DemoCleanup.CleanupTask item : cleanupTasks)
             switch on item.itemRecordTypeName {

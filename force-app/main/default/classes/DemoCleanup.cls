@@ -63,7 +63,7 @@ public without sharing class DemoCleanup {
                     cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
                     try {
                         cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
-                            (cleanupItem.SOQL_WHERE_Clause__c != null ? ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c : ''));
+                            (cleanupItem.SOQL_WHERE_Clause__c == null ? '' : ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c));
                         cuTask.itemQueryError = false;
                     } catch (QueryException e) {
                         cuTask.itemCount = 0;
@@ -82,13 +82,11 @@ public without sharing class DemoCleanup {
 
     private static String getNameField (String objectApiName) {
         String name = '';
-        for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values()) {
-            Schema.DescribeFieldResult dfr = field.getDescribe();
-            if (dfr.isNameField()) {
-                name = dfr.getName();
+        for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
+            if (field.getDescribe().isNameField()) {
+                name = field.getDescribe().getName();
                 break;
             }
-        }
         return name;
     }
     

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>For_Apex_Task_Apex_Class_Name_Required</fullName>
+    <active>true</active>
+    <description>For an Apex Demo Cleanup Task, the Apex class name is required.</description>
+    <errorConditionFormula>RecordType.Name == &apos;Apex Cleanup Item&apos; &amp;&amp; ISBLANK(Apex_Class_Name__c)</errorConditionFormula>
+    <errorDisplayField>Apex_Class_Name__c</errorDisplayField>
+    <errorMessage>For an Apex cleanup task, the Apex class name must be specified.</errorMessage>
+</ValidationRule>
