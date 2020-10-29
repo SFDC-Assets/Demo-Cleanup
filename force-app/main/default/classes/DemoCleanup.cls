@@ -10,6 +10,7 @@ public without sharing class DemoCleanup {
         @AuraEnabled public Id itemId;
         @AuraEnabled public String itemRecordTypeName;
         @AuraEnabled public String itemApexClassName;
+        @AuraEnabled public String itemFlowApiName;
         @AuraEnabled public String itemObjectApiName;
         @AuraEnabled public String itemNameField;
         @AuraEnabled public String itemDescription;
@@ -33,7 +34,7 @@ public without sharing class DemoCleanup {
     public static List<CleanupTask> getCleanupTasks () {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
-            SELECT  RecordType.Name, Apex_Class_Name__c, Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
+            SELECT  RecordType.Name, Apex_Class_Name__c, Flow_API_Name__c, Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
             FROM    Demo_Cleanup_Task__c
             WHERE   Active__c = true
             ORDER BY Name ASC
@@ -70,6 +71,11 @@ public without sharing class DemoCleanup {
                         cuTask.itemQueryError = true;
                     }
                 }
+                when 'Flow Cleanup Item' {
+                    cuTask.itemFlowApiName = cleanupItem.Flow_API_Name__c;
+                    cuTask.itemCount = 0;
+                    cuTask.itemQueryError = false;
+                }
             }            
             cleanupTasks.add(cuTask);
         }
@@ -102,29 +108,64 @@ public without sharing class DemoCleanup {
     //  Executes a single Apex demo cleanup task.
 
     @AuraEnabled
-    public static List<Toast> executeApex (Id taskId, String apexClassName, Boolean permanentlyDelete) {
+    public static List<Toast> executeApex (Id taskId, String description, String apexClassName, Boolean permanentlyDelete) {
 
+        Boolean error;
         List<Toast> toasts = new List<Toast>();
         
         try {
             toasts = ((DemoCleanupApexItem) Type.forName(apexClassName).newInstance()).execute(taskId, permanentlyDelete);
+            error = false;
         } catch (Exception e) {
-            String description = [SELECT Description__c FROM Demo_Cleanup_Task__c WHERE Id = :taskId LIMIT 1].Description__c;
             Toast errorToast = new Toast();
             errorToast.toastTitle = 'There was an uncaught exception in Apex cleanup item "' + description + '"';
             errorToast.toastMessage = e.getMessage();
             errorToast.toastMode = 'sticky';
             errorToast.toastVariant = 'error';
             toasts.add(errorToast);
+            error = true;
         }
 
         EventBus.publish (new Demo_Cleanup_Event__e (
             Task_Id__c = taskId,
             Finished__c = true,
             Total_Records_Deleted__c = 0,
-            Total_Errors__c = 0
+            Total_Errors__c = error ? 1 : 0
         ));
         
         return toasts;
+    }
+
+
+    //  Runs an autolaunched flow.
+
+    @AuraEnabled
+    public static List<Toast> runFlow (Id taskId, String description, String flowApiName) {
+
+        Boolean error;
+        List<Toast> returnValue;
+
+        try {
+            Flow.Interview.createInterview(flowApiName, new Map<String,Object> { 'DemoCleanupTaskId' => taskId }).start();
+            returnValue = null;
+            error = false;
+        } catch (Exception e) {
+            Toast errorToast = new Toast();
+            errorToast.toastTitle = 'Could not execute flow cleanup item "' + description + '"';
+            errorToast.toastMessage = e.getMessage();
+            errorToast.toastMode = 'sticky';
+            errorToast.toastVariant = 'error';
+            returnValue = new List<Toast> {errorToast};
+            error = true;
+        }
+
+        EventBus.publish (new Demo_Cleanup_Event__e (
+            Task_Id__c = taskId,
+            Finished__c = true,
+            Total_Records_Deleted__c = 0,
+            Total_Errors__c = error ? 1 : 0
+        ));
+
+        return returnValue;
     }
 }

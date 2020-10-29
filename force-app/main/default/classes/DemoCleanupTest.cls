@@ -12,8 +12,9 @@ private without sharing class DemoCleanupTest {
     static void setup () {
  
         Map<String,Schema.RecordTypeInfo> rtInfo = Demo_Cleanup_Task__c.SObjectType.getDescribe().getRecordTypeInfosByName();
-        Id soqlRecordTypeId = rtInfo.get('SOQL Cleanup Item').getRecordTypeId();
-        Id apexRecordTypeId = rtInfo.get('Apex Cleanup Item').getRecordTypeId();
+        final Id soqlRecordTypeId = rtInfo.get('SOQL Cleanup Item').getRecordTypeId();
+        final Id apexRecordTypeId = rtInfo.get('Apex Cleanup Item').getRecordTypeId();
+        final Id flowRecordTypeId = rtInfo.get('Flow Cleanup Item').getRecordTypeId();
 
         List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks();
         System.assertEquals(0, cleanupTasks.size());
@@ -62,6 +63,20 @@ private without sharing class DemoCleanupTest {
                 Description__c = 'Run Apex class that throws an uncaught exception',
                 Permanently_Delete__c = false,
                 Active__c = true
+            ),
+            new Demo_Cleanup_Task__c (
+                RecordTypeId = flowRecordTypeId,
+                Flow_API_Name__c = 'Demo_Cleanup_Flow_Item_Test',
+                Description__c = 'Run the test flow',
+                Permanently_Delete__c = false,
+                Active__c = true
+            ),
+            new Demo_Cleanup_Task__c (
+                RecordTypeId = flowRecordTypeId,
+                Flow_API_Name__c = 'Bad_Demo_Cleanup_Flow_Item_Test',
+                Description__c = 'Try to run a non-existent test flow',
+                Permanently_Delete__c = false,
+                Active__c = true
             )
         };
         insert tasks;
@@ -88,10 +103,9 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void runTests () {
 
-        Test.startTest();
+        System.Test.startTest();
 
         List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks();
-        System.assertEquals(6, cleanupTasks.size());
 
         for (DemoCleanup.CleanupTask item : cleanupTasks)
             switch on item.itemRecordTypeName {
@@ -100,7 +114,10 @@ private without sharing class DemoCleanupTest {
                         DemoCleanup.cleanup (item.itemId, item.itemObjectApiName, item.itemNameField, item.itemWhereClause, item.itemPermanentlyDelete);
                 }
                 when 'Apex Cleanup Item' {
-                    List<DemoCleanup.Toast> toasts = DemoCleanup.executeApex(item.itemId, item.itemApexClassName, item.itemPermanentlyDelete);
+                    List<DemoCleanup.Toast> toasts = DemoCleanup.executeApex(item.itemId, item.itemDescription, item.itemApexClassName, item.itemPermanentlyDelete);
+                }
+                when 'Flow Cleanup Item' {
+                    List<DemoCleanup.Toast> toasts = DemoCleanup.runFlow(item.itemId, item.itemDescription, item.itemFlowApiName);
                 }
             }
 
@@ -108,6 +125,6 @@ private without sharing class DemoCleanupTest {
         // System.assertEquals(0, [SELECT count() FROM Account]);
         // System.assertEquals(0, [SELECT count() FROM Shipment]);
 
-        Test.stopTest();
+        System.Test.stopTest();
     }
 }

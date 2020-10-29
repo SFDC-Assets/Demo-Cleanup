@@ -4,13 +4,13 @@
             "path": "force-app",
             "default": true,
             "package": "Demo Cleanup",
-            "versionName": "Version 1.1.6",
-            "versionNumber": "1.1.6.0"
+            "versionName": "Version 1.1.7",
+            "versionNumber": "1.1.7.0"
         }
     ],
     "namespace": "",
     "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "49.0",
+    "sourceApiVersion": "50.0",
     "packageAliases": {
         "Demo Cleanup": "0Ho2E000000007MSAQ",
         "Demo Cleanup@1.0.0-0": "04t2E000003obwIQAQ",
@@ -20,6 +20,7 @@
         "Demo Cleanup@1.1.2-0": "04t2E000003obyYQAQ",
         "Demo Cleanup@1.1.3-0": "04t2E000003oc6OQAQ",
         "Demo Cleanup@1.1.4-0": "04t2E000003oc7HQAQ",
-        "Demo Cleanup@1.1.5-0": "04t2E000003oc9rQAA"
+        "Demo Cleanup@1.1.5-0": "04t2E000003oc9rQAA",
+        "Demo Cleanup@1.1.6-0": "04t2E000003ocCbQAI"
     }
 }

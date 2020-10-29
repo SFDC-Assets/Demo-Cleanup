@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Creates a Chatter post that the flow was executed.</description>
+        <name>Post_to_Chatter</name>
+        <label>Post to Chatter</label>
+        <locationX>749</locationX>
+        <locationY>399</locationY>
+        <actionName>chatterPost</actionName>
+        <actionType>chatterPost</actionType>
+        <inputParameters>
+            <name>text</name>
+            <value>
+                <stringValue>Demo Cleanup Task &quot;{!DemoCleanupTask.Description__c}&quot; executed the flow &quot;{!DemoCleanupTask.Flow_API_Name__c}&quot;.</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>subjectNameOrId</name>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputParameters>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <description>Flow used for testing the Demo Cleanup Flow Item, part of the Demo Cleanup package.</description>
+    <interviewLabel>Demo Cleanup Flow Item Test {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Demo Cleanup Flow Item Test</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Gets the fields in the Demo Cleanup Task that invoked this flow.</description>
+        <name>Get_Demo_Cleanup_Task</name>
+        <label>Get Demo Cleanup Task</label>
+        <locationX>749</locationX>
+        <locationY>206</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Post_to_Chatter</targetReference>
+        </connector>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>DemoCleanupTaskId</elementReference>
+            </value>
+        </filters>
+        <object>Demo_Cleanup_Task__c</object>
+        <outputReference>DemoCleanupTask</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Description__c</queriedFields>
+        <queriedFields>Flow_API_Name__c</queriedFields>
+    </recordLookups>
+    <start>
+        <locationX>622</locationX>
+        <locationY>48</locationY>
+        <connector>
+            <targetReference>Get_Demo_Cleanup_Task</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>The Demo Cleanup Task that invoked this action.</description>
+        <name>DemoCleanupTask</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Demo_Cleanup_Task__c</objectType>
+    </variables>
+    <variables>
+        <description>The ID of the Demo Cleanup Task that invoked this flow.</description>
+        <name>DemoCleanupTaskId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

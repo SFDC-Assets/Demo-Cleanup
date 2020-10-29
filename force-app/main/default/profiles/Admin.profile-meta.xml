@@ -9,6 +9,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>DemoCleanupBadApexTest</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>DemoCleanupBatch</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -52,38 +56,47 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Active__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Apex_Class_Name__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Description__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Demo_Cleanup_Task__c.Flow_API_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Object_API_Name__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Permanently_Delete__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Demo_Cleanup_Task__c.SOQL_WHERE_Clause__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <layoutAssignments>
         <layout>Demo_Cleanup_Task__c-Demo Cleanup Apex Task Layout</layout>
         <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Item</recordType>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>Demo_Cleanup_Task__c-Demo Cleanup Flow Task Layout</layout>
+        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Item</recordType>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Demo_Cleanup_Task__c-Demo Cleanup SOQL Task Layout</layout>
@@ -113,6 +126,11 @@
     <recordTypeVisibilities>
         <default>false</default>
         <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Item</recordType>
+        <visible>false</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <default>false</default>
+        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Item</recordType>
         <visible>false</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>

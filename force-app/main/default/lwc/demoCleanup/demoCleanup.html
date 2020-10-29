@@ -375,9 +375,7 @@
 					</p>
 				</template>
 				<template if:true={deletionFinished}>
-					<p class="slds-var-p-bottom_medium slds-hyphenate">
-						Demo cleanup has completed.
-					</p>
+					<p class="slds-var-p-bottom_medium slds-hyphenate">Demo cleanup has completed.</p>
 				</template>
 				<div class="slds-var-p-vertical_medium slds-var-p-horizontal_x-large">
 					<table class="slds-text-body_small">
@@ -474,7 +472,7 @@
 					</p>
 					<h2 class="slds-p-top_large"><strong>How It Works</strong></h2>
 					<p class="slds-p-top_small slds-hyphenate">
-						The component is driven by a series of Demo Dleanup Tasks which you create. These tasks fall into two
+						The component is driven by a series of Demo Dleanup Tasks which you create. These tasks fall into three
 						categories:
 					</p>
 					<ul class="slds-list_dotted slds-p-top_small slds-hyphenate">
@@ -491,6 +489,13 @@
 							<span class="slds-text-font_monospace">DemoCleanupApexItem</span> &nbsp;interface. These can be useful
 							for resetting demo parameters that do not involve deleting records, such as activating or deactivating
 							users.
+						</li>
+						<li>
+							<strong>Flow tasks</strong> run an autolaunched flow that you specify. The component passes the Id of
+							the task into the flow through the&nbsp;
+							<span class="slds-text-font_monospace">DemoCleanupTaskId</span> &nbsp;input variable, so if the flow
+							needs to access any of the fields in the cleanup task, you should define that variable in the RESOURCES
+							section of the flow.
 						</li>
 					</ul>
 					<p class="slds-p-top_small slds-hyphenate">
@@ -519,6 +524,10 @@
 					<p class="slds-p-top_small slds-hyphenate">
 						Power users wishing to create Apex tasks can choose the Apex cleanup task record type and fill in the name
 						of an Apex class to execute.
+					</p>
+					<p class="slds-p-top_small slds-hyphenate">
+						Those users who wish to invoke flows may choose the Flow cleanup task record type and fill in the API name
+						of the flow to execute.
 					</p>
 					<h2 class="slds-p-top_large"><strong>Fail-Safe</strong></h2>
 					<p class="slds-p-top_small slds-hyphenate">
@@ -611,7 +620,14 @@
 								<lightning-formatted-number value={totalApexItemsSelected} class="slds-text-color_destructive">
 								</lightning-formatted-number>
 							</strong>
-							&nbsp;Apex class(es) will be executed.
+							&nbsp;Apex class(es) will be executed.&nbsp;
+						</template>
+						<template if:true={totalFlowItemsSelected}>
+							<strong>
+								<lightning-formatted-number value={totalFlowItemsSelected} class="slds-text-color_destructive">
+								</lightning-formatted-number>
+							</strong>
+							&nbsp;autolaunched flow(s) will be executed.
 						</template>
 					</p>
 				</div>

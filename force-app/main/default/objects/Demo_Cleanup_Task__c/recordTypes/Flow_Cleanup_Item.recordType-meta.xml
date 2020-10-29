@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Flow_Cleanup_Item</fullName>
+    <active>true</active>
+    <description>Demo cleanup item is an autolaunched flow</description>
+    <label>Flow Cleanup Item</label>
+</RecordType>

@@ -30,6 +30,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Demo_Cleanup_Task__c.Flow_API_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Object_API_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -65,6 +70,10 @@
     </objectPermissions>
     <recordTypeVisibilities>
         <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Item</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Item</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>

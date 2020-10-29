@@ -10,6 +10,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getCleanupTasks from '@salesforce/apex/DemoCleanup.getCleanupTasks';
 import cleanup from '@salesforce/apex/DemoCleanup.cleanup';
 import executeApex from '@salesforce/apex/DemoCleanup.executeApex';
+import runFlow from '@salesforce/apex/DemoCleanup.runFlow';
 
 export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	cleanupTasksColumns = [
@@ -97,6 +98,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	totalRecycleRecordsSelected = 0;
 	totalSoqlItemsSelected = 0;
 	totalApexItemsSelected = 0;
+	totalFlowItemsSelected = 0;
 
 	get cleanupTasksEmpty() {
 		return this.cleanupTasks.length === 0;
@@ -106,7 +108,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		return this.totalSoqlItemsRetrieved > this.maximumCleanupTasks;
 	}
 	get cleanupButtonDisabled() {
-		return this.totalSoqlItemsSelected === 0 && this.totalApexItemsSelected === 0;
+		return this.totalSoqlItemsSelected === 0 && this.totalApexItemsSelected === 0 && this.totalFlowItemsSelected === 0;
 	}
 
 	subscription = {};
@@ -150,8 +152,14 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			data.forEach((task) => {
 				this.cleanupTasks.push({
 					itemId: task.itemId,
-					itemRecordType: task.itemRecordTypeName === 'Apex Cleanup Item' ? 'Apex' : 'SOQL',
+					itemRecordType:
+						task.itemRecordTypeName === 'Apex Cleanup Item'
+							? 'Apex'
+							: task.itemRecordTypeName === 'SOQL Cleanup Item'
+							? 'SOQL'
+							: 'Flow',
 					itemApexClassName: task.itemApexClassName,
+					itemFlowName: task.itemFlowApiName,
 					itemObjectApiName: task.itemObjectApiName,
 					itemNameField: task.itemNameField,
 					itemWhereClause: task.itemWhereClause === undefined ? null : task.itemWhereClause,
@@ -160,6 +168,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemIcon:
 						task.itemRecordTypeName === 'Apex Cleanup Item'
 							? 'utility:apex'
+							: task.itemRecordTypeName === 'Flow Cleanup Item'
+							? 'utility:flow'
 							: task.itemPermanentlyDelete
 							? 'utility:delete'
 							: 'utility:recycle_bin_empty',
@@ -211,20 +221,29 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		this.totalApexItemsSelected = 0;
 		event.detail.selectedRows.forEach((item) => {
 			if (!item.itemQueryError) {
-				if (item.itemRecordType === 'Apex') {
-					this.selectedRows.push(item);
-					this.totalApexItemsSelected++;
-					if (item.itemCount !== undefined && item.itemCount !== null) {
-						this.totalRecordsSelected += item.itemCount;
-						this.totalPermanentRecordsSelected += item.itemPermanentlyDelete ? item.itemCount : 0;
-						this.totalRecycleRecordsSelected += item.itemPermanentlyDelete ? 0 : item.itemCount;
-					}
-				} else if (item.itemCount !== 0) {
-					this.selectedRows.push(item);
-					this.totalSoqlItemsSelected++;
-					this.totalRecordsSelected += item.itemCount;
-					this.totalPermanentRecordsSelected += item.itemPermanentlyDelete ? item.itemCount : 0;
-					this.totalRecycleRecordsSelected += item.itemPermanentlyDelete ? 0 : item.itemCount;
+				switch (item.itemRecordType) {
+					case 'Apex':
+						this.selectedRows.push(item);
+						this.totalApexItemsSelected++;
+						if (item.itemCount !== undefined && item.itemCount !== null) {
+							this.totalRecordsSelected += item.itemCount;
+							this.totalPermanentRecordsSelected += item.itemPermanentlyDelete ? item.itemCount : 0;
+							this.totalRecycleRecordsSelected += item.itemPermanentlyDelete ? 0 : item.itemCount;
+						}
+						break;
+					case 'Flow':
+						this.selectedRows.push(item);
+						this.totalFlowItemsSelected++;
+						break;
+					case 'SOQL':
+						if (item.itemCount !== 0) {
+							this.selectedRows.push(item);
+							this.totalSoqlItemsSelected++;
+							this.totalRecordsSelected += item.itemCount;
+							this.totalPermanentRecordsSelected += item.itemPermanentlyDelete ? item.itemCount : 0;
+							this.totalRecycleRecordsSelected += item.itemPermanentlyDelete ? 0 : item.itemCount;
+						}
+						break;
 				}
 			}
 		});
@@ -266,6 +285,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 				case 'Apex':
 					executeApex({
 						taskId: item.itemId,
+						description: item.itemDescription,
 						apexClassName: item.itemApexClassName,
 						permanentlyDelete: item.itemPermanentlyDelete
 					})
@@ -285,6 +305,27 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 							this.showErrorToast(error, `Error occurred trying to execute "${item.itemDescription}"`);
 						});
 					break;
+				case 'Flow':
+					runFlow({
+						taskId: item.itemId,
+						description: item.itemDescription,
+						flowApiName: item.itemFlowName
+					})
+						.then((result) => {
+							result.forEach((toast) => {
+								this.dispatchEvent(
+									new ShowToastEvent({
+										title: toast.toastTitle,
+										mode: toast.toastMode,
+										variant: toast.toastVariant,
+										message: toast.toastMessage
+									})
+								);
+							});
+						})
+						.catch((error) => {
+							this.showErrorToast(error, `Error occurred trying to execute "${item.itemDescription}"`);
+						});
 			}
 		});
 	}
@@ -312,6 +353,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 							});
 						break;
 					case 'Apex':
+						break;
+					case 'Flow':
 						break;
 				}
 				cleanupTask.itemDeletionFinished = event.data.payload.Finished__c;

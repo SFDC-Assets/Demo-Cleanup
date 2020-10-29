@@ -6,6 +6,7 @@
 Map<String,Schema.RecordTypeInfo> rtInfo = Demo_Cleanup_Task__c.SObjectType.getDescribe().getRecordTypeInfosByName();
 Id soqlRecordTypeId = rtInfo.get('SOQL Cleanup Item').getRecordTypeId();
 Id apexRecordTypeId = rtInfo.get('Apex Cleanup Item').getRecordTypeId();
+Id flowRecordTypeId = rtInfo.get('Flow Cleanup Item').getRecordTypeId();
 
 insert new Demo_Cleanup_Task__c (
     RecordTypeId = soqlRecordTypeId,
@@ -37,5 +38,12 @@ insert new Demo_Cleanup_Task__c (
     Object_API_Name__c = 'Contact',
     Description__c = 'Delete all contacts',
     Permanently_Delete__c = true,
+    Active__c = true
+);
+
+insert new Demo_Cleanup_Task__c (
+    RecordTypeId = flowRecordTypeId,
+    Flow_API_Name__c = 'Demo_Cleanup_Flow_Item_Test',
+    Description__c = 'Run the Demo Cleanup test flow which posts to user\'s Chatter feed',
     Active__c = true
 );
