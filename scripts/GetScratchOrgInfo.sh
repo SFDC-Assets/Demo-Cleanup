@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Creates a new package in the dev hub.
+#  Gets information on all scratch orgs associated with the dev hub.
 #
 #  This code is provided AS IS, with no warranty or guarantee of suitability for use.
 #  Contact: john.meyer@salesforce.com
@@ -10,10 +10,7 @@ readonly devHubOrgAlias=$(jq --raw-output .defaultdevhubusername < .sfdx/sfdx-co
     exit 1
 }
 
-sfdx force:package:create \
-    --packagetype "Unlocked" \
-    --nonamespace \
-    --name "Demo Cleanup" \
-    --description "This package contains code and metadata for the Salesforce Demo Cleanup Lightning component" \
-    --path "force-app" \
-    --targetdevhubusername "$devHubOrgAlias"
+sfdx force:data:soql:query \
+    --targetusername "$devHubOrgAlias" \
+    --query "SELECT ScratchOrg, Name, OrgName, Status, UserName, ExpirationDate FROM ScratchOrgInfo" \
+    --loglevel error

@@ -9,14 +9,6 @@ Id apexRecordTypeId = rtInfo.get('Apex Cleanup Item').getRecordTypeId();
 Id flowRecordTypeId = rtInfo.get('Flow Cleanup Item').getRecordTypeId();
 
 insert new Demo_Cleanup_Task__c (
-    RecordTypeId = soqlRecordTypeId,
-    Object_API_Name__c = 'Shipment',
-    Description__c = 'Delete all shipments',
-    Permanently_Delete__c = true,
-    Active__c = true
-);
-
-insert new Demo_Cleanup_Task__c (
     RecordTypeId = apexRecordTypeId,
     Apex_Class_Name__c = 'DemoCleanupCustomApex',
     Description__c = 'Run custom Apex',

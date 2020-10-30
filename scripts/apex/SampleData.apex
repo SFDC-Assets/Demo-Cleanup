@@ -18,6 +18,7 @@ for (Integer i = 1; i <= 3000; i++)
     ));
 insert accounts;
 
+/*
 List<Shipment> shipments = new List<Shipment>();
 DateTime now = DateTime.now();
 for (Integer i = 0; i < 1000; i++)
@@ -26,6 +27,7 @@ for (Integer i = 0; i < 1000; i++)
         ActualDeliveryDate = now.addDays(i)
     ));
 insert shipments;
+*/
 
 List<Contact> contacts = new List<Contact>();
 for (Integer i = 0; i < 3000; i++)

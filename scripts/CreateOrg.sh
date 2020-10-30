@@ -1,6 +1,18 @@
 #!/bin/bash
-readonly orgAlias="DemoCleanupScratch"
-readonly devHubUserName="MyComponents"
+#
+#  Creates a new scratch org and populates it with sample data.
+#
+#  This code is provided AS IS, with no warranty or guarantee of suitability for use.
+#  Contact: john.meyer@salesforce.com
+
+readonly orgAlias=$(jq --raw-output .defaultusername < .sfdx/sfdx-config.json) || {
+    echo "Make sure that \"jq\" is installed and that \"defaultusername\" is defined in .sfdx/sfdx-config.json." >&2
+    exit 1
+}
+readonly devHubUserName=$(jq --raw-output .defaultdevhubusername < .sfdx/sfdx-config.json) || {
+    echo "Make sure that \"jq\" is installed and that \"defaultdevhubusername\" is defined in .sfdx/sfdx-config.json." >&2
+    exit 1
+}
 
 echo "*** Creating scratch org ..."
 sfdx force:org:create \
