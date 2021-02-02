@@ -161,7 +161,6 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemApexClassName: task.itemApexClassName,
 					itemFlowName: task.itemFlowApiName,
 					itemObjectApiName: task.itemObjectApiName,
-					itemNameField: task.itemNameField,
 					itemWhereClause: task.itemWhereClause === undefined ? null : task.itemWhereClause,
 					itemDescription: task.itemDescription,
 					itemPermanentlyDelete: task.itemPermanentlyDelete,
@@ -275,7 +274,6 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					cleanup({
 						taskId: item.itemId,
 						objectApiName: item.itemObjectApiName,
-						nameField: item.itemNameField,
 						whereClause: item.itemWhereClause,
 						permanentlyDelete: item.itemPermanentlyDelete
 					}).catch((error) => {

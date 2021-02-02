@@ -12,7 +12,6 @@ public without sharing class DemoCleanup {
         @AuraEnabled public String itemApexClassName;
         @AuraEnabled public String itemFlowApiName;
         @AuraEnabled public String itemObjectApiName;
-        @AuraEnabled public String itemNameField;
         @AuraEnabled public String itemDescription;
         @AuraEnabled public String itemWhereClause;
         @AuraEnabled public Boolean itemPermanentlyDelete;
@@ -60,7 +59,6 @@ public without sharing class DemoCleanup {
                 }
                 when 'SOQL Cleanup Item' {
                     cuTask.itemObjectApiName = cleanupItem.Object_API_Name__c;
-                    cuTask.itemNameField = getNameField(cleanupItem.Object_API_Name__c);
                     cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
                     try {
                         cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
@@ -82,26 +80,13 @@ public without sharing class DemoCleanup {
         
         return cleanupTasks;
     }
-
-
-    //  Find the name field for an object.
-
-    private static String getNameField (String objectApiName) {
-        String name = '';
-        for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
-            if (field.getDescribe().isNameField()) {
-                name = field.getDescribe().getName();
-                break;
-            }
-        return name;
-    }
     
     
     //  Executes a single SOQL demo cleanup task.
     
     @AuraEnabled
-    public static void cleanup (Id taskId, String objectApiName, String nameField, String whereClause, Boolean permanentlyDelete) {
-        Database.executeBatch(new DemoCleanupBatch(taskId, objectApiName, nameField, whereClause, permanentlyDelete));
+    public static void cleanup (Id taskId, String objectApiName, String whereClause, Boolean permanentlyDelete) {
+        Database.executeBatch(new DemoCleanupBatch(taskId, objectApiName, whereClause, permanentlyDelete));
     }
 
 

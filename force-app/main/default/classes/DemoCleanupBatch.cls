@@ -29,14 +29,13 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 	//  The parameters represent:
 	//      taskId:  the Id of the task record specifying the cleanup task.
 	//      sObjectApiName:  the API name of the object whose records we will delete.
-	//      nameField:  the field containing the name of the object (usually 'Name', but could be something else ('CaseNumber' for Case, e.g.))
 	//      whereClause:  the SOQL WHERE clause that identifies the records to be deleted.
 	//      permanentlyDelete:  True if the records are to bypass the recycle bin and be permanently deleted.
 
-	global DemoCleanupBatch(Id taskId, String sObjectApiName, String nameField, String whereClause, Boolean permanentlyDelete) {
+	global DemoCleanupBatch(Id taskId, String sObjectApiName, String whereClause, Boolean permanentlyDelete) {
 		this.taskId = taskId;
 		this.sObjectApiName = sObjectApiName;
-		this.nameField = nameField;
+		this.nameField = getNameField(sObjectApiName);
 		this.whereClause = whereClause;
 		this.permanentlyDelete = permanentlyDelete;
 	}
@@ -61,8 +60,8 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 				for (Database.Error dberror : result.getErrors()) {
 					ErrorSpec error = new ErrorSpec();
 					error.id = result.getId();
-					error.name = (String) chunk[recordNumber].get(this.nameField);
-					error.link = '/lightning/r/' + this.sObjectApiName + '/' + result.getId() + '/view';
+					error.name = String.valueOf(chunk[recordNumber].get(this.nameField));
+					error.link = '/lightning/r/' + this.sObjectApiName + '/' + error.id + '/view';
 					error.fields = String.join(dberror.getFields(), ', ');
 					error.message = dberror.getMessage();
 					errors.add(error);
@@ -101,4 +100,17 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 			)
 		);
 	}
+
+
+    //  Find the name field for an object.
+
+    private static String getNameField (String objectApiName) {
+        String name = '';
+        for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
+            if (field.getDescribe().isNameField()) {
+                name = field.getDescribe().getName();
+                break;
+            }
+        return name;
+    }
 }

@@ -11,17 +11,17 @@ private without sharing class DemoCleanupTest {
     @testSetup
     static void setup () {
  
-        Map<String,Schema.RecordTypeInfo> rtInfo = Demo_Cleanup_Task__c.SObjectType.getDescribe().getRecordTypeInfosByName();
-        final Id soqlRecordTypeId = rtInfo.get('SOQL Cleanup Item').getRecordTypeId();
-        final Id apexRecordTypeId = rtInfo.get('Apex Cleanup Item').getRecordTypeId();
-        final Id flowRecordTypeId = rtInfo.get('Flow Cleanup Item').getRecordTypeId();
+        final Map<String,Schema.RecordTypeInfo> rtInfo = Demo_Cleanup_Task__c.SObjectType.getDescribe().getRecordTypeInfosByName();
+        final Id SOQL_RECORD_TYPE_ID = rtInfo.get('SOQL Cleanup Item').getRecordTypeId();
+        final Id APEX_RECORD_TYPE_ID = rtInfo.get('Apex Cleanup Item').getRecordTypeId();
+        final Id FLOW_RECORD_TYPE_ID = rtInfo.get('Flow Cleanup Item').getRecordTypeId();
 
         List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks();
         System.assertEquals(0, cleanupTasks.size());
 
         List<Demo_Cleanup_Task__c> tasks = new List<Demo_Cleanup_Task__c> {
             new Demo_Cleanup_Task__c (
-                RecordTypeId = soqlRecordTypeId,
+                RecordTypeId = SOQL_RECORD_TYPE_ID,
                 Object_API_Name__c = 'Account',
                 Description__c = 'Delete all accounts where SIC code is "Test"',
                 SOQL_Where_Clause__c = 'Sic = \'Test\'',
@@ -29,14 +29,14 @@ private without sharing class DemoCleanupTest {
                 Active__c = true
             ),
             new Demo_Cleanup_Task__c (
-                RecordTypeId = soqlRecordTypeId,           
+                RecordTypeId = SOQL_RECORD_TYPE_ID,           
                 Object_API_Name__c = 'Contact',
                 Description__c = 'Delete all contacts, which should generate an error',
                 Permanently_Delete__c = true,
                 Active__c = true
             ), 
             new Demo_Cleanup_Task__c (
-                RecordTypeId = soqlRecordTypeId,            
+                RecordTypeId = SOQL_RECORD_TYPE_ID,            
                 Object_API_Name__c = 'Opportunity',
                 Description__c = 'Delete all opportunities with a bad WHERE clause',
                 SOQL_Where_Clause__c = 'john',
@@ -44,35 +44,35 @@ private without sharing class DemoCleanupTest {
                 Active__c = true
             ),
             new Demo_Cleanup_Task__c (
-                RecordTypeId = apexRecordTypeId,
+                RecordTypeId = APEX_RECORD_TYPE_ID,
                 Apex_Class_Name__c = 'DemoCleanupCustomApex',
                 Description__c = 'Run custom Apex',
                 Permanently_Delete__c = false,
                 Active__c = true
             ),
             new Demo_Cleanup_Task__c (
-                RecordTypeId = apexRecordTypeId,
+                RecordTypeId = APEX_RECORD_TYPE_ID,
                 Apex_Class_Name__c = 'BadApexClassName',
                 Description__c = 'Run bad custom Apex class name',
                 Permanently_Delete__c = false,
                 Active__c = true
             ),
             new Demo_Cleanup_Task__c (
-                RecordTypeId = apexRecordTypeId,
+                RecordTypeId = APEX_RECORD_TYPE_ID,
                 Apex_Class_Name__c = 'DemoCleanupBadApexTest',
                 Description__c = 'Run Apex class that throws an uncaught exception',
                 Permanently_Delete__c = false,
                 Active__c = true
             ),
             new Demo_Cleanup_Task__c (
-                RecordTypeId = flowRecordTypeId,
+                RecordTypeId = FLOW_RECORD_TYPE_ID,
                 Flow_API_Name__c = 'Demo_Cleanup_Flow_Item_Test',
                 Description__c = 'Run the test flow',
                 Permanently_Delete__c = false,
                 Active__c = true
             ),
             new Demo_Cleanup_Task__c (
-                RecordTypeId = flowRecordTypeId,
+                RecordTypeId = FLOW_RECORD_TYPE_ID,
                 Flow_API_Name__c = 'Bad_Demo_Cleanup_Flow_Item_Test',
                 Description__c = 'Try to run a non-existent test flow',
                 Permanently_Delete__c = false,
@@ -111,7 +111,7 @@ private without sharing class DemoCleanupTest {
             switch on item.itemRecordTypeName {
                 when 'SOQL Cleanup Item' {
                     if (item.itemCount != 0)
-                        DemoCleanup.cleanup (item.itemId, item.itemObjectApiName, item.itemNameField, item.itemWhereClause, item.itemPermanentlyDelete);
+                        DemoCleanup.cleanup (item.itemId, item.itemObjectApiName, item.itemWhereClause, item.itemPermanentlyDelete);
                 }
                 when 'Apex Cleanup Item' {
                     List<DemoCleanup.Toast> toasts = DemoCleanup.executeApex(item.itemId, item.itemDescription, item.itemApexClassName, item.itemPermanentlyDelete);
