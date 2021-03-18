@@ -11,7 +11,7 @@ This package contains a Lightning component and other support to help clean up d
 
 I often find myself in a situation where I need to dust off a demo long after I originally presented it and have forgotten if certain records are required for the demo, were generated during my testing, or were created during the last presentation. This makes getting the demo in a clean state for the next presentation more time-consuming and risky.
 
-This component simply executes a number of demo cleanup tasks based either on criteria specified in a SOQL WHERE clause or through custom Apex actions.
+This component simply executes a number of demo cleanup tasks based either on criteria specified in a SOQL WHERE clause or through custom Apex or Flow actions.
 
 ## Installation and Setup
 

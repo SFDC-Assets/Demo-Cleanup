@@ -7,12 +7,8 @@
 public without sharing class DemoCleanupBadApexTest implements DemoCleanupApexItem {
 
     public class DemoCleanupException extends Exception {}
-
-    public static Integer getRowCount () {
-        return null;
-    }
  
-    public static void execute (Id taskId, Boolean permanentlyDelete) {
+    public static void execute (Id taskId) {
         if (taskId != null)
             throw new DemoCleanupException ('Throwing a DemoCleanupException');
     }

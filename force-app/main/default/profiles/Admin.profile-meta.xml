@@ -56,6 +56,11 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Demo_Cleanup_Event__e.Total_Records_with_Errors__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Active__c</field>
         <readable>true</readable>
@@ -88,6 +93,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Demo_Cleanup_Task__c.SOQL_WHERE_Clause__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Demo_Cleanup_Task__c.Order__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <layoutAssignments>
