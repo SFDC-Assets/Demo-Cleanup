@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Order__c</fullName>
+    <description>The order in which this Demo Cleanup Task will be executed.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The order in which this Demo Cleanup Task will be executed.</inlineHelpText>
+    <label>Order</label>
+    <precision>5</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

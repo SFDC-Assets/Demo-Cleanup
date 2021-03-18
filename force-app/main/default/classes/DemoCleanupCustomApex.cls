@@ -9,57 +9,23 @@
 //  Contact: john.meyer@salesforce.com
 
 
-public without sharing class DemoCleanupCustomApex implements DemoCleanupApexItem {
+public without sharing class DemoCleanupCustomApex implements DemoCleanupApexItem { 
 
-    // Returns the number of rows that will be deleted by this cleanup task.  Can be null if no rows are deleted.
-    // This could also be interpreted as the number of subtasks to be completed in a generic Apex run.
-
-    @AuraEnabled
-    public static Integer getRowCount () {
-        return null;
-    }
- 
-
-    // Returns a list of messages describing the execution of the cleanup task.
+    // Executes the Apex cleanup task.
     //
-    // The parameters represent:
+    // The parameter represents:
     //    taskId: the ID of the demo cleanup task associated with this class.
-    //    permanentlyDelete: true if the records should bypass the recycle bin, false otherwise.
 
-    @AuraEnabled
-    public static List<DemoCleanup.Toast> execute (Id taskId, Boolean permanentlyDelete) {
+    public static void execute (Id taskId) {
 
-        List<DemoCleanup.Toast> toasts = new List<DemoCleanup.Toast>();
-        
         //  Change anything you want in here.  Just be careful of Salesforce governor limits.
+        //  Sample: post a simple message in the user's Chatter feed to show that this code was executed.
 
-        //  You can optionally publish events showing the progress of any record deletions by keeping track of the total
-        //  number of records deleted so far and the number of errors encountered so far.  Put the following code at
-        //  various completion points, for example:
-        //
-        //  EventBus.publish (new Demo_Cleanup_Event__e (
-        //      Task_Id__c = taskId,
-        //      Finished__c = false,
-        //      Total_Records_Deleted__c = 0,
-        //      Total_Errors__c = 0
-        //  ));
-        //
-        //  The component will close out the execution display so there is no need to publish an event with Finished__c = true
-        //  when complete.
-        //
-        //  Just be sure to return a list of toasts to be displayed (can be null or empty if needed).  The Toast class, defined
-        //  in the DemoCleanup class, is a serialized JSON object that contains three Strings:
-        //     toastMessage: the message you want to include in the toast.
-        //     toastMode: the mode of the toast, i.e., "sticky", "dismissable", etc.
-        //     toastVariant: the variant of the toast, i.e., "info", "error", "success".
-        
-        DemoCleanup.Toast toast = new DemoCleanup.Toast();
-        toast.toastTitle = null;
-        toast.toastMessage = 'If you would like to run custom Apex, please copy and modify DemoCleanupCustomApex.';
-        toast.toastMode = 'sticky';
-        toast.toastVariant = 'info';
-        toasts.add(toast);
-       
-        return toasts;
+        Demo_Cleanup_Task__c task = [SELECT Description__c, Apex_Class_Name__c FROM Demo_Cleanup_Task__c WHERE Id = :taskId LIMIT 1];
+        insert new FeedItem (
+            ParentId = UserInfo.getUserId(),
+            Body = 'Demo Cleanup Task "' + task.Description__c + '" executed the Apex class "' + task.Apex_Class_Name__c + '".'
+        );
+
     }
 }

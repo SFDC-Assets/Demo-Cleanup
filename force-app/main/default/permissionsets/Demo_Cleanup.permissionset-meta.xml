@@ -5,11 +5,31 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>DemoCleanupApex</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>DemoCleanupApexItem</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>DemoCleanupBadApexTest</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>DemoCleanupBatch</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>DemoCleanupCustomApex</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>DemoCleanupFlow</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>DemoCleanupTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <description>Contains permissions to allow execution of the Demo Cleanup Lightning component bundle.</description>
@@ -36,6 +56,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Demo_Cleanup_Task__c.Object_API_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Demo_Cleanup_Task__c.Order__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

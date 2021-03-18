@@ -10,6 +10,12 @@ readonly devHubOrgAlias=$(jq --raw-output .defaultdevhubusername < .sfdx/sfdx-co
     exit 1
 }
 
+#sfdx force:data:soql:query \
+#    --query "SELECT InstanceName, MetadataPackageId, MetadataPackageVersionId, OrgName, OrgType FROM PackageSubscriber WHERE InstalledStatus = 'i' ORDER BY MetadataPackageId, MetadataPackageVersionId" \
+#    --targetusername "$devHubOrgAlias"
 sfdx force:data:soql:query \
-    --query "SELECT InstanceName, MetadataPackageId, MetadataPackageVersionId, OrgName, OrgType FROM PackageSubscriber WHERE InstalledStatus = 'i' ORDER BY MetadataPackageId, MetadataPackageVersionId" \
+    --query "SELECT Id, Name, NamespacePrefix, PackageCategory FROM MetadataPackage ORDER BY Id" \
+    --targetusername "$devHubOrgAlias"
+sfdx force:data:soql:query \
+    --query "SELECT MetadataPackageId, count(Id) Installs FROM PackageSubscriber WHERE InstalledStatus = 'i' GROUP BY MetadataPackageId ORDER BY MetadataPackageId" \
     --targetusername "$devHubOrgAlias"

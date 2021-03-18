@@ -8,6 +8,7 @@ public without sharing class DemoCleanup {
     
     public class CleanupTask {
         @AuraEnabled public Id itemId;
+        @AuraEnabled public Integer itemOrder;
         @AuraEnabled public String itemRecordTypeName;
         @AuraEnabled public String itemApexClassName;
         @AuraEnabled public String itemFlowApiName;
@@ -19,12 +20,15 @@ public without sharing class DemoCleanup {
         @AuraEnabled public Boolean itemQueryError;
     }
 
-    public class Toast {
-        @AuraEnabled public String toastTitle;
-        @AuraEnabled public String toastMessage;
-        @AuraEnabled public String toastVariant;
-        @AuraEnabled public String toastMode;
-    }
+	//  Class used to collect error information to send back to the component in a platform event.
+
+	public class ErrorSpec {
+		public Id id;
+		public String name;
+		public String link;
+		public String fields;
+		public String message;
+	}
     
  
     //  Get the list of demo cleanup tasks in the org.
@@ -33,124 +37,104 @@ public without sharing class DemoCleanup {
     public static List<CleanupTask> getCleanupTasks () {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
-            SELECT  RecordType.Name, Apex_Class_Name__c, Flow_API_Name__c, Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
-            FROM    Demo_Cleanup_Task__c
-            WHERE   Active__c = true
-            ORDER BY Name ASC
+            SELECT   RecordType.Name, Order__c, Apex_Class_Name__c, Flow_API_Name__c, Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
+            FROM     Demo_Cleanup_Task__c
+            WHERE    Active__c = true
+            ORDER BY Order__c ASC NULLS LAST
         ];
 
         List<CleanupTask> cleanupTasks = new List<CleanupTask>();
-        for (Demo_Cleanup_Task__c cleanupItem : demoCleanupTasks) {
-            CleanupTask cuTask = new CleanupTask();
-            cuTask.itemId = cleanupItem.Id;
-            cuTask.itemRecordTypeName = cleanupItem.RecordType.Name;
-            cuTask.itemDescription = cleanupItem.Description__c;
-            cuTask.itemPermanentlyDelete = cleanupItem.Permanently_Delete__c;
-            switch on cleanupItem.RecordType.Name {
+        for (Demo_Cleanup_Task__c demoCleanupTask : demoCleanupTasks) {
+            CleanupTask task = new CleanupTask();
+            task.itemId = demoCleanupTask.Id;
+            task.itemOrder = Integer.valueOf(demoCleanupTask.Order__c);
+            task.itemRecordTypeName = demoCleanupTask.RecordType.Name;
+            task.itemDescription = demoCleanupTask.Description__c;
+            task.itemPermanentlyDelete = demoCleanupTask.Permanently_Delete__c;
+            switch on demoCleanupTask.RecordType.Name {
                 when 'Apex Cleanup Item' {
-                    try {
-                        cuTask.itemApexClassName = cleanupItem.Apex_Class_Name__c;
-                        cuTask.itemCount = ((DemoCleanupApexItem) Type.forName(cleanupItem.Apex_Class_Name__c).newInstance()).getRowCount();
-                        cuTask.itemQueryError = false;
-                    } catch (Exception e) {
-                        cuTask.itemCount = 0;
-                        cuTask.itemQueryError = true;
-                    }
+                    task.itemApexClassName = demoCleanupTask.Apex_Class_Name__c;
+                    task.itemCount = null;
+                    task.itemQueryError = false;
                 }
                 when 'SOQL Cleanup Item' {
-                    cuTask.itemObjectApiName = cleanupItem.Object_API_Name__c;
-                    cuTask.itemWhereClause = cleanupItem.SOQL_WHERE_Clause__c;
+                    task.itemObjectApiName = demoCleanupTask.Object_API_Name__c;
+                    task.itemWhereClause = demoCleanupTask.SOQL_WHERE_Clause__c;
                     try {
-                        cuTask.itemCount = Database.countQuery('SELECT count() FROM ' + cleanupItem.Object_API_Name__c +
-                            (cleanupItem.SOQL_WHERE_Clause__c == null ? '' : ' WHERE ' + cleanupItem.SOQL_WHERE_Clause__c));
-                        cuTask.itemQueryError = false;
+                        task.itemCount = Database.countQuery('SELECT count() FROM ' + demoCleanupTask.Object_API_Name__c +
+                            (demoCleanupTask.SOQL_WHERE_Clause__c == null ? '' : ' WHERE ' + demoCleanupTask.SOQL_WHERE_Clause__c));
+                        task.itemQueryError = false;
                     } catch (QueryException e) {
-                        cuTask.itemCount = 0;
-                        cuTask.itemQueryError = true;
+                        task.itemCount = 0;
+                        task.itemQueryError = true;
                     }
                 }
                 when 'Flow Cleanup Item' {
-                    cuTask.itemFlowApiName = cleanupItem.Flow_API_Name__c;
-                    cuTask.itemCount = 0;
-                    cuTask.itemQueryError = false;
+                    task.itemFlowApiName = demoCleanupTask.Flow_API_Name__c;
+                    task.itemCount = null;
+                    task.itemQueryError = false;
                 }
             }            
-            cleanupTasks.add(cuTask);
+            cleanupTasks.add(task);
         }
         
         return cleanupTasks;
     }
+
     
-    
-    //  Executes a single SOQL demo cleanup task.
-    
+    //  Saves the re-ordered demo cleanup tasks in the database.  We need to pass in the map of Demo Cleanup Task
+    //  ids to order since the Apex middleware cannot deserialize a Map<Id,Integer> automatically, so we do it
+    //  explicitly.
+    //
+    //  The parameter represents:
+    //      orderedMapJSON:  a JSON string containing a map of the form "id":"order" which specifies which order the
+    //          given Demo Cleanup Task should be executed.
+
     @AuraEnabled
-    public static void cleanup (Id taskId, String objectApiName, String whereClause, Boolean permanentlyDelete) {
-        Database.executeBatch(new DemoCleanupBatch(taskId, objectApiName, whereClause, permanentlyDelete));
+    public static void saveOrderedTasks (String orderedMapJSON) {
+        Map<Id,Integer> orderedMap = (Map<Id,Integer>) JSON.deserialize(orderedMapJSON, Map<Id,Integer>.class);
+        List<Demo_Cleanup_Task__c> demoCleanupTasks = [SELECT Order__c FROM Demo_Cleanup_Task__c WHERE Active__c = true];
+        for (Demo_Cleanup_Task__c demoCleanupTask : demoCleanupTasks)
+            demoCleanupTask.Order__c = orderedMap.get(demoCleanupTask.Id);
+        update demoCleanupTasks;
     }
 
 
-    //  Executes a single Apex demo cleanup task.
+    //  Kick off the cleanup process.  We need to pass in the list of CleanupTasks as a JSON string because the
+    //  Apex middleware has a hard time deserializing a List<CleanupTask> automatically, so we do it explicitly.
+    //
+    //  The parameter represents:
+    //      cleanupTaskListJSON:  a JSON string containing the list of ordered CleanupTasks from the component.
 
     @AuraEnabled
-    public static List<Toast> executeApex (Id taskId, String description, String apexClassName, Boolean permanentlyDelete) {
-
-        Boolean error;
-        List<Toast> toasts = new List<Toast>();
-        
-        try {
-            toasts = ((DemoCleanupApexItem) Type.forName(apexClassName).newInstance()).execute(taskId, permanentlyDelete);
-            error = false;
-        } catch (Exception e) {
-            Toast errorToast = new Toast();
-            errorToast.toastTitle = 'There was an uncaught exception in Apex cleanup item "' + description + '"';
-            errorToast.toastMessage = e.getMessage();
-            errorToast.toastMode = 'sticky';
-            errorToast.toastVariant = 'error';
-            toasts.add(errorToast);
-            error = true;
-        }
-
-        EventBus.publish (new Demo_Cleanup_Event__e (
-            Task_Id__c = taskId,
-            Finished__c = true,
-            Total_Records_Deleted__c = 0,
-            Total_Errors__c = error ? 1 : 0
-        ));
-        
-        return toasts;
+    public static void startCleanup (String cleanupTaskListJSON) {
+        cleanup ((List<CleanupTask>) JSON.deserialize(cleanupTaskListJSON, List<CleanupTask>.class), 0);
     }
 
 
-    //  Runs an autolaunched flow.
+    //  Kick off the cleanup task specified at the currentItem-th position in the ordered CleanupTask list.
+    //  This method is invoked by all of the classes that handle the asynchronous execution of the tasks.
+    //
+    //  The parameters represent:
+    //      cleanupTaskList:  the ordered list of cleanup tasks in this run.
+    //      currentItem:  the zero-based index of the current item in the ordered cleanup task list.
 
-    @AuraEnabled
-    public static List<Toast> runFlow (Id taskId, String description, String flowApiName) {
+    public static void cleanup (List<CleanupTask> cleanupTaskList, Integer currentItem) {
 
-        Boolean error;
-        List<Toast> returnValue;
-
-        try {
-            Flow.Interview.createInterview(flowApiName, new Map<String,Object> { 'DemoCleanupTaskId' => taskId }).start();
-            returnValue = null;
-            error = false;
-        } catch (Exception e) {
-            Toast errorToast = new Toast();
-            errorToast.toastTitle = 'Could not execute flow cleanup item "' + description + '"';
-            errorToast.toastMessage = e.getMessage();
-            errorToast.toastMode = 'sticky';
-            errorToast.toastVariant = 'error';
-            returnValue = new List<Toast> {errorToast};
-            error = true;
-        }
-
-        EventBus.publish (new Demo_Cleanup_Event__e (
-            Task_Id__c = taskId,
-            Finished__c = true,
-            Total_Records_Deleted__c = 0,
-            Total_Errors__c = error ? 1 : 0
-        ));
-
-        return returnValue;
+        if (currentItem < cleanupTaskList.size())
+            switch on cleanupTaskList[currentItem].itemRecordTypeName {
+                when 'SOQL Cleanup Item' {
+                    Database.executeBatch(new DemoCleanupBatch(cleanupTaskList, currentItem));
+                }
+                when 'Apex Cleanup Item' {
+                    if (System.Limits.getQueueableJobs() < System.Limits.getLimitQueueableJobs())
+                        System.enqueueJob(new DemoCleanupApex(cleanupTaskList, currentItem));
+                }
+                when 'Flow Cleanup Item' {
+                    if (System.Limits.getQueueableJobs() < System.Limits.getLimitQueueableJobs())
+                        System.enqueueJob(new DemoCleanupFlow(cleanupTaskList, currentItem));
+                }
+            }
     }
+
 }

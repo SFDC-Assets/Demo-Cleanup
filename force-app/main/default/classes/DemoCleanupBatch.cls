@@ -3,8 +3,10 @@
 //  This code is provided AS IS, with no warranty or guarantee of suitability for use.
 //  Contact: john.meyer@salesforce.com
 
-global without sharing class DemoCleanupBatch implements Database.Batchable<sObject>, Database.Stateful, Database.RaisesPlatformEvents {
+public without sharing class DemoCleanupBatch implements Database.Batchable<sObject>, Database.Stateful {
 
+	private List<DemoCleanup.CleanupTask> cleanupTaskList;
+	private Integer currentIndex;
 	private Id taskId;
 	private String sObjectApiName;
 	private String nameField;
@@ -12,37 +14,29 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 	private Boolean permanentlyDelete;
 
 	private Integer totalRecordsProcessed = 0;
+	private Integer totalRecordsWithErrors = 0;
 	private Integer totalErrors = 0;
 
-	//  Class used by the execute() method to collect error information to send back to the component.
-
-	private class ErrorSpec {
-		private Id id;
-		private String name;
-		private String link;
-		private String fields;
-		private String message;
-	}
 
 	//  Constructor method that gathers the information for the batch job and builds the query string.
 	//
 	//  The parameters represent:
-	//      taskId:  the Id of the task record specifying the cleanup task.
-	//      sObjectApiName:  the API name of the object whose records we will delete.
-	//      whereClause:  the SOQL WHERE clause that identifies the records to be deleted.
-	//      permanentlyDelete:  True if the records are to bypass the recycle bin and be permanently deleted.
+	//      cleanupTaskList:  the entire list of cleanup tasks
+	//      currentIndex:  the zero-based index into cleanupTaskList of the current cleanup task
 
-	global DemoCleanupBatch(Id taskId, String sObjectApiName, String whereClause, Boolean permanentlyDelete) {
-		this.taskId = taskId;
-		this.sObjectApiName = sObjectApiName;
-		this.nameField = getNameField(sObjectApiName);
-		this.whereClause = whereClause;
-		this.permanentlyDelete = permanentlyDelete;
+	public DemoCleanupBatch (List<DemoCleanup.CleanupTask> cleanupTaskList, Integer currentIndex) {
+		this.cleanupTaskList = cleanupTaskList;
+		this.currentIndex = currentIndex;
+		this.taskId = cleanupTaskList[currentIndex].itemId;
+		this.sObjectApiName = cleanupTaskList[currentIndex].itemObjectApiName;
+		this.nameField = getNameField(cleanupTaskList[currentIndex].itemObjectApiName);
+		this.whereClause = cleanupTaskList[currentIndex].itemWhereClause;
+		this.permanentlyDelete = cleanupTaskList[currentIndex].itemPermanentlyDelete;
 	}
 
 	//  Specify the query.
 
-	global Database.QueryLocator start(Database.BatchableContext bc) {
+	public Database.QueryLocator start(Database.BatchableContext bc) {
 		return Database.getQueryLocator('SELECT ' + this.nameField + ' FROM ' + this.sObjectApiName +
 			(this.whereClause == null ? '' : ' WHERE ' + this.whereClause)
 		);
@@ -50,15 +44,16 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 
 	//  Delete records by the batch.
 
-	global void execute(Database.BatchableContext bc, List<sObject> chunk) {
+	public void execute (Database.BatchableContext bc, List<sObject> chunk) {
 
 		Integer recordNumber = 0;
-		List<ErrorSpec> errors = new List<ErrorSpec>();
+		List<DemoCleanup.ErrorSpec> errors = new List<DemoCleanup.ErrorSpec>();
 
 		for (Database.DeleteResult result : Database.delete(chunk, false)) {
-			if (!result.isSuccess())
+			if (!result.isSuccess()) {
+				this.totalRecordsWithErrors++;
 				for (Database.Error dberror : result.getErrors()) {
-					ErrorSpec error = new ErrorSpec();
+					DemoCleanup.ErrorSpec error = new DemoCleanup.ErrorSpec();
 					error.id = result.getId();
 					error.name = String.valueOf(chunk[recordNumber].get(this.nameField));
 					error.link = '/lightning/r/' + this.sObjectApiName + '/' + error.id + '/view';
@@ -66,6 +61,7 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 					error.message = dberror.getMessage();
 					errors.add(error);
 				}
+			}
 			recordNumber++;
 		}
 		if (this.permanentlyDelete)
@@ -80,32 +76,35 @@ global without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 				Finished__c = false,
 				Object_API_Name__c = this.sObjectApiName,
 				Total_Records_Deleted__c = this.totalRecordsProcessed,
+				Total_Records_with_Errors__c = this.totalRecordsWithErrors,
 				Total_Errors__c = this.totalErrors,
 				Error_JSON_String__c = JSON.serialize(errors)
 			)
 		);
 	}
 
-	//  Make sure we notify the component that we are done.
+	//  Make sure we notify the component that we are done and go kick off the next task.
 
-	global void finish(Database.BatchableContext bc) {
+	public void finish (Database.BatchableContext bc) {
 		EventBus.publish(
 			new Demo_Cleanup_Event__e(
 				Task_Id__c = this.taskId,
 				Finished__c = true,
 				Object_API_Name__c = this.sObjectApiName,
 				Total_Records_Deleted__c = this.totalRecordsProcessed,
+				Total_Records_with_Errors__c = this.totalRecordsWithErrors,
 				Total_Errors__c = this.totalErrors,
 				Error_JSON_String__c = '[]'
 			)
 		);
+		DemoCleanup.cleanup(cleanupTaskList, currentIndex + 1);
 	}
 
 
     //  Find the name field for an object.
 
     private static String getNameField (String objectApiName) {
-        String name = '';
+        String name;
         for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
             if (field.getDescribe().isNameField()) {
                 name = field.getDescribe().getName();

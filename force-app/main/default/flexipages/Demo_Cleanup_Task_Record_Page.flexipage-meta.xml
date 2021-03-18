@@ -217,28 +217,6 @@
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
-            <fieldInstance>
-                <fieldItem>Record.RecordTypeId</fieldItem>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-b26ccab3-2a5f-4638-9bf3-f6b1b6320191</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-b26ccab3-2a5f-4638-9bf3-f6b1b6320191</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-140fc9c4-70c9-44c7-a11e-c7c89e2d61b8</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>decorate</name>
@@ -246,7 +224,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;A &lt;/span&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;Demo Cleanup Task&lt;/b&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; describes a procedure to delete records or reset state as part of an overall demo cleanup. This can be handy between test runs of the demo or after a demo presentation to clean out any records that were generated as part of the demo, leaving the org in a clean state for the next presentation.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;Demo Cleanup Tasks come in three flavors:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;SOQL cleanup tasks&lt;/b&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; delete records of an object that match an optional &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;WHERE&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; clause that you specify. Due to Salesforce governor limits, you can have a maximum of 90 SOQL tasks active at any given time. The component checks the validity of the object API name and the &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;WHERE&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; clause and will alert you if there are any problems generating a query based on these fields.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;Apex cleanup tasks&lt;/b&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; run an Apex class that you specify. The class must implement the &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;DemoCleanupApexItem&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; interface.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;Flow cleanup tasks&lt;/b&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; run an autolaunched flow that you specify. The &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;Id&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; of the Demo Cleanup Task record that called the flow will be passed in through the &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;D&lt;/span&gt;&lt;span style=&quot;font-family: courier;&quot;&gt;emoCleanupTaskId&lt;/span&gt; input variable to the flow. So, if you need to get access to the fields in the Demo Cleanup Task record that invoked the flow within the flow itself, be sure to create the &lt;span style=&quot;font-family: courier;&quot;&gt;DemoCleanupTaskId&lt;/span&gt; variable in the RESOURCES section of the flow.&lt;/li&gt;&lt;/ul&gt;</value>
+                    <value>&lt;p&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;A &lt;/span&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;Demo Cleanup Task&lt;/b&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; describes a procedure to delete records or reset state as part of an overall demo cleanup. This can be handy between test runs of the demo or after a demo presentation to clean out any records that were generated as part of the demo, leaving the org in a clean state for the next presentation.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;There are three kinds of Demo Cleanup Tasks:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;SOQL cleanup tasks&lt;/b&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; delete records of an object that match an optional &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;WHERE&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; clause that you specify. Due to Salesforce governor limits, you can have a maximum of 90 SOQL tasks active at any given time. The component checks the validity of the object API name and the &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;WHERE&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; clause and will alert you if there are any problems generating a query based on these fields.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;Apex cleanup tasks&lt;/b&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; run an Apex class that you specify. The class must implement the &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;DemoCleanupApexItem&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; interface.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;b style=&quot;font-size: 14px;&quot;&gt;Flow cleanup tasks&lt;/b&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; run an autolaunched flow that you specify. The &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;Id&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt; of the Demo Cleanup Task record that called the flow will be passed in through the &lt;/span&gt;&lt;span style=&quot;font-size: 14px; font-family: courier;&quot;&gt;D&lt;/span&gt;&lt;span style=&quot;font-family: courier;&quot;&gt;emoCleanupTaskId&lt;/span&gt; input variable to the flow. So, if you need to get access to the fields in the Demo Cleanup Task record that invoked the flow within the flow itself, be sure to create the &lt;span style=&quot;font-family: courier;&quot;&gt;DemoCleanupTaskId&lt;/span&gt; variable in the RESOURCES section of the flow.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Demo Cleanup Tasks are executed in the order which they appear in the component list. To change the order of a task, drag and drop the task to the desired place in the list.&lt;/p&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
             </componentInstance>
@@ -307,26 +285,6 @@
                         <leftValue>{!Record.RecordType.Name}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>Flow Cleanup Item</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-140fc9c4-70c9-44c7-a11e-c7c89e2d61b8</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Dummy Section until Winter &apos;21 fixes bug</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.RecordType.DeveloperName}</leftValue>
-                        <operator>CONTAINS</operator>
-                        <rightValue>Wait Until Winter &apos;21 and Delete This</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>

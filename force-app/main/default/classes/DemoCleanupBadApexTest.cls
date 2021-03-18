@@ -8,15 +8,12 @@ public without sharing class DemoCleanupBadApexTest implements DemoCleanupApexIt
 
     public class DemoCleanupException extends Exception {}
 
-    @AuraEnabled
     public static Integer getRowCount () {
         return null;
     }
  
-    @AuraEnabled
-    public static List<DemoCleanup.Toast> execute (Id taskId, Boolean permanentlyDelete) {
+    public static void execute (Id taskId, Boolean permanentlyDelete) {
         if (taskId != null)
             throw new DemoCleanupException ('Throwing a DemoCleanupException');
-        return null;
     }
 }

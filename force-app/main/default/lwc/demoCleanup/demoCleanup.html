@@ -27,7 +27,6 @@
 		<div slot="actions">
 			<lightning-button-icon-stateful
 				variant="neutral"
-				label="Help"
 				icon-name="utility:question"
 				selected={helpSectionVisible}
 				onclick={handleHelpButton}
@@ -35,16 +34,15 @@
 			</lightning-button-icon-stateful>
 		</div>
 
-		<template if:false={deletionInProgress}>
-			<p class="slds-p-horizontal_large slds-hyphenate">
-				Delete any spurious or temporary records that were created during a demo or during testing, leaving the org in a
-				clean state for the next demo.
-			</p>
-			<template if:false={cleanupTasksEmpty}>
-				<template if:true={tooManyCleanupTasks}>
-					<div class="slds-illustration slds-illustration_small">
-						<!-- prettier-ignore -->
-						<svg class="slds-illustration__svg" viewBox="0 0 454 212" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+		<p class="slds-p-horizontal_large slds-hyphenate">
+			Delete any spurious or temporary records that were created during a demo or during testing, leaving the org in a clean
+			state for the next demo.
+		</p>
+		<template if:false={cleanupTasksEmpty}>
+			<template if:true={tooManyCleanupTasks}>
+				<div class="slds-illustration slds-illustration_small">
+					<!-- prettier-ignore -->
+					<svg class="slds-illustration__svg" viewBox="0 0 454 212" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
 							<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 							  <g transform="translate(-70.000000, -95.000000)">
 								<g>
@@ -157,82 +155,260 @@
 								</g>
 							  </g>
 							</g>
-						  </svg>
-						<div class="slds-var-p-around_large slds-text-longform">
-							<h3 class="slds-text-heading_medium">You have an embarrassment of riches</h3>
+					</svg>
+					<div class="slds-var-p-around_large slds-text-longform">
+						<h3 class="slds-text-heading_medium">You have an embarrassment of riches</h3>
+						<template if:true={tooManyCleanupTasks}>
 							<div class="slds-var-p-bottom_medium slds-text-body_regular slds-text-align_center">
-								The maximum number of SOQL-based cleanup tasks to stay within the Salesforce governor limits
-								is&nbsp;
+								The maximum number of cleanup tasks to stay within the Salesforce governor limits is&nbsp;
 								<lightning-formatted-number value={maximumCleanupTasks}> </lightning-formatted-number> &nbsp;and you
 								have&nbsp;
-								<lightning-formatted-number value={totalSoqlRecordsRetrieved}> </lightning-formatted-number>
+								<lightning-formatted-number value={numberOfCleanupTasks}> </lightning-formatted-number>
 								.
-								<br />
-								You can delete or de-activate tasks from the Demo Cleanup Tasks tab.
 							</div>
-							<lightning-button
-								variant="brand"
-								label="Take Me There"
-								title="Go to the Demo Cleanup Tasks tab"
-								onclick={handleGoToDemoCleanupTasksButton}
-							>
-							</lightning-button>
+						</template>
+						<div class="slds-var-p-bottom_medium slds-text-body_regular slds-text-align_center">
+							You can delete or de-activate tasks from the Demo Cleanup Tasks tab.
+						</div>
+						<lightning-button
+							variant="brand"
+							label="Take Me There"
+							title="Go to the Demo Cleanup Tasks tab"
+							onclick={handleGoToDemoCleanupTasksButton}
+						>
+						</lightning-button>
+					</div>
+				</div>
+			</template>
+			<template if:false={tooManyCleanupTasks}>
+				<section class="slds-var-p-top_medium slds-p-horizontal_large">
+					<lightning-layout horizontal-align="spread" vertical-align="center">
+						<lightning-layout-item size="6" class="slds-text-color_weak slds-text-align_left slds-trucate">
+							<em> Drag and drop the rows in the list to re-order them. </em>
+						</lightning-layout-item>
+						<lightning-layout-item size="6" class="slds-text-align_right">
+							<div>
+								<lightning-icon class="slds-p-right_x-small" icon-name="utility:new_window" size="xx-small">
+								</lightning-icon>
+								<lightning-formatted-url
+									label="Go to the Demo Cleanup Tasks list"
+									value={cleanupTaskListViewUrl}
+									target="_blank"
+								>
+								</lightning-formatted-url>
+							</div>
+						</lightning-layout-item>
+					</lightning-layout>
+				</section>
+				<section class="slds-var-p-vertical_x-small slds-p-horizontal_large">
+					<lightning-layout
+						horizontal-align="spread"
+						class="slds-p-vertical_xx-small slds-theme_shade slds-border_top slds-border_left slds-border_right"
+					>
+						<lightning-layout-item size="1" padding="horizontal-small" class="slds-text-align_center">
+							&#x2714;
+						</lightning-layout-item>
+						<lightning-layout-item size="2" padding="horizontal-small" class="slds-text-align_center">
+							<strong>Records</strong>
+						</lightning-layout-item>
+						<lightning-layout-item size="1" padding="horizontal-small" class="slds-text-align_center">
+							<strong>Type</strong>
+						</lightning-layout-item>
+						<lightning-layout-item size="8" padding="horizontal-small" class="slds-text-align_center">
+							<strong>Demo Cleanup Task</strong>
+						</lightning-layout-item>
+					</lightning-layout>
+					<table class="slds-table slds-table_header-hidden slds-no-row-hover">
+						<tbody>
+							<template for:each={cleanupTasks} for:item="ct">
+								<tr
+									draggable={draggable}
+									key={ct.itemId}
+									data-id={ct.itemId}
+									ondragenter={handleDragEnter}
+									ondragstart={handleDragStart}
+									ondragend={handleDragEnd}
+									ondragover={handleDragOver}
+								>
+									<td class="slds-box slds-box_xx-small">
+										<lightning-layout>
+											<lightning-layout-item
+												size="1"
+												padding="horizontal-small"
+												class="slds-align_absolute-center"
+											>
+												<lightning-input
+													type="checkbox"
+													checked={ct.itemSelected}
+													disabled={selectDisabled}
+													label={ct.itemId}
+													variant="label-hidden"
+													data-id={ct.itemId}
+													class="checkbox slds-align_absolute-center"
+													onchange={handleRowSelection}
+												>
+												</lightning-input>
+											</lightning-layout-item>
+											<lightning-layout-item
+												size="2"
+												padding="horizontal-small"
+												class="slds-text-align_right"
+											>
+												<lightning-formatted-number value={ct.itemRemaining}> </lightning-formatted-number>
+											</lightning-layout-item>
+											<lightning-layout-item
+												size="1"
+												padding="horizontal-small"
+												class="slds-align_absolute-center"
+											>
+												<lightning-icon
+													icon-name={ct.itemIcon}
+													size="xx-small"
+													variant={ct.itemIconVariant}
+													class="slds-align_absolute-center"
+													title={ct.itemIconTooltip}
+												>
+												</lightning-icon>
+											</lightning-layout-item>
+											<lightning-layout-item size="7" padding="horizontal-small" class="slds-truncate">
+												<lightning-formatted-url
+													value={ct.itemLink}
+													label={ct.itemDescription}
+													target="_blank"
+												>
+												</lightning-formatted-url>
+											</lightning-layout-item>
+											<lightning-layout-item
+												size="1"
+												padding="horizontal-small"
+												class="slds-align_absolute-center"
+											>
+												<lightning-icon
+													icon-name={ct.itemCompletionIcon}
+													variant={ct.itemCompletionIconVariant}
+													size="x-small"
+												>
+												</lightning-icon>
+											</lightning-layout-item>
+										</lightning-layout>
+										<template if:true={ct.itemShowProgress}>
+											<template if:true={ct.itemIsSOQL}>
+												<lightning-layout vertical-align="center" class="slds-var-p-vertical_medium">
+													<lightning-layout-item
+														padding="horizontal-medium"
+														size="2"
+														class="slds-text-align_right slds-truncate"
+													>
+														<lightning-formatted-number value={ct.itemRunningTotal}>
+														</lightning-formatted-number>
+														&nbsp;/&nbsp;
+														<lightning-formatted-number value={ct.itemCount}>
+														</lightning-formatted-number>
+													</lightning-layout-item>
+													<lightning-layout-item padding="horizontal-large" size="8" flexibility="auto">
+														<lightning-progress-bar
+															size="large"
+															variant="circular"
+															value={ct.itemPercentage}
+															aria-valuemin="0"
+															aria-valuemax={ct.itemCount}
+															aria-valuenow={ct.itemRunningTotal}
+															role="progressbar"
+														>
+														</lightning-progress-bar>
+													</lightning-layout-item>
+													<lightning-layout-item
+														padding="horizontal-medium"
+														size="2"
+														class="slds-text-align_left slds-text-color_error slds-truncate"
+													>
+														<template if:true={ct.itemHasErrors}>
+															<lightning-formatted-number value={ct.itemNumberOfErrors}>
+															</lightning-formatted-number>
+															&nbsp;error(s)
+														</template>
+													</lightning-layout-item>
+												</lightning-layout>
+											</template>
+										</template>
+									</td>
+								</tr>
+							</template>
+						</tbody>
+					</table>
+					<div>
+						<lightning-button
+							variant="base"
+							disabled={selectDisabled}
+							label="Select All"
+							title="Select all of the Demo Cleanup Tasks"
+							onclick={handleSelectAll}
+							class="slds-p-right_medium"
+						>
+						</lightning-button>
+						<lightning-button
+							variant="base"
+							disabled={selectDisabled}
+							label="Deselect All"
+							title="Deselect all of the Demo Cleanup Tasks"
+							onclick={handleDeselectAll}
+							class="slds-p-left_medium"
+						>
+						</lightning-button>
+					</div>
+				</section>
+				<template if:true={showErrorList}>
+					<div class="slds-p-horizontal_large slds-var-p-vertical_small">
+						<div class="slds-box">
+							<p class="slds-var-p-bottom_small slds-text-color_error slds-hyphenate">
+								<em>
+									A total of&nbsp;
+									<lightning-formatted-number value={totalErrors}> </lightning-formatted-number>
+									&nbsp;error(s) occurred while executing the selected Demo Cleanup Tasks. Scroll through the list
+									to see all of them.
+								</em>
+							</p>
+							<div class="slds-scrollable scrollerSize">
+								<lightning-datatable
+									columns={errorListColumns}
+									data={errorList}
+									key-field="id"
+									hide-checkbox-column="true"
+								>
+								</lightning-datatable>
+							</div>
 						</div>
 					</div>
 				</template>
-				<template if:false={tooManyCleanupTasks}>
-					<section class="slds-var-p-top_medium slds-p-horizontal_large">
-						<lightning-layout multiple-rows="false" horizontal-align="spread" vertical-align="center">
-							<lightning-layout-item size="12">
-								<div class="slds-float_right">
-									<lightning-icon class="slds-p-right_x-small" icon-name="utility:new_window" size="xx-small">
-									</lightning-icon>
-									<lightning-formatted-url
-										label="Go to the Demo Cleanup Tasks list"
-										value={cleanupTaskListViewUrl}
-										target="_blank"
-									>
-									</lightning-formatted-url>
-								</div>
-							</lightning-layout-item>
-						</lightning-layout>
-					</section>
-					<section class="slds-var-p-top_x-small slds-p-horizontal_large">
-						<lightning-datatable
-							data={cleanupTasks}
-							columns={cleanupTasksColumns}
-							key-field="itemId"
-							onrowselection={handleRowSelection}
-						>
-						</lightning-datatable>
-					</section>
-					<section class="slds-p-horizontal_large slds-p-vertical_medium">
-						<lightning-layout multiple-rows="false" horizontal-align="spread" vertical-align="center">
-							<lightning-layout-item size="6">
-								<strong>
-									Total Records: &nbsp;
-									<lightning-formatted-number value={totalRecordsSelected}> </lightning-formatted-number>
-								</strong>
-							</lightning-layout-item>
-							<lightning-layout-item size="6">
-								<lightning-button
-									class="slds-float_right"
-									variant="destructive"
-									disabled={cleanupButtonDisabled}
-									label="Clean Up the Demo"
-									icon-name="utility:bucket"
-									onclick={showModal}
-								>
-								</lightning-button>
-							</lightning-layout-item>
-						</lightning-layout>
-					</section>
-				</template>
+
+				<section class="slds-p-horizontal_large slds-p-vertical_medium">
+					<lightning-layout multiple-rows="false" horizontal-align="spread" vertical-align="center">
+						<lightning-layout-item size="6">
+							<strong>
+								Total Records: &nbsp;
+								<lightning-formatted-number value={totalRecordsSelected}> </lightning-formatted-number>
+							</strong>
+						</lightning-layout-item>
+						<lightning-layout-item size="6">
+							<lightning-button
+								class="slds-float_right"
+								variant="destructive"
+								disabled={cleanupButtonDisabled}
+								label="Clean Up the Demo"
+								icon-name="utility:bucket"
+								onclick={showModal}
+							>
+							</lightning-button>
+						</lightning-layout-item>
+					</lightning-layout>
+				</section>
 			</template>
-			<template if:true={cleanupTasksEmpty}>
-				<div class="slds-illustration slds-illustration_small">
-					<!-- prettier-ignore -->
-					<svg class="slds-illustration__svg" viewBox="0 0 470 229" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+		</template>
+
+		<template if:true={cleanupTasksEmpty}>
+			<div class="slds-illustration slds-illustration_small">
+				<!-- prettier-ignore -->
+				<svg class="slds-illustration__svg" viewBox="0 0 470 229" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
 						<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 						  <g transform="translate(-65.000000, -89.000000)">
 							<g>
@@ -346,120 +522,23 @@
 							</g>
 						  </g>
 						</g>
-					</svg>
-					<div class="slds-var-p-around_large slds-text-longform">
-						<h3 class="slds-text-heading_medium">You have a little work to do</h3>
-						<div class="slds-var-p-bottom_medium slds-text-body_regular slds-text-align_center">
-							You do not have any active Demo Cleanup Tasks, so I don't know how to clean up your org.
-							<br />
-							You can create new tasks or re-activate any that you may already have from the Demo Cleanup Tasks tab.
-						</div>
-						<lightning-button
-							variant="brand"
-							label="Take Me There"
-							title="Go to the Demo Cleanup Tasks tab"
-							onclick={handleGoToDemoCleanupTasksButton}
-						>
-						</lightning-button>
+				</svg>
+				<div class="slds-var-p-around_large slds-text-longform">
+					<h3 class="slds-text-heading_medium">You have a little work to do</h3>
+					<div class="slds-var-p-bottom_medium slds-text-body_regular slds-text-align_center">
+						You do not have any active Demo Cleanup Tasks, so I don't know how to clean up your org.
+						<br />
+						You can create new tasks or re-activate any that you may already have from the Demo Cleanup Tasks tab.
 					</div>
+					<lightning-button
+						variant="brand"
+						label="Take Me There"
+						title="Go to the Demo Cleanup Tasks tab"
+						onclick={handleGoToDemoCleanupTasksButton}
+					>
+					</lightning-button>
 				</div>
-			</template>
-		</template>
-
-		<template if:true={deletionInProgress}>
-			<section class="slds-p-horizontal_large">
-				<template if:false={deletionFinished}>
-					<p class="slds-var-p-bottom_medium slds-hyphenate">
-						<strong>Please be patient</strong>. Depending on the load on the Salesforce infrastructure, the SOQL-based
-						Demo Cleanup Tasks might take a while to begin.
-					</p>
-					<p class="slds-var-p-bottom_medium slds-hyphenate">
-						If you navigate away from this page or tab, the record deletions will continue, but you will not be able to
-						monitor the progress.
-					</p>
-				</template>
-				<template if:true={deletionFinished}>
-					<p class="slds-var-p-bottom_medium slds-hyphenate">Demo cleanup has completed.</p>
-				</template>
-				<div class="slds-var-p-vertical_medium slds-var-p-horizontal_x-large">
-					<table class="slds-text-body_small">
-						<tbody>
-							<template for:each={selectedRows} for:item="ct">
-								<tr class="slds-p-around_none" key={ct.itemId}>
-									<td class="runningObject">
-										<strong>
-											<lightning-formatted-text value={ct.itemDescription} class="slds-truncate">
-											</lightning-formatted-text>
-										</strong>
-									</td>
-									<td class="runningCounts">
-										<lightning-formatted-number value={ct.itemRunningTotal}> </lightning-formatted-number>
-										&nbsp;/&nbsp;
-										<lightning-formatted-number value={ct.itemCount}> </lightning-formatted-number>
-										&nbsp;&nbsp;(
-										<lightning-formatted-number value={ct.itemPercentage}> </lightning-formatted-number>
-										%)
-									</td>
-									<td class="runningRemaining">
-										<template if:true={ct.itemDeletionFinished}>
-											<template if:true={ct.itemNumberOfErrors}>
-												<strong><span class="slds-text-color_error">Done</span></strong>
-											</template>
-											<template if:false={ct.itemNumberOfErrors}>
-												<strong><span class="slds-text-color_success">Done</span></strong>
-											</template>
-										</template>
-										<template if:false={ct.itemDeletionFinished}>
-											<lightning-formatted-number value={ct.itemRemaining} class="slds-text-align_right">
-											</lightning-formatted-number>
-										</template>
-									</td>
-									<td class="runningErrors">
-										<template if:true={ct.itemNumberOfErrors}>
-											<span class="slds-text-color_error">
-												<lightning-formatted-number value={ct.itemNumberOfErrors}>
-												</lightning-formatted-number>
-												&nbsp;error(s)
-											</span>
-										</template>
-									</td>
-								</tr>
-								<tr key={ct.itemAPIName}>
-									<td class="runningProgressBar" colspan="4">
-										<div class="slds-var-p-bottom_medium">
-											<lightning-progress-bar
-												size="large"
-												value={ct.itemPercentage}
-												aria-valuemin="0"
-												aria-valuemax={ct.itemCount}
-												aria-valuenow={ct.itemRunningTotal}
-												role="progressbar"
-											>
-											</lightning-progress-bar>
-										</div>
-									</td>
-								</tr>
-							</template>
-						</tbody>
-					</table>
-				</div>
-				<template if:true={errorListVisible}>
-					<p class="slds-var-p-bottom_small slds-text-color_error slds-hyphenate">
-						The following errors occurred during the cleanup. Usually this means that the you deleted a parent record
-						and its child while also attempting to delete the same child record in another Demo Cleanup Task. You should
-						find that all the records were, in fact, deleted.
-					</p>
-					<p class="slds-var-p-bottom_medium slds-text-color_error slds-hyphenate">
-						To make sure this does not occur again, please check your Demo Cleanup Tasks for any lookup possibilities
-						(<em>e.g.</em>, master-detail relationships) that could cause a child record to be deleted along with its
-						parent. Either deselect or de-activate the Demo Cleanup Task that contains the redundant child deletions.
-					</p>
-					<div class="slds-var-p-bottom_medium slds-scrollable scrollerSize">
-						<lightning-datatable columns={errorListColumns} data={errorList} key-field="id" hide-checkbox-column="true">
-						</lightning-datatable>
-					</div>
-				</template>
-			</section>
+			</div>
 		</template>
 
 		<template if:true={helpSectionVisible}>
@@ -476,7 +555,7 @@
 					</p>
 					<h2 class="slds-p-top_large"><strong>How It Works</strong></h2>
 					<p class="slds-p-top_small slds-hyphenate">
-						The component is driven by a series of Demo Dleanup Tasks which you create. These tasks fall into three
+						The component is driven by a series of Demo Cleanup Tasks which you create. These tasks fall into three
 						categories:
 					</p>
 					<ul class="slds-list_dotted slds-p-top_small slds-hyphenate">

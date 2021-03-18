@@ -12,5 +12,5 @@ readonly devHubOrgAlias=$(jq --raw-output .defaultdevhubusername < .sfdx/sfdx-co
 
 sfdx force:data:soql:query \
     --targetusername "$devHubOrgAlias" \
-    --query "SELECT OrgName, ExpirationDate FROM ScratchOrgInfo WHERE Status = 'Active'" \
+    --query "SELECT Id, OrgName, ExpirationDate FROM ScratchOrgInfo WHERE Status = 'Active'" \
     --loglevel error

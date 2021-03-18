@@ -1,5 +1,5 @@
 p, li {
-    text-align: justify;
+	text-align: justify;
 }
 code {
 	-moz-hyphens: none;
@@ -7,25 +7,10 @@ code {
 	-webkit-hyphens: none;
 	hyphens: none;
 }
-.runningObject {
-	width: 40%;
-	text-align: left;
-}
-.runningCounts {
-	width: 30%;
-	text-align: right;
-}
-.runningRemaining {
-	width: 15%;
-	text-align: right;
-}
-.runningErrors {
-	width: 15%;
-	text-align: right;
-}
-.runningProgressBar {
-	width: 100%;
-}
 .scrollerSize {
-	height: 200px;
+	height: 10rem;
+}
+.dragging {
+	transform: rotate(3deg);
+	transform-origin: 3rem 3rem;
 }

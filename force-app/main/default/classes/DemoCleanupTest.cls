@@ -21,62 +21,70 @@ private without sharing class DemoCleanupTest {
 
         List<Demo_Cleanup_Task__c> tasks = new List<Demo_Cleanup_Task__c> {
             new Demo_Cleanup_Task__c (
-                RecordTypeId = SOQL_RECORD_TYPE_ID,
-                Object_API_Name__c = 'Account',
-                Description__c = 'Delete all accounts where SIC code is "Test"',
-                SOQL_Where_Clause__c = 'Sic = \'Test\'',
-                Permanently_Delete__c = false,
-                Active__c = true
-            ),
-            new Demo_Cleanup_Task__c (
-                RecordTypeId = SOQL_RECORD_TYPE_ID,           
-                Object_API_Name__c = 'Contact',
-                Description__c = 'Delete all contacts, which should generate an error',
-                Permanently_Delete__c = true,
-                Active__c = true
-            ), 
-            new Demo_Cleanup_Task__c (
                 RecordTypeId = SOQL_RECORD_TYPE_ID,            
                 Object_API_Name__c = 'Opportunity',
                 Description__c = 'Delete all opportunities with a bad WHERE clause',
                 SOQL_Where_Clause__c = 'john',
                 Permanently_Delete__c = false,
-                Active__c = true
-            ),
-            new Demo_Cleanup_Task__c (
-                RecordTypeId = APEX_RECORD_TYPE_ID,
-                Apex_Class_Name__c = 'DemoCleanupCustomApex',
-                Description__c = 'Run custom Apex',
-                Permanently_Delete__c = false,
-                Active__c = true
+                Active__c = true,
+                Order__c = 0
             ),
             new Demo_Cleanup_Task__c (
                 RecordTypeId = APEX_RECORD_TYPE_ID,
                 Apex_Class_Name__c = 'BadApexClassName',
                 Description__c = 'Run bad custom Apex class name',
                 Permanently_Delete__c = false,
-                Active__c = true
+                Active__c = true,
+                Order__c = 1
             ),
             new Demo_Cleanup_Task__c (
                 RecordTypeId = APEX_RECORD_TYPE_ID,
                 Apex_Class_Name__c = 'DemoCleanupBadApexTest',
                 Description__c = 'Run Apex class that throws an uncaught exception',
                 Permanently_Delete__c = false,
-                Active__c = true
-            ),
-            new Demo_Cleanup_Task__c (
-                RecordTypeId = FLOW_RECORD_TYPE_ID,
-                Flow_API_Name__c = 'Demo_Cleanup_Flow_Item_Test',
-                Description__c = 'Run the test flow',
-                Permanently_Delete__c = false,
-                Active__c = true
+                Active__c = true,
+                Order__c = 2
             ),
             new Demo_Cleanup_Task__c (
                 RecordTypeId = FLOW_RECORD_TYPE_ID,
                 Flow_API_Name__c = 'Bad_Demo_Cleanup_Flow_Item_Test',
                 Description__c = 'Try to run a non-existent test flow',
                 Permanently_Delete__c = false,
-                Active__c = true
+                Active__c = true,
+                Order__c = 3
+            ),
+            new Demo_Cleanup_Task__c (
+                RecordTypeId = APEX_RECORD_TYPE_ID,
+                Apex_Class_Name__c = 'DemoCleanupCustomApex',
+                Description__c = 'Run custom Apex',
+                Permanently_Delete__c = false,
+                Active__c = true,
+                Order__c = 4
+            ),
+            new Demo_Cleanup_Task__c (
+                RecordTypeId = FLOW_RECORD_TYPE_ID,
+                Flow_API_Name__c = 'Demo_Cleanup_Flow_Item_Test',
+                Description__c = 'Run the test flow',
+                Permanently_Delete__c = false,
+                Active__c = true,
+                Order__c = 5
+            ),
+            new Demo_Cleanup_Task__c (
+                RecordTypeId = SOQL_RECORD_TYPE_ID,           
+                Object_API_Name__c = 'Contact',
+                Description__c = 'Delete all contacts',
+                Permanently_Delete__c = true,
+                Active__c = true,
+                Order__c = 6
+            ),
+            new Demo_Cleanup_Task__c (
+                RecordTypeId = SOQL_RECORD_TYPE_ID,
+                Object_API_Name__c = 'Account',
+                Description__c = 'Delete all accounts where SIC code is "Test"',
+                SOQL_Where_Clause__c = 'Sic = \'Test\'',
+                Permanently_Delete__c = false,
+                Active__c = true,
+                Order__c = 7
             )
         };
         insert tasks;
@@ -97,34 +105,87 @@ private without sharing class DemoCleanupTest {
                 AccountId = accounts[NUMBER_OF_RECORDS - i - 1].Id
             ));
         insert contacts;
+
+        List<Case> cases = new List<Case>();
+        for (Integer i = 0; i < NUMBER_OF_RECORDS; i++)
+            cases.add(new Case (
+                ContactId = contacts[i].Id,
+                Subject = 'Case ' + i
+            ));
+        insert cases;
     }
 
 
     @isTest
-    private static void runTests () {
-
+    private static void testBadApexClassName () {
         System.Test.startTest();
-
-        List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks();
-
-        for (DemoCleanup.CleanupTask item : cleanupTasks)
-            switch on item.itemRecordTypeName {
-                when 'SOQL Cleanup Item' {
-                    if (item.itemCount != 0)
-                        DemoCleanup.cleanup (item.itemId, item.itemObjectApiName, item.itemWhereClause, item.itemPermanentlyDelete);
-                }
-                when 'Apex Cleanup Item' {
-                    List<DemoCleanup.Toast> toasts = DemoCleanup.executeApex(item.itemId, item.itemDescription, item.itemApexClassName, item.itemPermanentlyDelete);
-                }
-                when 'Flow Cleanup Item' {
-                    List<DemoCleanup.Toast> toasts = DemoCleanup.runFlow(item.itemId, item.itemDescription, item.itemFlowApiName);
-                }
-            }
-
-        // Cannot test for these since the work is done asynchronously ...
-        // System.assertEquals(0, [SELECT count() FROM Account]);
-        // System.assertEquals(0, [SELECT count() FROM Shipment]);
-
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[1] }));
         System.Test.stopTest();
     }
+
+    @isTest
+    private static void testApexException () {
+        System.Test.startTest();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[2] }));
+        System.Test.stopTest();
+    }
+
+    @isTest
+    private static void testNonExistentFlow () {
+        System.Test.startTest();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[3] }));
+        System.Test.stopTest();
+    }
+
+    @isTest
+    private static void testApex () {
+        System.Test.startTest();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[4] }));
+        System.Test.stopTest();
+    }
+
+    @isTest
+    private static void testFlow () {
+        System.Test.startTest();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[5] }));
+        System.Test.stopTest();
+    }
+
+    @isTest
+    private static void testBadSOQLDeletion () {
+        System.Test.startTest();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[6] }));
+        System.assertEquals(NUMBER_OF_RECORDS, [SELECT Id FROM Contact].size());
+        System.Test.stopTest();
+    }
+
+    @isTest
+    private static void testWhereClause () {
+        System.Test.startTest();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[7] }));
+        System.assertEquals(NUMBER_OF_RECORDS, [SELECT Id FROM Account].size());
+        System.Test.stopTest();
+    }
+
+    @isTest
+    private static void testUpdateOrder () {
+        System.Test.startTest();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        Map<Id,Integer> orderMap = new Map<Id,Integer>();
+        for (DemoCleanup.CleanupTask cleanupTask : cleanupTaskList)
+            orderMap.put(cleanupTask.itemId, cleanupTask.itemOrder);
+        DemoCleanup.saveOrderedTasks(JSON.serialize(orderMap));
+        List<DemoCleanup.CleanupTask> newCleanupTaskList = DemoCleanup.getCleanupTasks();
+        for (Integer i = 0; i < cleanupTaskList.size(); i++)
+            System.assertEquals(newCleanupTaskList[i].itemOrder, cleanupTaskList[i].itemOrder);
+        System.Test.stopTest();
+    }
+
 }

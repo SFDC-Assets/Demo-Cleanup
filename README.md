@@ -1,4 +1,4 @@
-![Creative Commons License](https://img.shields.io/badge/license-Creative%20Commons-success) ![In Development](https://img.shields.io/badge/status-Released-success) ![Code Coverage](https://img.shields.io/badge/code%20coverage-93%25-success)
+![Creative Commons License](https://img.shields.io/badge/license-Creative%20Commons-success) ![In Development](https://img.shields.io/badge/status-Released-success) ![Code Coverage](https://img.shields.io/badge/apex%20code%20coverage-100%25-success)
 
 <h1 align="center">DEMO CLEANUP</h1>
 <p align="center">
@@ -6,8 +6,6 @@ This package contains a Lightning component and other support to help clean up d
 </p>
 
 ![Demo Cleanup](/images/Demo_Cleanup.png)
-
-![Demo Cleanup Progress](/images/Demo_Cleanup_Progress.png)
 
 ## Summary
 
@@ -39,10 +37,24 @@ Click the "Take Me There" button to go to the `Demo Cleanup Tasks` tab, click th
 
 ![Demo Cleanup Task](/images/Demo_Cleanup_Task.png)
 
+## Ordering the Demo Cleanup Tasks
+
+Beginning with version 2 of this component, Demo Cleanup Tasks are executed sequentially. To reorder the tasks, drag and drop them in the correct order using the component. The order is automatically saved in the Salesforce database.
+
+## Running the Demo Cleanup tool
+
+Once the Demo Cleanup Tasks have been placed in the order in which you would like to have them executed, select the ones you want run and click the `Clean Up the Demo` button. You will be presented with a confirmation dialog showing exactly what will be done. **Please read this carefully!** Deletions that are not sent to the Recycle Bin will be deleted permanently. Pay particular attention to the SOQL cleanup tasks to ensure that the WHERE clause is correct: the WHERE clause should evaluate to `true` if the records should be deleted.
+
+After execution, the Demo Cleanup tool will display any errors that occurred in a list at the bottom of the component.
+
+![Demo Cleanup Run](/images/Demo_Cleanup_Run.png)
+
 ## Caveats and Known Limitations
 
-- You may have a maximum of 95 cleanup tasks active at any given time. This is to avoid exceeding Salesforce governor limits around the number of SOQL queries in a single transaction while building the list of cleanup tasks inside the component. The workaround is to just deactivate some of the demo cleanup tasks temporarily. Hopefully this will not be a problem for most people.
-- The cleanup tasks are performed in parallel. That means that you must be careful when deleting records that look up to one another in a master-detail relationship or if you have specified that the deletion of a parent records deletes its child records in a lookup relationship. For example, if one thread is deleting, say, Accounts and another thread is deleting Contacts that look up to those accounts, you may get errors from the contact thread that the records don't exist. Usually these errors can be safely ignored.
+- If you are upgrading from a 1._x_ version of this package and you have Apex Cleanup Tasks already in the org, you might get errors during the upgrade and definitely during the execution. I changed the `DemoCleanupApexItem` interface for version 2 and your existing Apex classes that implemented the old interface will be out of date.
+- **Please be patient as the cleanup process progresses**. Each Demo Cleanup Task is executed in its own asynchronous environment (`Batchable` for SOQL Cleanup Tasks and `Queuable` for Apex and Flow Cleanup Tasks). During times that the Salesforce infrastructure is particularly busy, you may see wait times of up to several minutes before a task is begun.
+- You may have a maximum of 90 cleanup tasks active at any given time. This is to avoid exceeding Salesforce governor limits around the number of SOQL queries in a single transaction while building the list of cleanup tasks inside the component. The workaround is to just deactivate some of the demo cleanup tasks temporarily. Hopefully this will not be a problem for most people.
+- The cleanup tasks are performed sequentially, with the Apex and Flow Cleanup Tasks executed asynchronously in chained `Queuable` Apex classes. `Queueable`s have limits on the number that can be sequentially chained in Trial and Developer orgs and, although I make sure that limits are not exceeded, I do not warn about having too many in a chain. This means that in some orgs, you need to make sure that you don't clump more than 5 Apex or Flow Cleanup Tasks together.
 
 ## How to Deploy This Package to Your Org
 
@@ -58,4 +70,4 @@ I was inspired by work done by Salesforce super-SE John Schillaci to create this
 
 [John Meyer / johnsfdemo](https://github.com/johnsfdemo)
 
-**Current Version**: 1.2
+**Current Version**: 2.0

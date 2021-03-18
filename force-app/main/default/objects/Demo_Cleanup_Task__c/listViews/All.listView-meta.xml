@@ -3,6 +3,7 @@
     <fullName>All</fullName>
     <columns>Active__c</columns>
     <columns>NAME</columns>
+    <columns>Order__c</columns>
     <columns>RECORDTYPE</columns>
     <columns>Description__c</columns>
     <columns>Object_API_Name__c</columns>
