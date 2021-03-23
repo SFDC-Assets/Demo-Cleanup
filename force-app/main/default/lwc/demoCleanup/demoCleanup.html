@@ -218,7 +218,7 @@
 							<strong>Demo Cleanup Task</strong>
 						</lightning-layout-item>
 					</lightning-layout>
-					<table class="slds-table slds-table_header-hidden slds-no-row-hover">
+					<table class="cleanup-task-list slds-table slds-table_header-hidden slds-no-row-hover">
 						<tbody>
 							<template for:each={cleanupTasks} for:item="ct">
 								<tr
@@ -240,7 +240,7 @@
 												<lightning-input
 													type="checkbox"
 													checked={ct.itemSelected}
-													disabled={selectDisabled}
+													disabled={ct.itemCheckboxDisabled}
 													label={ct.itemId}
 													variant="label-hidden"
 													data-id={ct.itemId}

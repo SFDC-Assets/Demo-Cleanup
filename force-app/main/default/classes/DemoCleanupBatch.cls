@@ -104,12 +104,12 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<sObj
     //  Find the name field for an object.
 
     private static String getNameField (String objectApiName) {
-        String name;
+		String name;
         for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
             if (field.getDescribe().isNameField()) {
                 name = field.getDescribe().getName();
-                break;
-            }
-        return name;
+				break;
+			}
+		return name;
     }
 }

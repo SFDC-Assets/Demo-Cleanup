@@ -55,7 +55,12 @@ public without sharing class DemoCleanup {
                 when 'Apex Cleanup Item' {
                     task.itemApexClassName = demoCleanupTask.Apex_Class_Name__c;
                     task.itemCount = null;
-                    task.itemQueryError = false;
+                    try {
+                        DemoCleanupApexItem test = (DemoCleanupApexItem) Type.forName(task.itemApexClassName).newInstance();
+                        task.itemQueryError = false;
+                    } catch (Exception e) {
+                        task.itemQueryError = true;
+                    }
                 }
                 when 'SOQL Cleanup Item' {
                     task.itemObjectApiName = demoCleanupTask.Object_API_Name__c;
@@ -65,14 +70,19 @@ public without sharing class DemoCleanup {
                             (demoCleanupTask.SOQL_WHERE_Clause__c == null ? '' : ' WHERE ' + demoCleanupTask.SOQL_WHERE_Clause__c));
                         task.itemQueryError = false;
                     } catch (QueryException e) {
-                        task.itemCount = 0;
+                        task.itemCount = null;
                         task.itemQueryError = true;
                     }
                 }
                 when 'Flow Cleanup Item' {
                     task.itemFlowApiName = demoCleanupTask.Flow_API_Name__c;
                     task.itemCount = null;
-                    task.itemQueryError = false;
+                    try {
+                        Flow.Interview.createInterview(task.itemFlowApiName, new Map<String,Id> { 'DemoCleanupTaskId' => task.itemId });
+                        task.itemQueryError = false;
+                    } catch (Exception e) {
+                        task.itemQueryError = true;
+                    }
                 }
             }            
             cleanupTasks.add(task);

@@ -27,6 +27,17 @@ public without sharing class DemoCleanupFlow implements Queueable {
 
         DemoCleanup.CleanupTask task = this.cleanupTaskList[this.currentIndex];
 
+        EventBus.publish(
+            new Demo_Cleanup_Event__e(
+                Task_Id__c = task.itemId,
+                Finished__c = false,
+                Object_API_Name__c = null,
+                Total_Records_Deleted__c = null,
+                Total_Records_with_Errors__c = 0,
+                Total_Errors__c = 0,
+                Error_JSON_String__c = '[]'
+            )
+        );    
         try {
             Flow.Interview.createInterview(task.itemFlowApiName, new Map<String,Id> { 'DemoCleanupTaskId' => task.itemId }).start();
             EventBus.publish(
