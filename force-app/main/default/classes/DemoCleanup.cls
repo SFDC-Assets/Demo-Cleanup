@@ -13,6 +13,7 @@ public without sharing class DemoCleanup {
         @AuraEnabled public String itemApexClassName;
         @AuraEnabled public String itemFlowApiName;
         @AuraEnabled public String itemObjectApiName;
+        @AuraEnabled public String itemDuplicateObjectTask;
         @AuraEnabled public String itemDescription;
         @AuraEnabled public String itemWhereClause;
         @AuraEnabled public Boolean itemPermanentlyDelete;
@@ -37,13 +38,16 @@ public without sharing class DemoCleanup {
     public static List<CleanupTask> getCleanupTasks () {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
-            SELECT   RecordType.Name, Order__c, Apex_Class_Name__c, Flow_API_Name__c, Object_API_Name__c, Description__c, SOQL_WHERE_Clause__c, Permanently_Delete__c
+            SELECT   RecordType.Name, Order__c, Apex_Class_Name__c, Flow_API_Name__c, Object_API_Name__c, Description__c,
+                     SOQL_WHERE_Clause__c, Permanently_Delete__c
             FROM     Demo_Cleanup_Task__c
             WHERE    Active__c = true
             ORDER BY Order__c ASC NULLS LAST
         ];
 
+        Map<String,String> objectsSeen = new Map<String,String>();
         List<CleanupTask> cleanupTasks = new List<CleanupTask>();
+
         for (Demo_Cleanup_Task__c demoCleanupTask : demoCleanupTasks) {
             CleanupTask task = new CleanupTask();
             task.itemId = demoCleanupTask.Id;
@@ -68,7 +72,13 @@ public without sharing class DemoCleanup {
                     try {
                         task.itemCount = Database.countQuery('SELECT count() FROM ' + demoCleanupTask.Object_API_Name__c +
                             (demoCleanupTask.SOQL_WHERE_Clause__c == null ? '' : ' WHERE ' + demoCleanupTask.SOQL_WHERE_Clause__c));
-                        task.itemQueryError = false;
+                        if (objectsSeen.keySet()?.contains(demoCleanupTask.Object_API_Name__c)) {
+                            task.itemDuplicateObjectTask = objectsSeen.get(demoCleanupTask.Object_API_Name__c);
+                            task.itemQueryError = true;
+                        } else {
+                            objectsSeen.put(demoCleanupTask.Object_API_Name__c, demoCleanupTask.Description__c);
+                            task.itemQueryError = false;
+                        }
                     } catch (QueryException e) {
                         task.itemCount = null;
                         task.itemQueryError = true;
@@ -103,7 +113,7 @@ public without sharing class DemoCleanup {
     @AuraEnabled
     public static void saveOrderedTasks (String orderedMapJSON) {
         Map<Id,Integer> orderedMap = (Map<Id,Integer>) JSON.deserialize(orderedMapJSON, Map<Id,Integer>.class);
-        List<Demo_Cleanup_Task__c> demoCleanupTasks = [SELECT Order__c FROM Demo_Cleanup_Task__c WHERE Active__c = true];
+        List<Demo_Cleanup_Task__c> demoCleanupTasks = [SELECT Order__c FROM Demo_Cleanup_Task__c WHERE Active__c = true FOR UPDATE];
         for (Demo_Cleanup_Task__c demoCleanupTask : demoCleanupTasks)
             demoCleanupTask.Order__c = orderedMap.get(demoCleanupTask.Id);
         update demoCleanupTasks;

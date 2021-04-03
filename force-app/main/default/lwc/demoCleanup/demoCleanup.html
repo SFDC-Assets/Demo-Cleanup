@@ -206,7 +206,7 @@
 						class="slds-p-vertical_xx-small slds-theme_shade slds-border_top slds-border_left slds-border_right"
 					>
 						<lightning-layout-item size="1" padding="horizontal-small" class="slds-text-align_center">
-							&#x2714;
+							<lightning-icon icon-name="utility:check" size="x-small"> </lightning-icon>
 						</lightning-layout-item>
 						<lightning-layout-item size="2" padding="horizontal-small" class="slds-text-align_center">
 							<strong>Records</strong>
@@ -228,7 +228,6 @@
 									ondragenter={handleDragEnter}
 									ondragstart={handleDragStart}
 									ondragend={handleDragEnd}
-									ondragover={handleDragOver}
 								>
 									<td class="slds-box slds-box_xx-small">
 										<lightning-layout>
@@ -336,23 +335,24 @@
 							</template>
 						</tbody>
 					</table>
-					<div>
+					<div class="slds-text-body_small slds-var-p-top_xx-small">
 						<lightning-button
-							variant="base"
+							variant="neutral"
 							disabled={selectDisabled}
 							label="Select All"
-							title="Select all of the Demo Cleanup Tasks"
+							title="Select all of the valid Demo Cleanup Tasks"
+							icon-name="utility:multi_select_checkbox"
 							onclick={handleSelectAll}
-							class="slds-p-right_medium"
 						>
 						</lightning-button>
 						<lightning-button
-							variant="base"
+							variant="neutral"
 							disabled={selectDisabled}
 							label="Deselect All"
 							title="Deselect all of the Demo Cleanup Tasks"
+							icon-name="utility:steps"
 							onclick={handleDeselectAll}
-							class="slds-p-left_medium"
+							class="slds-p-left_x-small"
 						>
 						</lightning-button>
 					</div>
@@ -606,7 +606,8 @@
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
 						Power users wishing to create Apex tasks can choose the Apex cleanup task record type and fill in the name
-						of an Apex class to execute.
+						of an Apex class. The Apex class must implement the&nbsp;
+						<span class="slds-text-font_monospace">DemoCleanupApexItem</span> &nbsp; interface.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
 						Those users who wish to invoke flows may choose the Flow cleanup task record type and fill in the API name
@@ -619,12 +620,20 @@
 					<p class="slds-p-top_small slds-hyphenate">
 						First, the component populates the <strong>Records</strong> column in the component by running a test query
 						using the object API name and SOQL&nbsp; <span class="slds-text-font_monospace">WHERE</span> &nbsp;clause
-						expression you supplied for each demo cleanup task. If any are in error, the component will display an error
-						message and return 0 records for that task. You should also always check the record counts for each of the
-						demo reset tasks to make sure that a suspiciously large number of records is not being deleted.
+						expression you supplied for each SOQL Demo Cleanup Task. If any are in error, the component will display an
+						error message and disable the checkbox for that task. You should also always check the record counts for
+						each of the Demo Cleanup Tasks to make sure that a suspiciously large number of records is not being
+						deleted.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
-						Second, a modal dialog will pop up when you click the <strong>Clean Up the Demo</strong> button, confirming
+						Next, all SOQL Demo Cleanup Tasks are checked to make sure that no two tasks try to clean up the same
+						object, since one task will clobber records considered safe by the second and vice versa. Subsequent Demo
+						Cleanup Tasks using the same object will not be executed and their checkboxes will not be selectable. The
+						only way to fix this is to combine the duplicate tasks into a single record and use an appropriate WHERE
+						clause that covers the combined conditions.
+					</p>
+					<p class="slds-p-top_small slds-hyphenate">
+						Finally, a modal dialog will pop up when you click the <strong>Clean Up the Demo</strong> button, confirming
 						the actions that will be taken.
 					</p>
 					<h2 class="slds-p-top_large"><strong>Reference</strong></h2>

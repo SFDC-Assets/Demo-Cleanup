@@ -85,6 +85,15 @@ private without sharing class DemoCleanupTest {
                 Permanently_Delete__c = false,
                 Active__c = true,
                 Order__c = 7
+            ),
+            new Demo_Cleanup_Task__c (
+                RecordTypeId = SOQL_RECORD_TYPE_ID,
+                Object_API_Name__c = 'Account',
+                Description__c = 'Duplicate Demo Cleanup Task for Account object',
+                SOQL_Where_Clause__c = null,
+                Permanently_Delete__c = false,
+                Active__c = true,
+                Order__c = 8               
             )
         };
         insert tasks;

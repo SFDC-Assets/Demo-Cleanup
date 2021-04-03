@@ -108,8 +108,8 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<sObj
         for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
             if (field.getDescribe().isNameField()) {
                 name = field.getDescribe().getName();
-				break;
-			}
-		return name;
+                break;
+            }
+        return name;
     }
 }

@@ -134,6 +134,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemApexClassName: task.itemApexClassName,
 					itemFlowName: task.itemFlowApiName,
 					itemObjectApiName: task.itemObjectApiName,
+					itemDuplicateObjectTask: task.itemDuplicateObjectTask,
 					itemWhereClause: task.itemWhereClause,
 					itemDescription: task.itemDescription,
 					itemPermanentlyDelete: task.itemPermanentlyDelete,
@@ -162,7 +163,16 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemHasErrors: false,
 					itemDeletionFinished: false
 				});
-				if (task.itemQueryError) {
+				if (task.itemDuplicateObjectTask) {
+					this.dispatchEvent(
+						new ShowToastEvent({
+							title: `Cleanup task "${task.itemDescription}" uses the same object as "${task.itemDuplicateObjectTask}"`,
+							message: 'Combine the two Demo Cleanup Tasks into a single task with a unified WHERE clause.',
+							variant: 'error',
+							mode: 'sticky'
+						})
+					);
+				} else if (task.itemQueryError) {
 					let message;
 					switch (task.itemRecordTypeName) {
 						case 'Apex Cleanup Item':
@@ -396,6 +406,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemApexClassName: task.itemApexClassName,
 					itemFlowApiName: task.itemFlowName,
 					itemObjectApiName: task.itemObjectApiName,
+					itemDuplicateObjectTask: task.itemDuplicateObjectTask,
 					itemDescription: task.itemDescription,
 					itemWhereClause: task.itemWhereClause,
 					itemPermanentlyDelete: task.itemPermanentlyDelete,
@@ -416,6 +427,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	}
 
 	handleDragEnter(event) {
+		// Find the first <TR> node encapsulating whatever subnode we clicked on while dragging the row.
 		let targetelem = event.target;
 		while (targetelem.nodeName !== 'TR') targetelem = targetelem.parentNode;
 
@@ -426,25 +438,17 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	handleDragStart(event) {
 		this.dragSource = event.target;
 		event.dataTransfer.effectAllowed = 'move';
-		this.dragSource.classList.add('dragging');
-		this.dragSource.classList.add('slds-drop-zone');
-		this.dragSource.classList.add('slds-theme_shade');
+		this.dragSource.classList.add('dragging', 'slds-drop-zone', 'slds-theme_shade');
 	}
 
 	handleDragEnd(event) {
-		this.dragSource.classList.remove('dragging');
-		this.dragSource.classList.remove('slds-drop-zone');
-		this.dragSource.classList.remove('slds-theme_shade');
+		this.dragSource.classList.remove('dragging', 'slds-drop-zone', 'slds-theme_shade');
 		this.updateOrderFromUI();
-	}
-
-	handleDragOver(event) {
-		event.preventDefault();
 	}
 
 	updateOrderFromUI() {
 		// Get the rows from the table in the UI and record their order in the cleanupTasks array. Then sort the array by order.
-		let rows = this.template.querySelector('.cleanup-task-list').rows;
+		let rows = this.template.querySelector('table.cleanup-task-list').rows;
 		for (let rowNumber = 0; rowNumber < rows.length; rowNumber++) {
 			let id = rows.item(rowNumber).getAttribute('data-id');
 			let taskIndex = this.cleanupTasks.findIndex((task) => task.itemId === id);
@@ -455,7 +459,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		//  Save the new order of demo cleanup tasks in the database.
 		let orderedMap = {};
 		this.cleanupTasks.forEach((task) => (orderedMap[task.itemId] = task.itemOrder));
-		saveOrderedTasks({ orderedMapJSON: JSON.stringify(orderedMap) }).catch((error) =>
+		saveOrderedTasks({ orderedMapJSON: JSON.stringify(orderedMap) }).catch((error) => {
 			this.dispatchEvent(
 				new ShowToastEvent({
 					message: JSON.stringify(error),
@@ -463,7 +467,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					variant: 'error',
 					mode: 'sticky'
 				})
-			)
-		);
+			);
+		});
 	}
 }
