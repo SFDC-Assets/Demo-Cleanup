@@ -79,7 +79,7 @@ List<Demo_Cleanup_Task__c> cleanupTasks = new List<Demo_Cleanup_Task__c> {
         Object_API_Name__c = 'Campaign',
         Description__c = 'Delete all campaigns (duplicate)',
         Permanently_Delete__c = true,
-        Active__c = true
+        Active__c = false
     ),
 
     new Demo_Cleanup_Task__c (
@@ -88,7 +88,7 @@ List<Demo_Cleanup_Task__c> cleanupTasks = new List<Demo_Cleanup_Task__c> {
         SOQL_Where_Clause__c = 'bad syntax',
         Description__c = 'Bad WHERE clause should generate an error',
         Permanently_Delete__c = false,
-        Active__c = true
+        Active__c = false
     ),
 
     new Demo_Cleanup_Task__c (
@@ -96,14 +96,14 @@ List<Demo_Cleanup_Task__c> cleanupTasks = new List<Demo_Cleanup_Task__c> {
         Apex_Class_Name__c = 'BadApexClass',
         Description__c = 'Bad Apex class should generate an error',
         Permanently_Delete__c = true,
-        Active__c = true
+        Active__c = false
     ),
 
     new Demo_Cleanup_Task__c (
         RecordTypeId = flowRecordTypeId,
         Flow_API_Name__c = 'BadFlowName',
         Description__c = 'Bad flow name should generate an error',
-        Active__c = true
+        Active__c = false
     )
 
 };

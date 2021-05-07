@@ -4,8 +4,8 @@
             "path": "force-app",
             "default": true,
             "package": "Demo Cleanup",
-            "versionName": "Version 2.0.2",
-            "versionNumber": "2.0.2.0"
+            "versionName": "Version 2.1.0",
+            "versionNumber": "2.1.0.0"
         }
     ],
     "namespace": "",
@@ -25,6 +25,7 @@
         "Demo Cleanup@1.2.0-0": "04t2E000003ocR2QAI",
         "Demo Cleanup@2.0.0-0": "04t2E000003oca0QAA",
         "Demo Cleanup@2.0.1-0": "04t2E000003ocbmQAA",
-        "Demo Cleanup@2.0.2-0": "04t2E000003ocfjQAA"
+        "Demo Cleanup@2.0.2-0": "04t2E000003ocfjQAA",
+        "Demo Cleanup@2.1.0-0": "04t2E000003ocuRQAQ"
     }
 }

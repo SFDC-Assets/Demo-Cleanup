@@ -3,7 +3,7 @@
 //  This code is provided AS IS, with no warranty or guarantee of suitability for use.
 //  Contact: john.meyer@salesforce.com
 
-@isTest
+@isTest(isParallel=true)
 private without sharing class DemoCleanupTest {
 
     private static final Integer NUMBER_OF_RECORDS = 10;
@@ -17,7 +17,6 @@ private without sharing class DemoCleanupTest {
         final Id FLOW_RECORD_TYPE_ID = rtInfo.get('Flow Cleanup Item').getRecordTypeId();
 
         List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks();
-        System.assertEquals(0, cleanupTasks.size());
 
         List<Demo_Cleanup_Task__c> tasks = new List<Demo_Cleanup_Task__c> {
             new Demo_Cleanup_Task__c (
@@ -194,6 +193,13 @@ private without sharing class DemoCleanupTest {
         List<DemoCleanup.CleanupTask> newCleanupTaskList = DemoCleanup.getCleanupTasks();
         for (Integer i = 0; i < cleanupTaskList.size(); i++)
             System.assertEquals(newCleanupTaskList[i].itemOrder, cleanupTaskList[i].itemOrder);
+        System.Test.stopTest();
+    }
+
+    @isTest
+    private static void testGetPreviewRecords () {
+        System.Test.startTest();
+        System.assertEquals(NUMBER_OF_RECORDS - 3, DemoCleanup.getPreviewRecords('Contact', null, NUMBER_OF_RECORDS, 3).size());
         System.Test.stopTest();
     }
 

@@ -21,6 +21,16 @@ public without sharing class DemoCleanup {
         @AuraEnabled public Boolean itemQueryError;
     }
 
+    public class PreviewItem {
+        @AuraEnabled public Id itemId;
+        @AuraEnabled public String itemName;
+        @AuraEnabled public String itemLink;
+        @AuraEnabled public String itemOwnerName;
+        @AuraEnabled public String itemOwnerLink;
+        @AuraEnabled public DateTime itemCreatedDate;
+        @AuraEnabled public DateTime itemModifiedDate;
+    }
+
 	//  Class used to collect error information to send back to the component in a platform event.
 
 	public class ErrorSpec {
@@ -56,31 +66,31 @@ public without sharing class DemoCleanup {
             task.itemDescription = demoCleanupTask.Description__c;
             task.itemPermanentlyDelete = demoCleanupTask.Permanently_Delete__c;
             switch on demoCleanupTask.RecordType.Name {
+                when 'SOQL Cleanup Item' {
+                    task.itemObjectApiName = demoCleanupTask.Object_API_Name__c;
+                    task.itemWhereClause = demoCleanupTask.SOQL_WHERE_Clause__c;
+                    if (objectsSeen.keySet().contains(demoCleanupTask.Object_API_Name__c)) {
+                        task.itemCount = null;
+                        task.itemQueryError = true;
+                        task.itemDuplicateObjectTask = objectsSeen.get(demoCleanupTask.Object_API_Name__c);
+                    } else
+                        try {
+                            task.itemCount = Database.countQuery('SELECT count() FROM ' + demoCleanupTask.Object_API_Name__c +
+                                (demoCleanupTask.SOQL_WHERE_Clause__c == null ? '' : ' WHERE ' + demoCleanupTask.SOQL_WHERE_Clause__c));
+                            task.itemQueryError = false;
+                            objectsSeen.put(demoCleanupTask.Object_API_Name__c, demoCleanupTask.Description__c);
+                        } catch (QueryException e) {
+                            task.itemCount = null;
+                            task.itemQueryError = true;
+                        }
+                }
                 when 'Apex Cleanup Item' {
                     task.itemApexClassName = demoCleanupTask.Apex_Class_Name__c;
                     task.itemCount = null;
                     try {
-                        DemoCleanupApexItem test = (DemoCleanupApexItem) Type.forName(task.itemApexClassName).newInstance();
+                        Type.forName(task.itemApexClassName).newInstance();
                         task.itemQueryError = false;
                     } catch (Exception e) {
-                        task.itemQueryError = true;
-                    }
-                }
-                when 'SOQL Cleanup Item' {
-                    task.itemObjectApiName = demoCleanupTask.Object_API_Name__c;
-                    task.itemWhereClause = demoCleanupTask.SOQL_WHERE_Clause__c;
-                    try {
-                        task.itemCount = Database.countQuery('SELECT count() FROM ' + demoCleanupTask.Object_API_Name__c +
-                            (demoCleanupTask.SOQL_WHERE_Clause__c == null ? '' : ' WHERE ' + demoCleanupTask.SOQL_WHERE_Clause__c));
-                        if (objectsSeen.keySet()?.contains(demoCleanupTask.Object_API_Name__c)) {
-                            task.itemDuplicateObjectTask = objectsSeen.get(demoCleanupTask.Object_API_Name__c);
-                            task.itemQueryError = true;
-                        } else {
-                            objectsSeen.put(demoCleanupTask.Object_API_Name__c, demoCleanupTask.Description__c);
-                            task.itemQueryError = false;
-                        }
-                    } catch (QueryException e) {
-                        task.itemCount = null;
                         task.itemQueryError = true;
                     }
                 }
@@ -155,6 +165,54 @@ public without sharing class DemoCleanup {
                         System.enqueueJob(new DemoCleanupFlow(cleanupTaskList, currentItem));
                 }
             }
+    }
+
+
+    //  Find the name field for an object.
+    //
+    //  The parameter represents:
+    //      objectApiName:  the API name of the object whose name field is wanted.
+
+    public static String getNameField (String objectApiName) {
+		String name;
+        for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
+            if (field.getDescribe().isNameField()) {
+                name = field.getDescribe().getName();
+                break;
+            }
+        return name;
+    }
+
+
+    //  Retrieve a number of records of the given object type beginning at a specific offset.
+    //
+    //  The parameters represent:
+    //      objectApiName:  the API name of the object whose records are to be previewed.
+    //      whereClause:  the optional WHERE clause to filter the records.
+    //      numberOfRecords:  the number of records to retrieve.
+    //      offset:  the number of records to skip before retrieving.
+
+    @AuraEnabled(cacheable=true)
+    public static List<PreviewItem> getPreviewRecords (String objectApiName, String whereClause, Integer numberOfRecords, Integer offset) {
+
+        String nameField = getNameField(objectApiName);
+        List<SObject> records = Database.query('SELECT ' + nameField + ', OwnerId, Owner.Name, CreatedDate, LastModifiedDate FROM ' +
+            objectApiName + (whereClause == null ? '' : ' WHERE ' + whereClause) + ' LIMIT ' + numberOfRecords + ' OFFSET ' + offset);
+        List<PreviewItem> previewItems = new List<PreviewItem>();
+
+        for (SObject record : records) {
+            PreviewItem item = new PreviewItem();
+            item.itemId = (Id) record.get('Id');
+            item.itemName = String.valueOf(record.get(nameField));
+            item.itemLink = '/lightning/r/' + objectApiName + '/' + item.itemId + '/view';
+            item.itemOwnerName = String.valueOf(record.getSObject('Owner').get('Name'));
+            item.itemOwnerLink = '/lightning/r/' + (Id) record.get('OwnerId') + '/view';
+            item.itemCreatedDate = (DateTime) record.get('CreatedDate');
+            item.itemModifiedDate = (DateTime) record.get('LastModifiedDate');
+            previewItems.add(item);
+        }
+
+        return previewItems;
     }
 
 }

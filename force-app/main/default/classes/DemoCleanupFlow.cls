@@ -28,7 +28,7 @@ public without sharing class DemoCleanupFlow implements Queueable {
         DemoCleanup.CleanupTask task = this.cleanupTaskList[this.currentIndex];
 
         EventBus.publish(
-            new Demo_Cleanup_Event__e(
+            new Demo_Cleanup_Event__e (
                 Task_Id__c = task.itemId,
                 Finished__c = false,
                 Object_API_Name__c = null,
@@ -41,7 +41,7 @@ public without sharing class DemoCleanupFlow implements Queueable {
         try {
             Flow.Interview.createInterview(task.itemFlowApiName, new Map<String,Id> { 'DemoCleanupTaskId' => task.itemId }).start();
             EventBus.publish(
-                new Demo_Cleanup_Event__e(
+                new Demo_Cleanup_Event__e (
                     Task_Id__c = task.itemId,
                     Finished__c = true,
                     Object_API_Name__c = null,
@@ -59,7 +59,7 @@ public without sharing class DemoCleanupFlow implements Queueable {
             error.fields = null;
             error.message = 'Could not run the flow  "' + task.itemFlowApiName + '". Make sure it exists and is an autolaunched flow.';
             EventBus.publish(
-                new Demo_Cleanup_Event__e(
+                new Demo_Cleanup_Event__e (
                     Task_Id__c = task.itemId,
                     Finished__c = true,
                     Object_API_Name__c = null,

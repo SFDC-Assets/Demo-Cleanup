@@ -10,6 +10,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getCleanupTasks from '@salesforce/apex/DemoCleanup.getCleanupTasks';
 import saveOrderedTasks from '@salesforce/apex/DemoCleanup.saveOrderedTasks';
 import startCleanup from '@salesforce/apex/DemoCleanup.startCleanup';
+import getPreviewRecords from '@salesforce/apex/DemoCleanup.getPreviewRecords';
 
 const MAXIMUM_CLEANUP_TASKS = 90;
 
@@ -23,6 +24,8 @@ const CLEANUP_TASK_LIST_VIEW_SPEC = {
 		filterName: 'All'
 	}
 };
+
+const NUMBER_OF_PREVIEW_RECORDS = 50;
 
 export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	@api cardTitle = 'Demo Cleanup';
@@ -61,7 +64,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			cellAttributes: { alignment: 'left' },
 			typeAttributes: {
 				label: { fieldName: 'name' },
-				tooltip: { fieldName: 'id' },
+				tooltip: { fieldName: 'name' },
 				target: '_blank'
 			}
 		},
@@ -100,7 +103,75 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 
 	helpSectionVisible = false;
 	spinnerVisible = false;
-	modalVisible = false;
+	confirmationModalVisible = false;
+
+	previewModalVisible = false;
+	@track previewList = [];
+	previewTotalRows;
+	previewTooManyRows;
+	previewObjectApiName;
+	previewWhereClause;
+	previewOffset;
+	previewLastOffset = 0;
+	previewTaskLink;
+	previewTaskDescription;
+	previewListColumns = [
+		{
+			label: 'Record',
+			fieldName: 'itemLink',
+			type: 'url',
+			wrapText: false,
+			cellAttributes: { alignment: 'left' },
+			typeAttributes: {
+				label: { fieldName: 'itemName' },
+				tooltip: { fieldName: 'itemName' },
+				target: '_blank'
+			}
+		},
+		{
+			label: 'Owner',
+			fieldName: 'itemOwnerLink',
+			type: 'url',
+			wrapText: false,
+			cellAttributes: { alignment: 'left' },
+			typeAttributes: {
+				label: { fieldName: 'itemOwnerName' },
+				tooltip: { fieldName: 'itemOwnerName' },
+				target: '_blank'
+			}
+		},
+		{
+			label: 'Created',
+			fieldName: 'itemCreatedDate',
+			type: 'date',
+			wrapText: false,
+			cellAttributes: { alignment: 'center' },
+			typeAttributes: {
+				month: '2-digit',
+				day: '2-digit',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit'
+			}
+		},
+		{
+			label: 'Modified',
+			fieldName: 'itemModifiedDate',
+			type: 'date',
+			wrapText: false,
+			cellAttributes: { alignment: 'center' },
+			typeAttributes: {
+				month: '2-digit',
+				day: '2-digit',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit'
+			}
+		}
+	];
+	get previewRowsShowing() {
+		return this.previewList.length;
+	}
 
 	deletionInProgress = false;
 	deletionFinished = false;
@@ -131,6 +202,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					itemOrder: task.itemOrder,
 					itemRecordTypeName: task.itemRecordTypeName,
 					itemIsSOQL: task.itemRecordTypeName === 'SOQL Cleanup Item',
+					itemShowPreviewButton:
+						task.itemRecordTypeName === 'SOQL Cleanup Item' && !task.itemQueryError && task.itemCount,
 					itemApexClassName: task.itemApexClassName,
 					itemFlowName: task.itemFlowApiName,
 					itemObjectApiName: task.itemObjectApiName,
@@ -227,28 +300,24 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	}
 
 	showModal(event) {
-		this.modalVisible = true;
+		this.confirmationModalVisible = true;
 	}
 
 	handleCancelButton(event) {
-		this.modalVisible = false;
+		this.confirmationModalVisible = false;
 		this.selectionsAndCleanupAllowed = true;
-		this.dispatchEvent(
-			new ShowToastEvent({
-				variant: 'info',
-				message: 'No Demo Cleanup Tasks were executed.'
-			})
-		);
 	}
 
 	handleCleanupButton(event) {
-		this.modalVisible = false;
+		this.confirmationModalVisible = false;
 		this.selectionsAndCleanupAllowed = false;
-		this.cleanupTasks.forEach((task) => (task.itemCheckboxDisabled = true));
+		this.cleanupTasks.forEach((task) => {
+			task.itemCheckboxDisabled = true;
+		});
 		this.deletionInProgress = true;
-		subscribe('/event/Demo_Cleanup_Event__e', -1, this.handlePlatformEvent.bind(this)).then(
-			(result) => (this.subscription = result)
-		);
+		subscribe('/event/Demo_Cleanup_Event__e', -1, this.handlePlatformEvent.bind(this)).then((result) => {
+			this.subscription = result;
+		});
 		startCleanup({ cleanupTaskListJSON: JSON.stringify(this.selectedRows) })
 			.then((result) => {
 				this.dispatchEvent(
@@ -305,8 +374,8 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					case 'Apex Cleanup Item':
 					case 'Flow Cleanup Item':
 						if (cleanupTask.itemDeletionFinished) {
-							cleanupTask.itemRunningTotal = 1;
-							cleanupTask.itemRemaining = 0;
+							cleanupTask.itemRunningTotal = null;
+							cleanupTask.itemRemaining = null;
 							cleanupTask.itemPercentage = 100;
 						} else {
 							cleanupTask.itemRunningTotal = 0;
@@ -356,8 +425,50 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		}
 	}
 
+	handlePreviewButton(event) {
+		const index = this.cleanupTasks.findIndex((task) => task.itemId === event.target.getAttribute('data-id'));
+		this.previewList = [];
+		this.previewOffset = 0;
+		this.previewLastOffset = 0;
+		this.previewTotalRows = this.cleanupTasks[index].itemCount;
+		this.previewTooManyRows = this.cleanupTasks[index].itemCount > 2000;
+		this.previewObjectApiName = this.cleanupTasks[index].itemObjectApiName;
+		this.previewWhereClause = this.cleanupTasks[index].itemWhereClause;
+		this.previewTaskLink = this.cleanupTasks[index].itemLink;
+		this.previewTaskDescription = this.cleanupTasks[index].itemDescription;
+		this.loadPreviewData();
+		this.previewModalVisible = true;
+	}
+
+	loadPreviewData() {
+		return getPreviewRecords({
+			objectApiName: this.previewObjectApiName,
+			whereClause: this.previewWhereClause,
+			numberOfRecords: NUMBER_OF_PREVIEW_RECORDS,
+			offset: this.previewOffset
+		}).then((result) => {
+			this.previewList = [...this.previewList, ...result];
+		});
+	}
+
+	handlePreviewLoadMore(event) {
+		const { target } = event;
+		target.isLoading = true;
+		this.previewOffset += NUMBER_OF_PREVIEW_RECORDS;
+		this.loadPreviewData().then(() => {
+			target.isLoading = false;
+			// We cannot do a SOQL query with an offset greater than 2000.
+			if (this.previewList.length >= this.previewTotalRows || this.previewList.length >= 2000)
+				target.enableInfiniteLoading = false;
+		});
+	}
+
+	handlePreviewCancelButton(event) {
+		this.previewModalVisible = false;
+	}
+
 	handleRowSelection(event) {
-		let index = this.cleanupTasks.findIndex((task) => task.itemId === event.target.getAttribute('data-id'));
+		const index = this.cleanupTasks.findIndex((task) => task.itemId === event.target.getAttribute('data-id'));
 		this.cleanupTasks[index].itemSelected = event.target.checked;
 		this.buildSelectedRowList();
 		this.calculateSelectedTotals();
@@ -372,12 +483,6 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		this.totalFlowItemsSelected = 0;
 		this.selectedRows.forEach((item) => {
 			switch (item.itemRecordTypeName) {
-				case 'Apex Cleanup Item':
-					if (!item.itemQueryError) this.totalApexItemsSelected++;
-					break;
-				case 'Flow Cleanup Item':
-					if (!item.itemQueryError) this.totalFlowItemsSelected++;
-					break;
 				case 'SOQL Cleanup Item':
 					if (item.itemCount !== 0) {
 						if (!item.itemQueryError) this.totalSoqlItemsSelected++;
@@ -386,6 +491,12 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 						this.totalRecycleRecordsSelected += item.itemPermanentlyDelete ? 0 : item.itemCount;
 					}
 					break;
+				case 'Apex Cleanup Item':
+					if (!item.itemQueryError) this.totalApexItemsSelected++;
+					break;
+				case 'Flow Cleanup Item':
+					if (!item.itemQueryError) this.totalFlowItemsSelected++;
+					break;
 			}
 		});
 	}
@@ -393,7 +504,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	buildSelectedRowList() {
 		this.selectedRows = [];
 		this.template.querySelectorAll('.checkbox').forEach((row) => {
-			let task = this.cleanupTasks.find((item) => item.itemId === row.getAttribute('data-id'));
+			const task = this.cleanupTasks.find((item) => item.itemId === row.getAttribute('data-id'));
 			if (
 				task.itemSelected &&
 				!task.itemQueryError &&
@@ -450,15 +561,17 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		// Get the rows from the table in the UI and record their order in the cleanupTasks array. Then sort the array by order.
 		let rows = this.template.querySelector('table.cleanup-task-list').rows;
 		for (let rowNumber = 0; rowNumber < rows.length; rowNumber++) {
-			let id = rows.item(rowNumber).getAttribute('data-id');
-			let taskIndex = this.cleanupTasks.findIndex((task) => task.itemId === id);
+			const id = rows.item(rowNumber).getAttribute('data-id');
+			const taskIndex = this.cleanupTasks.findIndex((task) => task.itemId === id);
 			this.cleanupTasks[taskIndex].itemOrder = rowNumber;
 		}
 		this.cleanupTasks.sort((a, b) => a.itemOrder - b.itemOrder);
 
 		//  Save the new order of demo cleanup tasks in the database.
 		let orderedMap = {};
-		this.cleanupTasks.forEach((task) => (orderedMap[task.itemId] = task.itemOrder));
+		this.cleanupTasks.forEach((task) => {
+			orderedMap[task.itemId] = task.itemOrder;
+		});
 		saveOrderedTasks({ orderedMapJSON: JSON.stringify(orderedMap) }).catch((error) => {
 			this.dispatchEvent(
 				new ShowToastEvent({

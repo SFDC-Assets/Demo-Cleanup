@@ -32,13 +32,13 @@ insert contacts;
 List<Case> cases = new List<Case>();
 for (Integer i = 0; i < 1000; i++)
     cases.add(new Case (
-        Subject = 'Case ' + i,
+        Subject = 'Case ' + i + 1,
         ContactId = contacts[i].Id
     ));
 insert cases;
 
 List<Event> events = new List<Event>();
-for (Integer i = 0; i < 1000; i++)
+for (Integer i = 1; i <= 1000; i++)
     events.add(new Event (
         Subject = 'Event ' + i,
         StartDateTime = NOW,
@@ -47,7 +47,7 @@ for (Integer i = 0; i < 1000; i++)
 insert events;
 
 List<Task> tasks = new List<Task>();
-for (Integer i = 0; i < 1000; i++)  
+for (Integer i = 1; i <= 3000; i++)  
     tasks.add(new Task (
         Subject = 'Task ' + i,
         Priority = 'Normal',
@@ -56,7 +56,7 @@ for (Integer i = 0; i < 1000; i++)
 insert tasks;
 
 List<Campaign> campaigns = new List<Campaign>();
-for (Integer i = 0; i < 1000; i++)
+for (Integer i = 1; i <= 1000; i++)
     campaigns.add(new Campaign (
         Name = 'Campaign ' + i
     ));

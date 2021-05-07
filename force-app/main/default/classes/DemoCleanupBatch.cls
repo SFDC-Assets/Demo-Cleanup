@@ -3,7 +3,7 @@
 //  This code is provided AS IS, with no warranty or guarantee of suitability for use.
 //  Contact: john.meyer@salesforce.com
 
-public without sharing class DemoCleanupBatch implements Database.Batchable<sObject>, Database.Stateful {
+public without sharing class DemoCleanupBatch implements Database.Batchable<SObject>, Database.Stateful {
 
 	private List<DemoCleanup.CleanupTask> cleanupTaskList;
 	private Integer currentIndex;
@@ -29,14 +29,14 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 		this.currentIndex = currentIndex;
 		this.taskId = cleanupTaskList[currentIndex].itemId;
 		this.sObjectApiName = cleanupTaskList[currentIndex].itemObjectApiName;
-		this.nameField = getNameField(cleanupTaskList[currentIndex].itemObjectApiName);
+		this.nameField = DemoCleanup.getNameField(cleanupTaskList[currentIndex].itemObjectApiName);
 		this.whereClause = cleanupTaskList[currentIndex].itemWhereClause;
 		this.permanentlyDelete = cleanupTaskList[currentIndex].itemPermanentlyDelete;
 	}
 
 	//  Specify the query.
 
-	public Database.QueryLocator start(Database.BatchableContext bc) {
+	public Database.QueryLocator start (Database.BatchableContext bc) {
 		return Database.getQueryLocator('SELECT ' + this.nameField + ' FROM ' + this.sObjectApiName +
 			(this.whereClause == null ? '' : ' WHERE ' + this.whereClause)
 		);
@@ -44,7 +44,7 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 
 	//  Delete records by the batch.
 
-	public void execute (Database.BatchableContext bc, List<sObject> chunk) {
+	public void execute (Database.BatchableContext bc, List<SObject> chunk) {
 
 		Integer recordNumber = 0;
 		List<DemoCleanup.ErrorSpec> errors = new List<DemoCleanup.ErrorSpec>();
@@ -71,7 +71,7 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 		this.totalErrors += errors.size();
 
 		EventBus.publish(
-			new Demo_Cleanup_Event__e(
+			new Demo_Cleanup_Event__e (
 				Task_Id__c = this.taskId,
 				Finished__c = false,
 				Object_API_Name__c = this.sObjectApiName,
@@ -87,7 +87,7 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 
 	public void finish (Database.BatchableContext bc) {
 		EventBus.publish(
-			new Demo_Cleanup_Event__e(
+			new Demo_Cleanup_Event__e (
 				Task_Id__c = this.taskId,
 				Finished__c = true,
 				Object_API_Name__c = this.sObjectApiName,
@@ -99,17 +99,4 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<sObj
 		);
 		DemoCleanup.cleanup(cleanupTaskList, currentIndex + 1);
 	}
-
-
-    //  Find the name field for an object.
-
-    private static String getNameField (String objectApiName) {
-		String name;
-        for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
-            if (field.getDescribe().isNameField()) {
-                name = field.getDescribe().getName();
-                break;
-            }
-        return name;
-    }
 }

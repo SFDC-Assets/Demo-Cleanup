@@ -28,7 +28,7 @@ public without sharing class DemoCleanupApex implements Queueable {
         DemoCleanup.CleanupTask task = this.cleanupTaskList[this.currentIndex];
 
         EventBus.publish(
-            new Demo_Cleanup_Event__e(
+            new Demo_Cleanup_Event__e (
                 Task_Id__c = task.itemId,
                 Finished__c = false,
                 Object_API_Name__c = null,
@@ -41,7 +41,7 @@ public without sharing class DemoCleanupApex implements Queueable {
         try {
             ((DemoCleanupApexItem) Type.forName(task.itemApexClassName).newInstance()).execute(task.itemId);
             EventBus.publish(
-                new Demo_Cleanup_Event__e(
+                new Demo_Cleanup_Event__e (
                     Task_Id__c = task.itemId,
                     Finished__c = true,
                     Object_API_Name__c = null,
@@ -60,7 +60,7 @@ public without sharing class DemoCleanupApex implements Queueable {
             error.message = 'Could not run the "execute" method of Apex class "' + task.itemApexClassName +
                 '". Make sure it exists and implements the DemoCleanupApexItem interface.';
             EventBus.publish(
-                new Demo_Cleanup_Event__e(
+                new Demo_Cleanup_Event__e (
                     Task_Id__c = task.itemId,
                     Finished__c = true,
                     Object_API_Name__c = null,

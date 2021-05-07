@@ -10,6 +10,12 @@ code {
 .scrollerSize {
 	height: 10rem;
 }
+.previewTableHeight {
+	height: 15rem;
+}
+.previewTable {
+	width: 100%;
+}
 .dragging {
 	transform: rotate(3deg);
 	transform-origin: 3rem 3rem;

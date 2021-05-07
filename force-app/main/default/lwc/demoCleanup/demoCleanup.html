@@ -184,7 +184,9 @@
 				<section class="slds-var-p-top_medium slds-p-horizontal_large">
 					<lightning-layout horizontal-align="spread" vertical-align="center">
 						<lightning-layout-item size="6" class="slds-text-color_weak slds-text-align_left slds-trucate">
-							<em> Drag and drop the rows in the list to re-order them. </em>
+							<em> Drag and drop the rows in the list to re-order them. Click the&nbsp; </em>
+							<lightning-icon icon-name="utility:preview" size="x-small"></lightning-icon>
+							<em> &nbsp;icon on a task to see a preview of the records to be deleted. </em>
 						</lightning-layout-item>
 						<lightning-layout-item size="6" class="slds-text-align_right">
 							<div>
@@ -231,22 +233,38 @@
 								>
 									<td class="slds-box slds-box_xx-small">
 										<lightning-layout>
-											<lightning-layout-item
-												size="1"
-												padding="horizontal-small"
-												class="slds-align_absolute-center"
-											>
-												<lightning-input
-													type="checkbox"
-													checked={ct.itemSelected}
-													disabled={ct.itemCheckboxDisabled}
-													label={ct.itemId}
-													variant="label-hidden"
-													data-id={ct.itemId}
-													class="checkbox slds-align_absolute-center"
-													onchange={handleRowSelection}
-												>
-												</lightning-input>
+											<lightning-layout-item size="1" padding="horizontal-small">
+												<div class="slds-grid">
+													<div class="slds-col slds-size_6-of-12">
+														<lightning-input
+															type="checkbox"
+															checked={ct.itemSelected}
+															disabled={ct.itemCheckboxDisabled}
+															label={ct.itemId}
+															variant="label-hidden"
+															data-id={ct.itemId}
+															class="checkbox slds-align_absolute-center"
+															onchange={handleRowSelection}
+														>
+														</lightning-input>
+													</div>
+													<div class="slds-col slds-size_6-of-12">
+														<template if:true={ct.itemShowPreviewButton}>
+															<lightning-button-icon
+																icon-name="utility:preview"
+																type="button"
+																variant="bare"
+																size="medium"
+																alternative-text="Preview the records to be deleted"
+																title="Preview the records to be deleted"
+																data-id={ct.itemId}
+																onclick={handlePreviewButton}
+															>
+															</lightning-button-icon>
+														</template>
+														<template if:false={ct.itemShowPreviewButton}> &nbsp; </template>
+													</div>
+												</div>
 											</lightning-layout-item>
 											<lightning-layout-item
 												size="2"
@@ -273,6 +291,7 @@
 												<lightning-formatted-url
 													value={ct.itemLink}
 													label={ct.itemDescription}
+													tooltip={ct.itemDescription}
 													target="_blank"
 												>
 												</lightning-formatted-url>
@@ -549,9 +568,10 @@
 					<p class="slds-p-top_small slds-hyphenate">
 						You know how demos often get cluttered with artifacts from previous demo or test runs? Records are created
 						and never get cleaned up, leaving you wondering long afterwards whether or not they are necessary for the
-						demo scenarios or if they can be cleared away. This component enables a cleanup between demos so that any
-						future demo can be started with a clean environment, deleting any records that were created by previous
-						demos, dry runs, or tests, and optionally executing any custom code to reset the state of the org.
+						demo scenarios or if they can be cleared away. This component allows you to clean up the org between demos
+						so that any future demo can be started with a clean environment, deleting any records that were created by
+						previous demos, dry runs, or tests, and optionally executing any custom code or flows to reset the state of
+						the org.
 					</p>
 					<h2 class="slds-p-top_large"><strong>How It Works</strong></h2>
 					<p class="slds-p-top_small slds-hyphenate">
@@ -563,9 +583,9 @@
 							<strong>SOQL tasks</strong> delete records of an object that match an optional&nbsp;
 							<span class="slds-text-font_monospace">WHERE</span> &nbsp;clause that you create. For example, records
 							that have been hand-crafted for a demo scenario or those that have been uploaded in bulk for use in
-							Einstein Analytics dashboards might be tagged with custom checkbox fields to indicate that they are to
-							be retained. Any other records of that object type not so tagged would then be considered to be a
-							by-product of a demo run and could be safely deleted.
+							analytics dashboards might be tagged with custom checkbox fields to indicate that they are to be
+							retained. Any other records of that object not so tagged would then be considered to be a by-product of
+							a demo run and could be safely deleted.
 						</li>
 						<li>
 							<strong>Apex tasks</strong> run an Apex class that you specify. The class must implement the&nbsp;
@@ -613,7 +633,7 @@
 						Those users who wish to invoke flows may choose the Flow cleanup task record type and fill in the API name
 						of the flow to execute.
 					</p>
-					<h2 class="slds-p-top_large"><strong>Fail-Safe</strong></h2>
+					<h2 class="slds-p-top_large"><strong>Guardrails</strong></h2>
 					<p class="slds-p-top_small slds-hyphenate">
 						Several precautions are taken to ensure that only the records you want to delete are deleted.
 					</p>
@@ -621,16 +641,20 @@
 						First, the component populates the <strong>Records</strong> column in the component by running a test query
 						using the object API name and SOQL&nbsp; <span class="slds-text-font_monospace">WHERE</span> &nbsp;clause
 						expression you supplied for each SOQL Demo Cleanup Task. If any are in error, the component will display an
-						error message and disable the checkbox for that task. You should also always check the record counts for
-						each of the Demo Cleanup Tasks to make sure that a suspiciously large number of records is not being
-						deleted.
+						error message and disable the checkbox for that task. You should always check the record counts for each of
+						the Demo Cleanup Tasks to make sure that a suspiciously large number of records is not being deleted.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
-						Next, all SOQL Demo Cleanup Tasks are checked to make sure that no two tasks try to clean up the same
-						object, since one task will clobber records considered safe by the second and vice versa. Subsequent Demo
-						Cleanup Tasks using the same object will not be executed and their checkboxes will not be selectable. The
-						only way to fix this is to combine the duplicate tasks into a single record and use an appropriate WHERE
+						Second, all SOQL Demo Cleanup Tasks are checked to make sure that no two tasks try to clean up the same
+						object, since one task will clobber records considered safe by the second and vice versa. Any subsequent
+						Demo Cleanup Tasks using the same object will not be executed and their checkboxes will not be selectable.
+						The only way to fix this is to combine the duplicate tasks into a single record and use an appropriate WHERE
 						clause that covers the combined conditions.
+					</p>
+					<p class="slds-p-top_small slds-hyphenate">
+						Next, each SOQL Demo Cleanup Task has a&nbsp;
+						<lightning-icon icon-name="utility:preview" size="x-small"></lightning-icon>
+						&nbsp;icon which can be clicked to reveal the list of records that will be deleted by that task.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
 						Finally, a modal dialog will pop up when you click the <strong>Clean Up the Demo</strong> button, confirming
@@ -652,7 +676,7 @@
 		</template>
 	</lightning-card>
 
-	<template if:true={modalVisible}>
+	<template if:true={confirmationModalVisible}>
 		<section
 			role="dialog"
 			tabindex="-1"
@@ -664,7 +688,7 @@
 			<div class="slds-modal__container">
 				<header class="slds-modal__header slds-p-around_medium">
 					<div class="slds-media slds-media_center">
-						<div class="slds-media__figure slds-p-right_large">
+						<div class="slds-media__figure slds-p-horizontal_medium">
 							<lightning-icon icon-name="utility:warning" variant="warning" size="medium"> </lightning-icon>
 						</div>
 						<div class="slds-media__body">
@@ -738,6 +762,72 @@
 						variant="destructive"
 						onclick={handleCleanupButton}
 					>
+					</lightning-button>
+				</footer>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open"></div>
+	</template>
+
+	<template if:true={previewModalVisible}>
+		<section
+			role="dialog"
+			tabindex="-1"
+			class="slds-modal slds-fade-in-open slds-modal_small"
+			aria-modal="true"
+			aria-labelledby="modal-heading"
+			aria-describedby="modal-content"
+		>
+			<div class="slds-modal__container">
+				<header class="slds-modal__header slds-p-horizontal_medium">
+					<div class="slds-media slds-media_center">
+						<div class="slds-media__figure slds-p-horizontal_medium">
+							<lightning-icon icon-name="utility:warning" variant="warning" size="large"></lightning-icon>
+						</div>
+						<div class="slds-media__body">
+							<p class="slds-p-around_large slds-text-heading_medium">
+								Selecting&nbsp;
+								<lightning-formatted-url label={previewTaskDescription} value={previewTaskLink} target="_blank">
+								</lightning-formatted-url>
+								&nbsp;will delete the following records:
+							</p>
+						</div>
+					</div>
+				</header>
+				<section class="slds-modal__content slds-p-around_medium">
+					<div class="slds-tile_board slds-box slds-box_xx-small previewTableHeight">
+						<lightning-datatable
+							data={previewList}
+							columns={previewListColumns}
+							key-field="itemId"
+							hide-checkbox-column
+							show-row-number-column
+							enable-infinite-loading
+							column-widths-mode="auto"
+							onloadmore={handlePreviewLoadMore}
+							class="previewTable"
+						>
+						</lightning-datatable>
+					</div>
+					<div class="slds-var-p-top_medium slds-text-body_small">
+						<p class="slds-text-color_weak slds-align_absolute-center">
+							Showing&nbsp;
+							<strong><lightning-formatted-number value={previewRowsShowing}></lightning-formatted-number></strong>
+							&nbsp;of&nbsp;
+							<strong><lightning-formatted-number value={previewTotalRows}></lightning-formatted-number></strong>
+							&nbsp;records
+						</p>
+						<template if:true={previewTooManyRows}>
+							<p class="slds-text-color_error slds-align_absolute-center">
+								<em> Only the first&nbsp; </em>
+								<lightning-formatted-number value="2000"></lightning-formatted-number>
+								<em> &nbsp;rows will be shown </em>
+							</p>
+						</template>
+					</div>
+				</section>
+				<footer class="slds-modal__footer">
+					<lightning-button icon-name="utility:close" label="Close" variant="brand" onclick={handlePreviewCancelButton}>
 					</lightning-button>
 				</footer>
 			</div>
