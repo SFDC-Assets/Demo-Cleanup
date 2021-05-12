@@ -196,8 +196,13 @@ public without sharing class DemoCleanup {
     public static List<PreviewItem> getPreviewRecords (String objectApiName, String whereClause, Integer numberOfRecords, Integer offset) {
 
         String nameField = getNameField(objectApiName);
-        List<SObject> records = Database.query('SELECT ' + nameField + ', OwnerId, Owner.Name, CreatedDate, LastModifiedDate FROM ' +
-            objectApiName + (whereClause == null ? '' : ' WHERE ' + whereClause) + ' LIMIT ' + numberOfRecords + ' OFFSET ' + offset);
+        Boolean hasOwnerId = Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().keySet().contains('ownerid');
+        List<SObject> records = Database.query(
+            'SELECT ' + nameField + ', ' +
+            (hasOwnerId ? 'OwnerId, Owner.Name, ' : '') +
+            'CreatedDate, LastModifiedDate FROM ' +
+            objectApiName + (whereClause == null ? '' : ' WHERE ' + whereClause) + ' LIMIT ' + numberOfRecords + ' OFFSET ' + offset
+        );
         List<PreviewItem> previewItems = new List<PreviewItem>();
 
         for (SObject record : records) {
@@ -205,8 +210,8 @@ public without sharing class DemoCleanup {
             item.itemId = (Id) record.get('Id');
             item.itemName = String.valueOf(record.get(nameField));
             item.itemLink = '/lightning/r/' + objectApiName + '/' + item.itemId + '/view';
-            item.itemOwnerName = String.valueOf(record.getSObject('Owner').get('Name'));
-            item.itemOwnerLink = '/lightning/r/' + (Id) record.get('OwnerId') + '/view';
+            item.itemOwnerName = hasOwnerId ? String.valueOf(record.getSObject('Owner').get('Name')) : null;
+            item.itemOwnerLink = hasOwnerId ? '/lightning/r/' + (Id) record.get('OwnerId') + '/view' : null;
             item.itemCreatedDate = (DateTime) record.get('CreatedDate');
             item.itemModifiedDate = (DateTime) record.get('LastModifiedDate');
             previewItems.add(item);

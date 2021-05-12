@@ -183,7 +183,7 @@
 			<template if:false={tooManyCleanupTasks}>
 				<section class="slds-var-p-top_medium slds-p-horizontal_large">
 					<lightning-layout horizontal-align="spread" vertical-align="center">
-						<lightning-layout-item size="6" class="slds-text-color_weak slds-text-align_left slds-trucate">
+						<lightning-layout-item size="6" class="slds-text-body_small slds-text-color_weak slds-text-align_left slds-trucate">
 							<em> Drag and drop the rows in the list to re-order them. Click the&nbsp; </em>
 							<lightning-icon icon-name="utility:preview" size="x-small"></lightning-icon>
 							<em> &nbsp;icon on a task to see a preview of the records to be deleted. </em>
@@ -795,6 +795,12 @@
 					</div>
 				</header>
 				<section class="slds-modal__content slds-p-around_medium">
+					<p class="slds-var-p-bottom_small slds-text-body_small slds-text-color_weak slds-text-align_left slds-trucate">
+						<em>
+							<strong>Note:</strong> &nbsp;Child objects in a master-detail relationship will not have an&nbsp;
+							<strong>Owner</strong> &nbsp;field.
+						</em>
+					</p>
 					<div class="slds-tile_board slds-box slds-box_xx-small previewTableHeight">
 						<lightning-datatable
 							data={previewList}
