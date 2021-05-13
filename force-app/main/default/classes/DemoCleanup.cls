@@ -200,8 +200,8 @@ public without sharing class DemoCleanup {
         List<SObject> records = Database.query(
             'SELECT ' + nameField + ', ' +
             (hasOwnerId ? 'OwnerId, Owner.Name, ' : '') +
-            'CreatedDate, LastModifiedDate FROM ' +
-            objectApiName + (whereClause == null ? '' : ' WHERE ' + whereClause) + ' LIMIT ' + numberOfRecords + ' OFFSET ' + offset
+            'CreatedDate, LastModifiedDate FROM ' + objectApiName + 
+            (whereClause == null ? '' : ' WHERE ' + whereClause) + ' LIMIT ' + numberOfRecords + ' OFFSET ' + offset
         );
         List<PreviewItem> previewItems = new List<PreviewItem>();
 

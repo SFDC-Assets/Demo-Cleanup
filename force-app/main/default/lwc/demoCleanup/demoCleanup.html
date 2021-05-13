@@ -195,7 +195,7 @@
 								<lightning-formatted-url
 									label="Go to the Demo Cleanup Tasks list"
 									value={cleanupTaskListViewUrl}
-									target="_blank"
+									target="_parent"
 								>
 								</lightning-formatted-url>
 							</div>
@@ -292,7 +292,7 @@
 													value={ct.itemLink}
 													label={ct.itemDescription}
 													tooltip={ct.itemDescription}
-													target="_blank"
+													target="_parent"
 												>
 												</lightning-formatted-url>
 											</lightning-layout-item>
@@ -603,7 +603,7 @@
 					</ul>
 					<p class="slds-p-top_small slds-hyphenate">
 						To set up a SOQL cleanup task, just navigate to the&nbsp;
-						<lightning-formatted-url value={cleanupTaskListViewUrl} label="Demo Cleanup Tasks tab" target="_blank">
+						<lightning-formatted-url value={cleanupTaskListViewUrl} label="Demo Cleanup Tasks tab" target="_parent">
 						</lightning-formatted-url>
 						&nbsp;and create as many tasks as you need (although no more than 90 SOQL tasks can be active at any given
 						time). Each one will require a description, which will appear in the task list, the API name of the object
@@ -611,7 +611,7 @@
 						<lightning-formatted-url
 							label="SOQL WHERE clause expression"
 							value="https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_conditionexpression.htm"
-							target="_blank"
+							target="_parent"
 						>
 						</lightning-formatted-url>
 						&nbsp;to specify which records of that object should be deleted. Additionally, you can specify whether or
@@ -666,7 +666,7 @@
 						<lightning-formatted-url
 							label="this GitHub repository"
 							value="https://github.com/SFDC-Assets/Demo-Cleanup"
-							target="_blank"
+							target="_parent"
 						>
 						</lightning-formatted-url>
 						.
@@ -787,7 +787,7 @@
 						<div class="slds-media__body">
 							<p class="slds-p-around_large slds-text-heading_medium">
 								Selecting&nbsp;
-								<lightning-formatted-url label={previewTaskDescription} value={previewTaskLink} target="_blank">
+								<lightning-formatted-url label={previewTaskDescription} value={previewTaskLink} target="_parent">
 								</lightning-formatted-url>
 								&nbsp;will delete the following records:
 							</p>
