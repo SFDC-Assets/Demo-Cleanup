@@ -70,4 +70,4 @@ I was inspired by work done by Salesforce super-SE John Schillaci to create this
 
 [John Meyer / johnsfdemo](https://github.com/johnsfdemo)
 
-**Current Version**: 2.1.1
+**Current Version**: 2.1.2
