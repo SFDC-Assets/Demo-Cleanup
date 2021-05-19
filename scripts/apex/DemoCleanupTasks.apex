@@ -79,7 +79,7 @@ List<Demo_Cleanup_Task__c> cleanupTasks = new List<Demo_Cleanup_Task__c> {
         Object_API_Name__c = 'Campaign',
         Description__c = 'Delete all campaigns (duplicate)',
         Permanently_Delete__c = true,
-        Active__c = false
+        Active__c = true
     ),
 
     new Demo_Cleanup_Task__c (

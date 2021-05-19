@@ -29,6 +29,7 @@ const NUMBER_OF_PREVIEW_RECORDS = 50;
 
 export default class DemoCleanup extends NavigationMixin(LightningElement) {
 	@api cardTitle = 'Demo Cleanup';
+	@api allowReusedObjects = false;
 
 	@track cleanupTasks = [];
 	get cleanupTasksEmpty() {
@@ -189,7 +190,7 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 		this.spinnerVisible = true;
 	}
 
-	@wire(getCleanupTasks)
+	@wire(getCleanupTasks, { allowReusedObjects: "$allowReusedObjects" })
 	wired_getCleanupTasks({ data, error }) {
 		this.spinnerVisible = false;
 		this.cleanupTasks = [];

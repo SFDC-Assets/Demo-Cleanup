@@ -43,9 +43,12 @@ public without sharing class DemoCleanup {
     
  
     //  Get the list of demo cleanup tasks in the org.
+    //
+    //  The parameters represent:
+    //      allowReusedObjects: set to true if multiple SOQL cleanup tasks for the same object are allowed
     
     @AuraEnabled(cacheable=true)
-    public static List<CleanupTask> getCleanupTasks () {
+    public static List<CleanupTask> getCleanupTasks (Boolean allowReusedObjects) {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
             SELECT   RecordType.Name, Order__c, Apex_Class_Name__c, Flow_API_Name__c, Object_API_Name__c, Description__c,
@@ -69,7 +72,7 @@ public without sharing class DemoCleanup {
                 when 'SOQL Cleanup Item' {
                     task.itemObjectApiName = demoCleanupTask.Object_API_Name__c;
                     task.itemWhereClause = demoCleanupTask.SOQL_WHERE_Clause__c;
-                    if (objectsSeen.keySet().contains(demoCleanupTask.Object_API_Name__c)) {
+                    if (!allowReusedObjects && objectsSeen.keySet().contains(demoCleanupTask.Object_API_Name__c)) {
                         task.itemCount = null;
                         task.itemQueryError = true;
                         task.itemDuplicateObjectTask = objectsSeen.get(demoCleanupTask.Object_API_Name__c);

@@ -10,6 +10,7 @@
     <targetConfigs>
         <targetConfig targets="lightning__AppPage">
             <property name="cardTitle" label="Card Title" type="String" default="Demo Cleanup" description="The title to be used at the top of the card" />
+            <property name="allowReusedObjects" label="Allow Reused Objects in SOQL Tasks" type="Boolean" default="false" description="Check this box if you want the component to allow multiple SOQL Cleanup Tasks to reference the same object" />
             <supportedFormFactors>
                 <supportedFormFactor type="Large" />
                 <supportedFormFactor type="Small" />

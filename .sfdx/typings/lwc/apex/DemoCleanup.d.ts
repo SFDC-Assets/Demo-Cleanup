@@ -1,5 +1,5 @@
 declare module "@salesforce/apex/DemoCleanup.getCleanupTasks" {
-  export default function getCleanupTasks(): Promise<any>;
+  export default function getCleanupTasks(param: {allowReusedObjects: any}): Promise<any>;
 }
 declare module "@salesforce/apex/DemoCleanup.saveOrderedTasks" {
   export default function saveOrderedTasks(param: {orderedMapJSON: any}): Promise<any>;

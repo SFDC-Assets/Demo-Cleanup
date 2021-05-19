@@ -183,7 +183,10 @@
 			<template if:false={tooManyCleanupTasks}>
 				<section class="slds-var-p-top_medium slds-p-horizontal_large">
 					<lightning-layout horizontal-align="spread" vertical-align="center">
-						<lightning-layout-item size="6" class="slds-text-body_small slds-text-color_weak slds-text-align_left slds-trucate">
+						<lightning-layout-item
+							size="6"
+							class="slds-text-body_small slds-text-color_weak slds-text-align_left slds-trucate"
+						>
 							<em> Drag and drop the rows in the list to re-order them. Click the&nbsp; </em>
 							<lightning-icon icon-name="utility:preview" size="x-small"></lightning-icon>
 							<em> &nbsp;icon on a task to see a preview of the records to be deleted. </em>
@@ -648,8 +651,9 @@
 						Second, all SOQL Demo Cleanup Tasks are checked to make sure that no two tasks try to clean up the same
 						object, since one task will clobber records considered safe by the second and vice versa. Any subsequent
 						Demo Cleanup Tasks using the same object will not be executed and their checkboxes will not be selectable.
-						The only way to fix this is to combine the duplicate tasks into a single record and use an appropriate WHERE
-						clause that covers the combined conditions.
+						The way to fix this is to combine the duplicate tasks into a single record and use an appropriate WHERE
+						clause that covers the combined conditions. You can also deselect the checkbox called "Check for Reused
+						Objects" in the component's configuration section in Lightning App Builder.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
 						Next, each SOQL Demo Cleanup Task has a&nbsp;

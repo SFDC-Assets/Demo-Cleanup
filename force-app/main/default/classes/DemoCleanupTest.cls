@@ -16,7 +16,7 @@ private without sharing class DemoCleanupTest {
         final Id APEX_RECORD_TYPE_ID = rtInfo.get('Apex Cleanup Item').getRecordTypeId();
         final Id FLOW_RECORD_TYPE_ID = rtInfo.get('Flow Cleanup Item').getRecordTypeId();
 
-        List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks(false);
 
         List<Demo_Cleanup_Task__c> tasks = new List<Demo_Cleanup_Task__c> {
             new Demo_Cleanup_Task__c (
@@ -127,7 +127,7 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testBadApexClassName () {
         System.Test.startTest();
-        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[1] }));
         System.Test.stopTest();
     }
@@ -135,7 +135,7 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testApexException () {
         System.Test.startTest();
-        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[2] }));
         System.Test.stopTest();
     }
@@ -143,7 +143,7 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testNonExistentFlow () {
         System.Test.startTest();
-        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[3] }));
         System.Test.stopTest();
     }
@@ -151,7 +151,7 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testApex () {
         System.Test.startTest();
-        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[4] }));
         System.Test.stopTest();
     }
@@ -159,7 +159,7 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testFlow () {
         System.Test.startTest();
-        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[5] }));
         System.Test.stopTest();
     }
@@ -167,7 +167,7 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testBadSOQLDeletion () {
         System.Test.startTest();
-        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[6] }));
         System.assertEquals(NUMBER_OF_RECORDS, [SELECT Id FROM Contact].size());
         System.Test.stopTest();
@@ -176,7 +176,7 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testWhereClause () {
         System.Test.startTest();
-        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[7] }));
         System.assertEquals(NUMBER_OF_RECORDS, [SELECT Id FROM Account].size());
         System.Test.stopTest();
@@ -185,12 +185,12 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testUpdateOrder () {
         System.Test.startTest();
-        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         Map<Id,Integer> orderMap = new Map<Id,Integer>();
         for (DemoCleanup.CleanupTask cleanupTask : cleanupTaskList)
             orderMap.put(cleanupTask.itemId, cleanupTask.itemOrder);
         DemoCleanup.saveOrderedTasks(JSON.serialize(orderMap));
-        List<DemoCleanup.CleanupTask> newCleanupTaskList = DemoCleanup.getCleanupTasks();
+        List<DemoCleanup.CleanupTask> newCleanupTaskList = DemoCleanup.getCleanupTasks(false);
         for (Integer i = 0; i < cleanupTaskList.size(); i++)
             System.assertEquals(newCleanupTaskList[i].itemOrder, cleanupTaskList[i].itemOrder);
         System.Test.stopTest();
