@@ -18,6 +18,7 @@ Demo_Reset_Tools.flexipage
 Demo_Reset_Tools.tab
 #force-app/main/default/profiles/Admin.profile-meta.xml
 #Admin.profile
+Readonly.profile
 force-app/main/default/profiles/Custom%3A Marketing Profile.profile-meta.xml
 Custom%3A Marketing Profile.profile
 force-app/main/default/profiles/Custom%3A Sales Profile.profile-meta.xml

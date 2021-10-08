@@ -1,4 +1,4 @@
-![Creative Commons License](https://img.shields.io/badge/license-Creative%20Commons-success) ![In Development](https://img.shields.io/badge/status-Released-success) ![Code Coverage](https://img.shields.io/badge/apex%20code%20coverage-100%25-success)
+![BSD 3-Clause License](https://img.shields.io/badge/license-BSD%203--Clause-success) ![In Development](https://img.shields.io/badge/status-Released-success) ![Code Coverage](https://img.shields.io/badge/apex%20code%20coverage-100%25-success)
 
 <h1 align="center">DEMO CLEANUP</h1>
 <p align="center">

@@ -2,7 +2,11 @@
 #
 #  Creates a new scratch org and populates it with sample data.
 #
-#  This code is provided AS IS, with no warranty or guarantee of suitability for use.
+#  Copyright (c) 2021, salesforce.com, inc.
+#  All rights reserved.
+#  SPDX-License-Identifier: BSD-3-Clause
+#  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+#
 #  Contact: john.meyer@salesforce.com
 
 readonly orgAlias=$(jq --raw-output .defaultusername < .sfdx/sfdx-config.json) || {
@@ -32,6 +36,8 @@ echo "*** Generating password for your user ..."
 sfdx force:user:password:generate --targetusername "$orgAlias" --loglevel error
 echo "*** Setting time zone for your user ..."
 sfdx force:data:record:update --sobjecttype User --where "Name='User User'" --values "TimeZoneSidKey='America/New_York'" --loglevel error
+echo "*** Enabling debug mode for your user  ..."
+sfdx force:data:record:update --sobjecttype User --where "Name='User User'" --values "UserPreferencesUserDebugModePref='true'" --loglevel error
 echo "*** Creating sample data ..."
 sfdx force:apex:execute --apexcodefile "scripts/apex/DemoCleanupTasks.apex" --targetusername "$orgAlias" --loglevel error
 sfdx force:apex:execute --apexcodefile "scripts/apex/SampleData.apex" --targetusername "$orgAlias" --loglevel error

@@ -1,0 +1,20 @@
+<!--
+  Copyright (c) 2021, salesforce.com, inc.
+  All rights reserved.
+  SPDX-License-Identifier: BSD-3-Clause
+  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+
+  Contact: john.meyer@salesforce.com
+-->
+
+<template>
+	<template if:true={isSOQL}>
+		<c-demo-cleanup-task-new-soql record-type-id={recordTypeId}></c-demo-cleanup-task-new-soql>
+	</template>
+	<template if:true={isApex}>
+		<c-demo-cleanup-task-new-apex record-type-id={recordTypeId}></c-demo-cleanup-task-new-apex>
+	</template>
+	<template if:true={isFlow}>
+		<c-demo-cleanup-task-new-flow record-type-id={recordTypeId}></c-demo-cleanup-task-new-flow>
+	</template>
+</template>

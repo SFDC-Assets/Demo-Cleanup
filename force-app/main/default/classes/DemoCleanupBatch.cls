@@ -1,6 +1,10 @@
 //  Batch date delete methods for the DemoCleanup Lightning component.
 //
-//  This code is provided AS IS, with no warranty or guarantee of suitability for use.
+//  Copyright (c) 2021, salesforce.com, inc.
+//  All rights reserved.
+//  SPDX-License-Identifier: BSD-3-Clause
+//  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+//
 //  Contact: john.meyer@salesforce.com
 
 public without sharing class DemoCleanupBatch implements Database.Batchable<SObject>, Database.Stateful {
@@ -97,6 +101,6 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<SObj
 				Error_JSON_String__c = '[]'
 			)
 		);
-		DemoCleanup.cleanup(cleanupTaskList, currentIndex + 1);
+		DemoCleanup.cleanup(this.cleanupTaskList, this.currentIndex + 1);
 	}
 }

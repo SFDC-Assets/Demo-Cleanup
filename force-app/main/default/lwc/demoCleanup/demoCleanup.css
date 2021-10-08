@@ -1,3 +1,9 @@
+:host {
+    --sds-c-backdrop-color-background: rgba(8, 7, 7, 0.47);
+	--sds-c-checkbox-shadow-focus: 0 0 0px #dddbda;
+	--sds-c-checkbox-color-border-focus: #dddbda;
+}
+
 p, li {
 	text-align: justify;
 }

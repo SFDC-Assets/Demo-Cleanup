@@ -102,18 +102,18 @@
     </fieldPermissions>
     <layoutAssignments>
         <layout>Demo_Cleanup_Task__c-Demo Cleanup Apex Task Layout</layout>
-        <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Task</recordType>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Demo_Cleanup_Task__c-Demo Cleanup Flow Task Layout</layout>
-        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Task</recordType>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Demo_Cleanup_Task__c-Demo Cleanup SOQL Task Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Demo_Cleanup_Task__c-Demo Cleanup SOQL Task Layout</layout>
-        <recordType>Demo_Cleanup_Task__c.SOQL_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.SOQL_Cleanup_Task</recordType>
     </layoutAssignments>
     <objectPermissions>
         <allowCreate>true</allowCreate>
@@ -135,17 +135,17 @@
     </objectPermissions>
     <recordTypeVisibilities>
         <default>false</default>
-        <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Task</recordType>
         <visible>false</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <default>false</default>
-        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Task</recordType>
         <visible>false</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <default>false</default>
-        <recordType>Demo_Cleanup_Task__c.SOQL_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.SOQL_Cleanup_Task</recordType>
         <visible>false</visible>
     </recordTypeVisibilities>
     <tabVisibilities>

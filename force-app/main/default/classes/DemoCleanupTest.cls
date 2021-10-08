@@ -1,6 +1,10 @@
-//  Test class and metbods for the Demo Cleanup Lightning component.
+//  Test class and methods for the Demo Cleanup Lightning component.
 //
-//  This code is provided AS IS, with no warranty or guarantee of suitability for use.
+//  Copyright (c) 2021, salesforce.com, inc.
+//  All rights reserved.
+//  SPDX-License-Identifier: BSD-3-Clause
+//  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+//
 //  Contact: john.meyer@salesforce.com
 
 @isTest(isParallel=true)
@@ -9,12 +13,12 @@ private without sharing class DemoCleanupTest {
     private static final Integer NUMBER_OF_RECORDS = 10;
 
     @testSetup
-    static void setup () {
+    private static void setup () {
  
         final Map<String,Schema.RecordTypeInfo> rtInfo = Demo_Cleanup_Task__c.SObjectType.getDescribe().getRecordTypeInfosByName();
-        final Id SOQL_RECORD_TYPE_ID = rtInfo.get('SOQL Cleanup Item').getRecordTypeId();
-        final Id APEX_RECORD_TYPE_ID = rtInfo.get('Apex Cleanup Item').getRecordTypeId();
-        final Id FLOW_RECORD_TYPE_ID = rtInfo.get('Flow Cleanup Item').getRecordTypeId();
+        final Id SOQL_RECORD_TYPE_ID = rtInfo.get(DemoCleanup.SOQL_RECORD_TYPE_NAME).getRecordTypeId();
+        final Id APEX_RECORD_TYPE_ID = rtInfo.get(DemoCleanup.APEX_RECORD_TYPE_NAME).getRecordTypeId();
+        final Id FLOW_RECORD_TYPE_ID = rtInfo.get(DemoCleanup.FLOW_RECORD_TYPE_NAME).getRecordTypeId();
 
         List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks(false);
 
@@ -125,6 +129,15 @@ private without sharing class DemoCleanupTest {
 
 
     @isTest
+    private static void testSoqlValidation () {
+        System.Test.startTest();
+        System.assertNotEquals(null, DemoCleanup.validateSoql(false, 'Case', 'john'));
+        System.assertNotEquals(null, DemoCleanup.validateSoql(false, 'Account', 'Sic = \'Test\''));
+        System.assertEquals(null, DemoCleanup.validateSoql(true, 'Account', 'Sic = \'Test\''));
+        System.Test.stopTest();
+    }
+
+    @isTest
     private static void testBadApexClassName () {
         System.Test.startTest();
         List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
@@ -198,8 +211,23 @@ private without sharing class DemoCleanupTest {
 
     @isTest
     private static void testGetPreviewRecords () {
+        final Integer OFFSET = 3;
         System.Test.startTest();
-        System.assertEquals(NUMBER_OF_RECORDS - 3, DemoCleanup.getPreviewRecords('Contact', null, NUMBER_OF_RECORDS, 3).size());
+        System.assertEquals(NUMBER_OF_RECORDS - OFFSET, DemoCleanup.getPreviewRecords('Contact', null, NUMBER_OF_RECORDS, OFFSET).size());
+        System.Test.stopTest();
+    }
+
+    @isTest
+    private static void testGetObjectList () {
+        System.Test.startTest();
+        System.assertNotEquals(0, DemoCleanup.getOrgObjectList().size());
+        System.Test.stopTest();
+    }
+    
+    @isTest
+    private static void testGetApexClassList () {
+        System.Test.startTest();
+        System.assertNotEquals(0, DemoCleanup.getApexClassList().size());
         System.Test.stopTest();
     }
 

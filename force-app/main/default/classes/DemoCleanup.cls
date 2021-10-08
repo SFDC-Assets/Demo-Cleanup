@@ -1,10 +1,17 @@
 //  Controller for the Demo Cleanup Lightning component.
-//  
-//  This code is provided AS IS, with no warranty or guarantee of suitability for use.
+//
+//  Copyright (c) 2021, salesforce.com, inc.
+//  All rights reserved.
+//  SPDX-License-Identifier: BSD-3-Clause
+//  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+//
 //  Contact: john.meyer@salesforce.com
 
-
 public without sharing class DemoCleanup {
+
+    public final static String SOQL_RECORD_TYPE_NAME = 'SOQL Cleanup Task';
+    public final static String APEX_RECORD_TYPE_NAME = 'Apex Cleanup Task';
+    public final static String FLOW_RECORD_TYPE_NAME = 'Flow Cleanup Task';
     
     public class CleanupTask {
         @AuraEnabled public Id itemId;
@@ -24,9 +31,8 @@ public without sharing class DemoCleanup {
     public class PreviewItem {
         @AuraEnabled public Id itemId;
         @AuraEnabled public String itemName;
-        @AuraEnabled public String itemLink;
+        @AuraEnabled public Id itemOwnerId;
         @AuraEnabled public String itemOwnerName;
-        @AuraEnabled public String itemOwnerLink;
         @AuraEnabled public DateTime itemCreatedDate;
         @AuraEnabled public DateTime itemModifiedDate;
     }
@@ -40,8 +46,8 @@ public without sharing class DemoCleanup {
 		public String fields;
 		public String message;
 	}
-    
- 
+
+   
     //  Get the list of demo cleanup tasks in the org.
     //
     //  The parameters represent:
@@ -69,17 +75,21 @@ public without sharing class DemoCleanup {
             task.itemDescription = demoCleanupTask.Description__c;
             task.itemPermanentlyDelete = demoCleanupTask.Permanently_Delete__c;
             switch on demoCleanupTask.RecordType.Name {
-                when 'SOQL Cleanup Item' {
+                when 'SOQL Cleanup Task' {
                     task.itemObjectApiName = demoCleanupTask.Object_API_Name__c;
                     task.itemWhereClause = demoCleanupTask.SOQL_WHERE_Clause__c;
-                    if (!allowReusedObjects && objectsSeen.keySet().contains(demoCleanupTask.Object_API_Name__c)) {
+                    if (!allowReusedObjects && objectsSeen.containsKey(demoCleanupTask.Object_API_Name__c)) {
                         task.itemCount = null;
                         task.itemQueryError = true;
                         task.itemDuplicateObjectTask = objectsSeen.get(demoCleanupTask.Object_API_Name__c);
                     } else
                         try {
-                            task.itemCount = Database.countQuery('SELECT count() FROM ' + demoCleanupTask.Object_API_Name__c +
-                                (demoCleanupTask.SOQL_WHERE_Clause__c == null ? '' : ' WHERE ' + demoCleanupTask.SOQL_WHERE_Clause__c));
+                            task.itemCount = Database.countQuery(
+                                'SELECT count()' +
+                                ' FROM ' + demoCleanupTask.Object_API_Name__c +
+                                (String.isBlank(demoCleanupTask.SOQL_WHERE_Clause__c) ? '' :
+                                    ' WHERE ' + demoCleanupTask.SOQL_WHERE_Clause__c)
+                            );
                             task.itemQueryError = false;
                             objectsSeen.put(demoCleanupTask.Object_API_Name__c, demoCleanupTask.Description__c);
                         } catch (QueryException e) {
@@ -87,31 +97,90 @@ public without sharing class DemoCleanup {
                             task.itemQueryError = true;
                         }
                 }
-                when 'Apex Cleanup Item' {
+                when 'Apex Cleanup Task' {
                     task.itemApexClassName = demoCleanupTask.Apex_Class_Name__c;
                     task.itemCount = null;
-                    try {
-                        Type.forName(task.itemApexClassName).newInstance();
-                        task.itemQueryError = false;
-                    } catch (Exception e) {
-                        task.itemQueryError = true;
-                    }
+                    task.itemQueryError = !validateApexClass(task.itemApexClassName);
                 }
-                when 'Flow Cleanup Item' {
+                when 'Flow Cleanup Task' {
                     task.itemFlowApiName = demoCleanupTask.Flow_API_Name__c;
                     task.itemCount = null;
-                    try {
-                        Flow.Interview.createInterview(task.itemFlowApiName, new Map<String,Id> { 'DemoCleanupTaskId' => task.itemId });
-                        task.itemQueryError = false;
-                    } catch (Exception e) {
-                        task.itemQueryError = true;
-                    }
+                    task.itemQueryError = !validateFlow(task.itemFlowApiName, task.itemId);
                 }
             }            
             cleanupTasks.add(task);
         }
         
         return cleanupTasks;
+    }
+
+
+    //  Validates a SOQL Demo Cleanup Task.
+    //
+    //  The parameters represent:
+    //      allowReusedObjects: set to true if multiple SOQL cleanup tasks for the same object are allowed
+    //      objectApiName:  the API name of the object to check.
+    //      whereClause:  an optional WHERE clause exxpression to filter the records.
+
+    @AuraEnabled
+    public static String validateSoql (Boolean allowReusedObjects, String objectApiName, String whereClause) {
+
+        String returnValue;
+        String query = 'SELECT Id FROM ' + objectApiName + (String.isBlank(whereClause) ? '' : ' WHERE ' + whereClause);
+
+        try {
+            Database.query(query);
+        } catch (QueryException e) {
+            return 'The test query [' + query + '] generated an error. Please check the object and WHERE clause expression.';
+        }
+
+        if (!allowReusedObjects) {
+            List<Demo_Cleanup_Task__c> soqlCleanupTasks = [
+                SELECT Object_API_Name__c, Description__c
+                FROM   Demo_Cleanup_Task__c
+                WHERE  Active__c = true AND RecordType.Name = :SOQL_RECORD_TYPE_NAME
+            ];
+            Map<String,Demo_Cleanup_Task__c> taskMap = new Map<String,Demo_Cleanup_Task__c>();
+            for (Demo_Cleanup_Task__c task : soqlCleanupTasks)
+                taskMap.put(task.Object_API_Name__c, task);
+            if (taskMap.containsKey(objectApiName))
+                return 'Your object (' + objectApiName + ') is already used in task \'' + taskMap.get(objectApiName).Description__c + '\'.';
+        }
+
+        return null;
+    }
+
+
+    //  Validates an Apex Demo Cleanup Task.
+    //
+    //  The parameters represent:
+    //      apexClassName: the name of the Apex class.
+
+    @AuraEnabled
+    public static Boolean validateApexClass (String apexClassName) {
+        try {
+            Type.forName(apexClassName).newInstance();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    
+    //  Validates a Flow Demo Cleanup Task.
+    //
+    //  The parameters represent:
+    //      flowApiName:  the name of the Apex class.
+    //      taskId:  the Id of the Demo Cleanup Task to verify
+
+    @AuraEnabled
+    public static Boolean validateFlow (String flowApiName, Id taskId) {
+        try {
+            Flow.Interview.createInterview(flowApiName, new Map<String,Id> { 'DemoCleanupTaskId' => taskId });
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     
@@ -156,14 +225,14 @@ public without sharing class DemoCleanup {
 
         if (currentItem < cleanupTaskList.size())
             switch on cleanupTaskList[currentItem].itemRecordTypeName {
-                when 'SOQL Cleanup Item' {
+                when 'SOQL Cleanup Task' {
                     Database.executeBatch(new DemoCleanupBatch(cleanupTaskList, currentItem));
                 }
-                when 'Apex Cleanup Item' {
+                when 'Apex Cleanup Task' {
                     if (System.Limits.getQueueableJobs() < System.Limits.getLimitQueueableJobs())
                         System.enqueueJob(new DemoCleanupApex(cleanupTaskList, currentItem));
                 }
-                when 'Flow Cleanup Item' {
+                when 'Flow Cleanup Task' {
                     if (System.Limits.getQueueableJobs() < System.Limits.getLimitQueueableJobs())
                         System.enqueueJob(new DemoCleanupFlow(cleanupTaskList, currentItem));
                 }
@@ -191,7 +260,7 @@ public without sharing class DemoCleanup {
     //
     //  The parameters represent:
     //      objectApiName:  the API name of the object whose records are to be previewed.
-    //      whereClause:  the optional WHERE clause to filter the records.
+    //      whereClause:  an optional WHERE clause expression to filter the records.
     //      numberOfRecords:  the number of records to retrieve.
     //      offset:  the number of records to skip before retrieving.
 
@@ -199,12 +268,13 @@ public without sharing class DemoCleanup {
     public static List<PreviewItem> getPreviewRecords (String objectApiName, String whereClause, Integer numberOfRecords, Integer offset) {
 
         String nameField = getNameField(objectApiName);
-        Boolean hasOwnerId = Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().keySet().contains('ownerid');
+        Boolean hasOwnerId = Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().containsKey('ownerid');
         List<SObject> records = Database.query(
-            'SELECT ' + nameField + ', ' +
-            (hasOwnerId ? 'OwnerId, Owner.Name, ' : '') +
-            'CreatedDate, LastModifiedDate FROM ' + objectApiName + 
-            (whereClause == null ? '' : ' WHERE ' + whereClause) + ' LIMIT ' + numberOfRecords + ' OFFSET ' + offset
+            'SELECT CreatedDate, LastModifiedDate, ' + nameField + (hasOwnerId ? ', OwnerId, Owner.Name' : '') +
+            ' FROM ' + objectApiName + 
+            (String.isBlank(whereClause) ? '' : ' WHERE ' + whereClause) + 
+            ' LIMIT ' + numberOfRecords + 
+            ' OFFSET ' + offset
         );
         List<PreviewItem> previewItems = new List<PreviewItem>();
 
@@ -212,15 +282,59 @@ public without sharing class DemoCleanup {
             PreviewItem item = new PreviewItem();
             item.itemId = (Id) record.get('Id');
             item.itemName = String.valueOf(record.get(nameField));
-            item.itemLink = '/lightning/r/' + objectApiName + '/' + item.itemId + '/view';
+            item.itemOwnerId = hasOwnerId ? (Id) record.get('OwnerId') : null;
             item.itemOwnerName = hasOwnerId ? String.valueOf(record.getSObject('Owner').get('Name')) : null;
-            item.itemOwnerLink = hasOwnerId ? '/lightning/r/' + (Id) record.get('OwnerId') + '/view' : null;
             item.itemCreatedDate = (DateTime) record.get('CreatedDate');
             item.itemModifiedDate = (DateTime) record.get('LastModifiedDate');
             previewItems.add(item);
         }
 
         return previewItems;
+    }
+
+ 
+    //  Class used to return combobox selections.
+
+    public class Selector {
+        @AuraEnabled public String label;
+        @AuraEnabled public string value;
+
+        private Selector (String label, String value) {
+            this.label = label;
+            this.value = value;
+        }
+    }
+     
+
+    //  Get the list of objects in the org.
+
+    @AuraEnabled(cacheable=true)
+    public static List<Selector> getOrgObjectList () {
+        List<Selector> objectList = new List<Selector>();
+        for (Schema.SObjectType sot : Schema.getGlobalDescribe().values()) {
+            Schema.DescribeSObjectResult dsor = sot.getDescribe();
+            if (dsor.isQueryable() && dsor.isDeletable()) {
+                String objectApiName = dsor.getName();
+                String label = dsor.getLabel();
+                if (!label.contains('__MISSING LABEL__') && objectApiName != 'Demo_Cleanup_Task__c' && objectApiName != 'Demo_Cleanup_Event__e')
+                    objectList.add(new Selector(label, objectApiName));
+            }
+        }
+        return objectList;
+    }
+
+
+    //  Generate list of Apex classes that implement the DemoCleanupApexItem interface.
+
+    @AuraEnabled(cacheable=true)
+    public static List<Selector> getApexClassList () {
+        List<Selector> apexList = new List<Selector>();
+        for (ApexClass ac : [SELECT Name FROM ApexClass WHERE Status = 'Active'])
+            try {
+                if (Type.forName(ac.Name).newInstance() instanceof DemoCleanupApexItem)
+                    apexList.add(new Selector(ac.Name, ac.Name));
+            } catch (Exception e) {}
+        return apexList;
     }
 
 }

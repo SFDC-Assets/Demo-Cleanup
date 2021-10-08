@@ -2,7 +2,11 @@
 #
 #  Lists all of the orgs that have installed packages from this dev hub.
 #
-#  This code is provided AS IS, with no warranty or guarantee of suitability for use.
+#  Copyright (c) 2021, salesforce.com, inc.
+#  All rights reserved.
+#  SPDX-License-Identifier: BSD-3-Clause
+#  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+#
 #  Contact: john.meyer@salesforce.com
 
 readonly devHubOrgAlias=$(jq --raw-output .defaultdevhubusername < .sfdx/sfdx-config.json) || {
@@ -10,9 +14,6 @@ readonly devHubOrgAlias=$(jq --raw-output .defaultdevhubusername < .sfdx/sfdx-co
     exit 1
 }
 
-#sfdx force:data:soql:query \
-#    --query "SELECT InstanceName, MetadataPackageId, MetadataPackageVersionId, OrgName, OrgType FROM PackageSubscriber WHERE InstalledStatus = 'i' ORDER BY MetadataPackageId, MetadataPackageVersionId" \
-#    --targetusername "$devHubOrgAlias"
 sfdx force:data:soql:query \
     --query "SELECT Id, Name, NamespacePrefix, PackageCategory FROM MetadataPackage ORDER BY Id" \
     --targetusername "$devHubOrgAlias"

@@ -1,0 +1,13 @@
+<!--
+  Copyright (c) 2021, salesforce.com, inc.
+  All rights reserved.
+  SPDX-License-Identifier: BSD-3-Clause
+  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+
+  Contact: john.meyer@salesforce.com
+-->
+
+<aura:component implements="lightning:actionOverride,lightning:hasPageReference" description="Wrapper for the New button override for the Demo Cleanup Task object" access="public">
+    <aura:attribute name="pageReference" type="Object" access="public" />
+    <c:demoCleanupTaskNewAction recordTypeId="{!v.pageReference.state.recordTypeId}" />
+</aura:component>

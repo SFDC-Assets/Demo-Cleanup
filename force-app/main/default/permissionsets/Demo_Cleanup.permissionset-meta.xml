@@ -94,15 +94,15 @@
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <recordTypeVisibilities>
-        <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.Apex_Cleanup_Task</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.Flow_Cleanup_Task</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Demo_Cleanup_Task__c.SOQL_Cleanup_Item</recordType>
+        <recordType>Demo_Cleanup_Task__c.SOQL_Cleanup_Task</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <tabSettings>

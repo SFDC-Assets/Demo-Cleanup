@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SOQL_Cleanup_Task</fullName>
+    <active>true</active>
+    <description>Demo cleanup task is based on a SOQL query.</description>
+    <label>SOQL Cleanup Task</label>
+</RecordType>

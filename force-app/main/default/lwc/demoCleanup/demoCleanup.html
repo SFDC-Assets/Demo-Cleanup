@@ -1,22 +1,44 @@
+<!--
+  Copyright (c) 2021, salesforce.com, inc.
+  All rights reserved.
+  SPDX-License-Identifier: BSD-3-Clause
+  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+
+  Contact: john.meyer@salesforce.com
+-->
+
 <template>
 	<lightning-card>
 		<template if:true={spinnerVisible}>
-			<lightning-spinner variant="brand" size="medium" title="Working ..." alternative-text="Working ...">
-			</lightning-spinner>
+			<lightning-spinner variant="brand" size="medium" title="Working ..." alternative-text="Working ..."></lightning-spinner>
 		</template>
 
 		<header slot="title" class="slds-media slds-media_center">
 			<div class="slds-media__figure slds-icon_container">
 				<!-- prettier-ignore -->
-				<svg class="slds-icon slds-icon_small" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 52 52" style="enable-background:new 0 0 52 52;" xml:space="preserve">
+				<svg class="slds-icon slds-icon_small" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 400 400" style="enable-background:new 0 0 400 400;" xml:space="preserve">
 					<g>
-						<path fill="#057E46" d="M49,11c0-6.2-9.8-9-19-9s-19,2.8-19,9c0,0.1,0,0.3,0,0.4C2.4,14,1,19.5,1,22.6c0,3,1.5,6.1,4.1,8.3
-							c2.3,1.9,5.1,3,7.9,3.1v0c0.1,0,0.2,0,0.4,0c0,0,0.1,0,0.1,0c0.1,0,0.2,0,0.3,0c6.5-0.2,12.9-2.3,14.7-5.9C27.6,27.4,27,26.2,27,25
-							c0-2.2,1.8-4,4-4s4,1.8,4,4c0,1.7-1,3.1-2.5,3.7c-2,5.6-10,9.3-19.5,9.3v6c0,3.3,7.6,6,17,6s17-2.7,17-6V15.3
-							C48.3,14.1,49,12.7,49,11z M30,8c6.6,0,10.8,1.5,12.4,2.6c0.3,0.2,0.3,0.6,0,0.8C40.8,12.5,36.6,14,30,14s-10.8-1.5-12.4-2.6
-							c-0.3-0.2-0.3-0.6,0-0.8C19.2,9.5,23.4,8,30,8z M7.7,27.8C6,26.4,5,24.5,5,22.6c0-4.5,4.1-6.6,7.7-7.5c0.1,0.1,0.2,0.2,0.3,0.3V30
-							C11.1,29.9,9.2,29.1,7.7,27.8z"></path>
+						<path fill="#07844b" d="M350,400H50c-27.6,0-50-22.4-50-50V50C0,22.4,22.4,0,50,0h300c27.6,0,50,22.4,50,50v300
+						C400,377.6,377.6,400,350,400z"></path>
 					</g>
+					<path fill="FFFFFF" d="M321.1,59c-5.2,0.1-10,2.1-12.8,6.3l-43.6,82.2c3.3,1.1,10.5,4.4,34.7,15.3l0.4,0.2
+						c4.2,1.9,7.4,3.3,8.6,3.8c0.5,0.2,0.8,0.5,1.3,0.7l31.8-88.1c2-7-3-15-11-18.2C327.5,59.6,324.3,58.9,321.1,59z M77,104.9
+						c-12.7,0-23,10.4-23,23s10.4,23,23,23s23-10.4,23-23S89.7,104.9,77,104.9z M128.7,122.1c-6.4,0-11.5,5.2-11.5,11.5
+						c0,6.4,5.2,11.5,11.5,11.5c6.4,0,11.5-5.3,11.5-11.6C140.3,127.2,135.1,122.1,128.7,122.1z M239,154.4c-11.2,0.8-20.8,6.4-27.7,16
+						c4.4,7.4,11.9,16.3,22.6,16c2.8-0.1,5.2,1.9,5.7,4.6c2.2,3.4,15.5,9.4,19.4,7.9c1.6-0.6,3.4-0.5,4.8,0.4c1.5,0.8,2.6,2.3,2.9,4
+						c0.3,0.9,2.7,4.3,7.9,6.6c4.1,1.9,8,2.4,10.3,1.3c1.5-0.7,3-0.7,4.4-0.2c1.5,0.5,2.8,1.7,3.5,3.3c3.9,9.4,21.6,10.2,33.8,9.2
+						c1.8-7.7,1.3-15.7-1.5-23.2c-3.8-10.3-11.4-18.3-21.6-23c-1.1-0.5-4.5-2.1-9-4.2c-20.5-9.3-32.1-14.3-34.3-14.9
+						C252.9,155.3,245.6,153.9,239,154.4z M120.1,162.3c-17.4,0-31.6,14.2-31.6,31.6s14.2,31.6,31.6,31.6s31.6-14.2,31.6-31.6
+						C151.8,176.5,137.6,162.3,120.1,162.3z M205.2,182c-1.8,4.3-3.8,8.3-5.9,12.1c2.5,6,9.8,20,23.2,16.9c1.5-0.4,3.2-0.2,4.4,0.7
+						c1.4,0.9,2.1,2.2,2.4,3.8c0.4,2.2,2.9,4.7,6.4,6.6c5,2.7,10.4,3.4,12.8,2.4c1.5-0.6,3.2-0.7,4.6,0c1.5,0.7,2.6,2,3.1,3.6
+						c0.8,2.7,3.6,5.5,7.5,7.5c4.6,2.4,9.9,3.2,13.3,2c2.6-0.9,5.4,0.2,6.8,2.7c5.1,9.4,21.8,10.4,34.7,9.5c1.6-4.6,3.2-9.4,4.6-14.5
+						c-1.5,0.1-3.2,0.2-4.8,0.2c-12.1,0-26.4-2.4-33.6-12.3c-4.8,0.6-10.4-0.4-16-3.3c-4.1-2.1-8.5-5.3-11.2-9.2c-7.4,0-15.7-4.1-20-6.6
+						c-3.3-2-5.8-4-7.4-6.1C218.9,196.9,210.7,189.4,205.2,182z M192,205.3c-35.7,49.6-96.5,48.1-97.3,48c-2.3-0.2-4.4,1-5.5,3.1
+						c-1.1,2-0.9,4.4,0.5,6.3c10.3,12.7,21.3,23.4,32.5,32.5c5.3,1.1,38.7,5.8,71.7-32.5c2.1-2.4,5.7-2.6,8.1-0.5
+						c2.4,2.1,2.6,5.7,0.5,8.1c-23.1,26.7-47.4,35.1-64.4,36.9c14.2,9.5,28.5,16.8,41.9,22.2c8.4-1.8,37-10.3,62.2-48.7
+						c1.7-2.6,5.4-3.5,8.1-1.8s3.4,5.4,1.6,8.1c-19,29-39.8,42.6-54.5,48.9c29.9,9.7,52.2,10.5,54.1,10.6h0.2c1.1,0,2.2-0.4,3.1-0.9
+						c1.6-1,35-22.8,59.3-83.9c-0.9,0-1.9,0.2-2.9,0.2c-12.6,0-27.2-2.5-35.1-12.4c-5.5,0.7-12-0.6-17.8-3.6c-4.8-2.5-8.5-5.7-11-9.5
+						c-6.1,0.5-12.7-1.6-17.3-4.2c-4.6-2.5-8.4-5.7-10.4-9.4C206.7,223.5,197.5,214.5,192,205.3z"></path>
 				</svg>
 			</div>
 			<div class="slds-media__body">
@@ -30,8 +52,7 @@
 				icon-name="utility:question"
 				selected={helpSectionVisible}
 				onclick={handleHelpButton}
-			>
-			</lightning-button-icon-stateful>
+			></lightning-button-icon-stateful>
 		</div>
 
 		<p class="slds-p-horizontal_large slds-hyphenate">
@@ -39,7 +60,7 @@
 			state for the next demo.
 		</p>
 		<template if:false={cleanupTasksEmpty}>
-			<template if:true={tooManyCleanupTasks}>
+			<template if:true={tooManySoqlCleanupTasks}>
 				<div class="slds-illustration slds-illustration_small">
 					<!-- prettier-ignore -->
 					<svg class="slds-illustration__svg" viewBox="0 0 454 212" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -158,15 +179,13 @@
 					</svg>
 					<div class="slds-var-p-around_large slds-text-longform">
 						<h3 class="slds-text-heading_medium">You have an embarrassment of riches</h3>
-						<template if:true={tooManyCleanupTasks}>
-							<div class="slds-var-p-bottom_medium slds-text-body_regular slds-text-align_center">
-								The maximum number of cleanup tasks to stay within the Salesforce governor limits is&nbsp;
-								<lightning-formatted-number value={maximumCleanupTasks}> </lightning-formatted-number> &nbsp;and you
-								have&nbsp;
-								<lightning-formatted-number value={numberOfCleanupTasks}> </lightning-formatted-number>
-								.
-							</div>
-						</template>
+						<div class="slds-var-p-bottom_medium slds-text-body_regular slds-text-align_center">
+							The maximum number of SOQL cleanup tasks to stay within the Salesforce governor limits is&nbsp;
+							<lightning-formatted-number value={maximumSoqlCleanupTasks}> </lightning-formatted-number> &nbsp;and you
+							have&nbsp;
+							<lightning-formatted-number value={numberOfSoqlCleanupTasks}> </lightning-formatted-number>
+							.
+						</div>
 						<div class="slds-var-p-bottom_medium slds-text-body_regular slds-text-align_center">
 							You can delete or de-activate tasks from the Demo Cleanup Tasks tab.
 						</div>
@@ -180,7 +199,7 @@
 					</div>
 				</div>
 			</template>
-			<template if:false={tooManyCleanupTasks}>
+			<template if:false={TooManySoqlCleanupTasks}>
 				<section class="slds-var-p-top_medium slds-p-horizontal_large">
 					<lightning-layout horizontal-align="spread" vertical-align="center">
 						<lightning-layout-item
@@ -193,140 +212,133 @@
 						</lightning-layout-item>
 						<lightning-layout-item size="6" class="slds-text-align_right">
 							<div>
-								<lightning-icon class="slds-p-right_x-small" icon-name="utility:new_window" size="xx-small">
-								</lightning-icon>
+								<lightning-icon
+									class="slds-p-right_x-small"
+									icon-name="utility:new_window"
+									size="xx-small"
+								></lightning-icon>
 								<lightning-formatted-url
 									label="Go to the Demo Cleanup Tasks list"
 									value={cleanupTaskListViewUrl}
 									target="_parent"
-								>
-								</lightning-formatted-url>
+								></lightning-formatted-url>
 							</div>
 						</lightning-layout-item>
 					</lightning-layout>
 				</section>
 				<section class="slds-var-p-vertical_x-small slds-p-horizontal_large">
-					<lightning-layout
-						horizontal-align="spread"
-						class="slds-p-vertical_xx-small slds-theme_shade slds-border_top slds-border_left slds-border_right"
+					<table
+						data-id="cleanup-task-list"
+						class="slds-table slds-no-row-hover slds-table_bordered slds-border_left slds-border_right"
+						aria-label="Table of Demo Cleanup Tasks"
+						aria-multiselectable="true"
+						role="grid"
 					>
-						<lightning-layout-item size="1" padding="horizontal-small" class="slds-text-align_center">
-							<lightning-icon icon-name="utility:check" size="x-small"> </lightning-icon>
-						</lightning-layout-item>
-						<lightning-layout-item size="2" padding="horizontal-small" class="slds-text-align_center">
-							<strong>Records</strong>
-						</lightning-layout-item>
-						<lightning-layout-item size="1" padding="horizontal-small" class="slds-text-align_center">
-							<strong>Type</strong>
-						</lightning-layout-item>
-						<lightning-layout-item size="8" padding="horizontal-small" class="slds-text-align_center">
-							<strong>Demo Cleanup Task</strong>
-						</lightning-layout-item>
-					</lightning-layout>
-					<table class="cleanup-task-list slds-table slds-table_header-hidden slds-no-row-hover">
+						<thead>
+							<tr class="slds-line-height_reset">
+								<th scope="col"></th>
+								<th scope="col">
+									<lightning-input
+										type="checkbox"
+										checked={selectAll}
+										label="Select All"
+										variant="label-hidden"
+										title="Select or deselect all of the valid Demo Cleanup Tasks below"
+										onchange={handleSelectAll}
+									></lightning-input>
+								</th>
+								<th scope="col" class="slds-text-align_center">Records</th>
+								<th scope="col" class="slds-text-align_center">Type</th>
+								<th scope="col" class="slds-text-align_center">Demo Cleanup Task</th>
+								<th scope="col">
+									<lightning-icon icon-name="utility:success" size="x-small"></lightning-icon>
+								</th>
+							</tr>
+						</thead>
 						<tbody>
 							<template for:each={cleanupTasks} for:item="ct">
 								<tr
 									draggable={draggable}
 									key={ct.itemId}
 									data-id={ct.itemId}
-									ondragenter={handleDragEnter}
 									ondragstart={handleDragStart}
+									ondragenter={handleDragEnter}
 									ondragend={handleDragEnd}
+									aria-selected={ct.itemSelected}
 								>
-									<td class="slds-box slds-box_xx-small">
-										<lightning-layout>
-											<lightning-layout-item size="1" padding="horizontal-small">
-												<div class="slds-grid">
-													<div class="slds-col slds-size_6-of-12">
-														<lightning-input
-															type="checkbox"
-															checked={ct.itemSelected}
-															disabled={ct.itemCheckboxDisabled}
-															label={ct.itemId}
-															variant="label-hidden"
-															data-id={ct.itemId}
-															class="checkbox slds-align_absolute-center"
-															onchange={handleRowSelection}
-														>
-														</lightning-input>
-													</div>
-													<div class="slds-col slds-size_6-of-12">
-														<template if:true={ct.itemShowPreviewButton}>
-															<lightning-button-icon
-																icon-name="utility:preview"
-																type="button"
-																variant="bare"
-																size="medium"
-																alternative-text="Preview the records to be deleted"
-																title="Preview the records to be deleted"
-																data-id={ct.itemId}
-																onclick={handlePreviewButton}
-															>
-															</lightning-button-icon>
-														</template>
-														<template if:false={ct.itemShowPreviewButton}> &nbsp; </template>
-													</div>
-												</div>
-											</lightning-layout-item>
-											<lightning-layout-item
-												size="2"
-												padding="horizontal-small"
-												class="slds-text-align_right"
-											>
-												<lightning-formatted-number value={ct.itemRemaining}> </lightning-formatted-number>
-											</lightning-layout-item>
-											<lightning-layout-item
-												size="1"
-												padding="horizontal-small"
-												class="slds-align_absolute-center"
-											>
-												<lightning-icon
-													icon-name={ct.itemIcon}
-													size="xx-small"
-													variant={ct.itemIconVariant}
+									<td>
+										<template if:true={draggable}>
+											<lightning-icon
+												icon-name="utility:drag_and_drop"
+												size="xx-small"
+												title="Click, hold, and drag this task to the appropriate place in the list"
+											></lightning-icon>
+										</template>
+									</td>
+									<td>
+										<div class="slds-grid">
+											<div class="slds-col slds-size_6-of-12">
+												<lightning-input
+													type="checkbox"
+													checked={ct.itemSelected}
+													disabled={ct.itemCheckboxDisabled}
+													label={ct.itemId}
+													variant="label-hidden"
+													title={ct.itemCheckboxToolTip}
+													data-id={ct.itemId}
+													data-type="cleanup-task-checkbox"
 													class="slds-align_absolute-center"
-													title={ct.itemIconTooltip}
-												>
-												</lightning-icon>
-											</lightning-layout-item>
-											<lightning-layout-item size="7" padding="horizontal-small" class="slds-truncate">
-												<lightning-formatted-url
-													value={ct.itemLink}
-													label={ct.itemDescription}
-													tooltip={ct.itemDescription}
-													target="_parent"
-												>
-												</lightning-formatted-url>
-											</lightning-layout-item>
-											<lightning-layout-item
-												size="1"
-												padding="horizontal-small"
-												class="slds-align_absolute-center"
-											>
-												<lightning-icon
-													icon-name={ct.itemCompletionIcon}
-													variant={ct.itemCompletionIconVariant}
-													size="x-small"
-												>
-												</lightning-icon>
-											</lightning-layout-item>
-										</lightning-layout>
+													onchange={handleRowSelection}
+												></lightning-input>
+											</div>
+											<div class="slds-col slds-size_6-of-12">
+												<template if:true={ct.itemShowPreviewButton}>
+													<lightning-button-icon
+														icon-name="utility:preview"
+														type="button"
+														variant="bare"
+														size="medium"
+														alternative-text="Preview the records to be deleted by this task"
+														title="Preview the records to be deleted by this task"
+														data-id={ct.itemId}
+														onclick={handlePreviewButton}
+													></lightning-button-icon>
+												</template>
+											</div>
+										</div>
+									</td>
+									<td class="slds-text-align_right">
+										<lightning-formatted-number value={ct.itemRemaining}></lightning-formatted-number>
+									</td>
+									<td>
+										<lightning-icon
+											icon-name={ct.itemIcon}
+											size="xx-small"
+											variant={ct.itemIconVariant}
+											title={ct.itemIconToolTip}
+											class="slds-align_absolute-center"
+										></lightning-icon>
+									</td>
+									<td class="slds-cell-wrap">
+										<lightning-formatted-url
+											value={ct.itemLink}
+											label={ct.itemDescription}
+											tooltip={ct.itemToolTip}
+											target="_parent"
+										></lightning-formatted-url>
 										<template if:true={ct.itemShowProgress}>
 											<template if:true={ct.itemIsSOQL}>
 												<lightning-layout vertical-align="center" class="slds-var-p-vertical_medium">
-													<lightning-layout-item
-														padding="horizontal-medium"
-														size="2"
-														class="slds-text-align_right slds-truncate"
-													>
-														<lightning-formatted-number value={ct.itemRunningTotal}>
-														</lightning-formatted-number>
+													<lightning-layout-item size="3" class="slds-text-align_right slds-truncate">
+														<lightning-formatted-number
+															value={ct.itemRunningTotal}
+														></lightning-formatted-number>
 														&nbsp;/&nbsp;
-														<lightning-formatted-number value={ct.itemCount}>
-														</lightning-formatted-number>
+														<lightning-formatted-number
+															value={ct.itemCount}
+														></lightning-formatted-number>
 													</lightning-layout-item>
-													<lightning-layout-item padding="horizontal-large" size="8" flexibility="auto">
+													<lightning-layout-item size="6" padding="horizontal-small" flexibility="auto">
 														<lightning-progress-bar
 															size="large"
 															variant="circular"
@@ -335,17 +347,16 @@
 															aria-valuemax={ct.itemCount}
 															aria-valuenow={ct.itemRunningTotal}
 															role="progressbar"
-														>
-														</lightning-progress-bar>
+														></lightning-progress-bar>
 													</lightning-layout-item>
 													<lightning-layout-item
-														padding="horizontal-medium"
-														size="2"
+														size="3"
 														class="slds-text-align_left slds-text-color_error slds-truncate"
 													>
 														<template if:true={ct.itemHasErrors}>
-															<lightning-formatted-number value={ct.itemNumberOfErrors}>
-															</lightning-formatted-number>
+															<lightning-formatted-number
+																value={ct.itemNumberOfErrors}
+															></lightning-formatted-number>
 															&nbsp;error(s)
 														</template>
 													</lightning-layout-item>
@@ -353,31 +364,17 @@
 											</template>
 										</template>
 									</td>
+									<td>
+										<lightning-icon
+											icon-name={ct.itemCompletionIcon}
+											variant={ct.itemCompletionIconVariant}
+											size="x-small"
+										></lightning-icon>
+									</td>
 								</tr>
 							</template>
 						</tbody>
 					</table>
-					<div class="slds-text-body_small slds-var-p-top_xx-small">
-						<lightning-button
-							variant="neutral"
-							disabled={selectDisabled}
-							label="Select All"
-							title="Select all of the valid Demo Cleanup Tasks"
-							icon-name="utility:multi_select_checkbox"
-							onclick={handleSelectAll}
-						>
-						</lightning-button>
-						<lightning-button
-							variant="neutral"
-							disabled={selectDisabled}
-							label="Deselect All"
-							title="Deselect all of the Demo Cleanup Tasks"
-							icon-name="utility:steps"
-							onclick={handleDeselectAll}
-							class="slds-p-left_x-small"
-						>
-						</lightning-button>
-					</div>
 				</section>
 				<template if:true={showErrorList}>
 					<div class="slds-p-horizontal_large slds-var-p-vertical_small">
@@ -396,14 +393,14 @@
 									data={errorList}
 									key-field="id"
 									hide-checkbox-column="true"
-								>
-								</lightning-datatable>
+									aria-label="List of errors generated by the Demo Cleanup run"
+								></lightning-datatable>
 							</div>
 						</div>
 					</div>
 				</template>
 
-				<section class="slds-p-horizontal_large slds-p-vertical_medium">
+				<section class="slds-p-horizontal_large slds-p-vertical_x-small">
 					<lightning-layout multiple-rows="false" horizontal-align="spread" vertical-align="center">
 						<lightning-layout-item size="6">
 							<strong>
@@ -419,8 +416,7 @@
 								label="Clean Up the Demo"
 								icon-name="utility:bucket"
 								onclick={showModal}
-							>
-							</lightning-button>
+							></lightning-button>
 						</lightning-layout-item>
 					</lightning-layout>
 				</section>
@@ -430,7 +426,7 @@
 		<template if:true={cleanupTasksEmpty}>
 			<div class="slds-illustration slds-illustration_small">
 				<!-- prettier-ignore -->
-				<svg class="slds-illustration__svg" viewBox="0 0 470 229" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+				<svg class="slds-illustration__svg slds-var-p-top_medium" viewBox="0 0 470 229" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
 						<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 						  <g transform="translate(-65.000000, -89.000000)">
 							<g>
@@ -641,14 +637,18 @@
 						Several precautions are taken to ensure that only the records you want to delete are deleted.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
-						First, the component populates the <strong>Records</strong> column in the component by running a test query
+						First, the [New] and [Edit] actions on the Demo Cleanup Tasks list view will not create or update a task
+						without first validating its correctness.
+					</p>
+					<p class="slds-p-top_small slds-hyphenate">
+						Second, the component populates the <strong>Records</strong> column in the component by running a test query
 						using the object API name and SOQL&nbsp; <span class="slds-text-font_monospace">WHERE</span> &nbsp;clause
 						expression you supplied for each SOQL Demo Cleanup Task. If any are in error, the component will display an
 						error message and disable the checkbox for that task. You should always check the record counts for each of
 						the Demo Cleanup Tasks to make sure that a suspiciously large number of records is not being deleted.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
-						Second, all SOQL Demo Cleanup Tasks are checked to make sure that no two tasks try to clean up the same
+						Third, all SOQL Demo Cleanup Tasks are checked to make sure that no two tasks try to clean up the same
 						object, since one task will clobber records considered safe by the second and vice versa. Any subsequent
 						Demo Cleanup Tasks using the same object will not be executed and their checkboxes will not be selectable.
 						The way to fix this is to combine the duplicate tasks into a single record and use an appropriate WHERE
@@ -656,17 +656,18 @@
 						Objects" in the component's configuration section in Lightning App Builder.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
-						Next, each SOQL Demo Cleanup Task has a&nbsp;
+						Fourth, each SOQL Demo Cleanup Task has a&nbsp;
 						<lightning-icon icon-name="utility:preview" size="x-small"></lightning-icon>
 						&nbsp;icon which can be clicked to reveal the list of records that will be deleted by that task.
 					</p>
 					<p class="slds-p-top_small slds-hyphenate">
 						Finally, a modal dialog will pop up when you click the <strong>Clean Up the Demo</strong> button, confirming
-						the actions that will be taken.
+						the actions that will be taken and giving you one last chance to reconsider.
 					</p>
 					<h2 class="slds-p-top_large"><strong>Reference</strong></h2>
 					<p class="slds-p-top_small slds-hyphenate">
-						You can always find the latest version of this component in&nbsp;
+						You can always find the latest version of this component, along with more documentation and all of its
+						source code, in&nbsp;
 						<lightning-formatted-url
 							label="this GitHub repository"
 							value="https://github.com/SFDC-Assets/Demo-Cleanup"
@@ -691,9 +692,17 @@
 		>
 			<div class="slds-modal__container">
 				<header class="slds-modal__header slds-p-around_medium">
+					<lightning-button-icon
+						icon-name="utility:close"
+						size="large"
+						variant="bare-inverse"
+						class="slds-modal__close"
+						title="Close this window"
+						onclick={handleCancelButton}
+					></lightning-button-icon>
 					<div class="slds-media slds-media_center">
 						<div class="slds-media__figure slds-p-horizontal_medium">
-							<lightning-icon icon-name="utility:warning" variant="warning" size="medium"> </lightning-icon>
+							<lightning-icon icon-name="utility:warning" variant="warning" size="medium"></lightning-icon>
 						</div>
 						<div class="slds-media__body">
 							<p class="slds-text-align_center slds-text-heading_medium">
@@ -707,22 +716,25 @@
 						<template if:true={totalRecordsSelected}>
 							You are about to delete&nbsp;
 							<strong>
-								<lightning-formatted-number value={totalRecordsSelected} class="slds-text-color_destructive">
-								</lightning-formatted-number>
+								<lightning-formatted-number
+									value={totalRecordsSelected}
+									class="slds-text-color_destructive"
+								></lightning-formatted-number>
 							</strong>
 							&nbsp;record(s). &nbsp;
 						</template>
 						<template if:true={totalRecycleRecordsSelected}>
 							<strong>
-								<lightning-formatted-number value={totalRecycleRecordsSelected} class="slds-text-color_destructive">
-								</lightning-formatted-number>
+								<lightning-formatted-number
+									value={totalRecycleRecordsSelected}
+									class="slds-text-color_destructive"
+								></lightning-formatted-number>
 							</strong>
 							&nbsp;record(s) will remain in the&nbsp;
 							<lightning-formatted-url
 								label="recycle bin"
 								value="https://help.salesforce.com/articleView?id=recycle_bin.htm&amp;type=5"
-							>
-							</lightning-formatted-url>
+							></lightning-formatted-url>
 							&nbsp;for up to 15 days, subject to the usual size limits of the bin.&nbsp;
 						</template>
 						<template if:true={totalPermanentRecordsSelected}>
@@ -730,8 +742,7 @@
 								<lightning-formatted-number
 									value={totalPermanentRecordsSelected}
 									class="slds-text-color_destructive"
-								>
-								</lightning-formatted-number>
+								></lightning-formatted-number>
 							</strong>
 							&nbsp;record(s) will be deleted immediately and permanently.&nbsp;
 						</template>
@@ -758,15 +769,13 @@
 						label="Cancel"
 						variant="neutral"
 						onclick={handleCancelButton}
-					>
-					</lightning-button>
+					></lightning-button>
 					<lightning-button
 						icon-name="utility:bucket"
 						label="Clean Up the Demo"
 						variant="destructive"
 						onclick={handleCleanupButton}
-					>
-					</lightning-button>
+					></lightning-button>
 				</footer>
 			</div>
 		</section>
@@ -784,17 +793,28 @@
 		>
 			<div class="slds-modal__container">
 				<header class="slds-modal__header slds-p-horizontal_medium">
+					<lightning-button-icon
+						icon-name="utility:close"
+						size="large"
+						variant="bare-inverse"
+						class="slds-modal__close"
+						title="Close this window"
+						onclick={handlePreviewCancelButton}
+					></lightning-button-icon>
 					<div class="slds-media slds-media_center">
 						<div class="slds-media__figure slds-p-horizontal_medium">
 							<lightning-icon icon-name="utility:warning" variant="warning" size="large"></lightning-icon>
 						</div>
 						<div class="slds-media__body">
-							<p class="slds-p-around_large slds-text-heading_medium">
+							<div class="slds-p-around_large slds-text-heading_medium slds-text-align_left">
 								Selecting&nbsp;
-								<lightning-formatted-url label={previewTaskDescription} value={previewTaskLink} target="_parent">
-								</lightning-formatted-url>
+								<lightning-formatted-url
+									label={previewTaskDescription}
+									value={previewTaskLink}
+									target="_parent"
+								></lightning-formatted-url>
 								&nbsp;will delete the following records:
-							</p>
+							</div>
 						</div>
 					</div>
 				</header>
@@ -816,8 +836,8 @@
 							column-widths-mode="auto"
 							onloadmore={handlePreviewLoadMore}
 							class="previewTable"
-						>
-						</lightning-datatable>
+							aria-label="List of record previews"
+						></lightning-datatable>
 					</div>
 					<div class="slds-var-p-top_medium slds-text-body_small">
 						<p class="slds-text-color_weak slds-align_absolute-center">
@@ -837,8 +857,12 @@
 					</div>
 				</section>
 				<footer class="slds-modal__footer">
-					<lightning-button icon-name="utility:close" label="Close" variant="brand" onclick={handlePreviewCancelButton}>
-					</lightning-button>
+					<lightning-button
+						icon-name="utility:close"
+						label="Close"
+						variant="neutral"
+						onclick={handlePreviewCancelButton}
+					></lightning-button>
 				</footer>
 			</div>
 		</section>

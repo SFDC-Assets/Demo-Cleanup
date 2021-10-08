@@ -1,0 +1,13 @@
+<!--
+  Copyright (c) 2021, salesforce.com, inc.
+  All rights reserved.
+  SPDX-License-Identifier: BSD-3-Clause
+  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+
+  Contact: john.meyer@salesforce.com
+-->
+
+<aura:component implements="lightning:actionOverride,force:hasRecordId" description="Wrapper for the Edit button override for the Demo Cleanup Task object" access="public">
+    <aura:attribute name="recordId" type="Id" access="public" />
+    <c:demoCleanupTaskEditAction recordId="{!v.recordId}" />
+</aura:component>

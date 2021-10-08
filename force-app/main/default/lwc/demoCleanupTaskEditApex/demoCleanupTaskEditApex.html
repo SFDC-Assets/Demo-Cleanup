@@ -1,0 +1,143 @@
+<!--
+  Copyright (c) 2021, salesforce.com, inc.
+  All rights reserved.
+  SPDX-License-Identifier: BSD-3-Clause
+  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+
+  Contact: john.meyer@salesforce.com
+-->
+
+<template>
+	<template if:true={isOpen}>
+		<section
+			role="dialog"
+			tabindex="-1"
+			class="slds-modal slds-modal_medium slds-fade-in-open"
+			aria-modal="true"
+			aria-labelledby="modal-heading"
+			aria-describedby="modal-content"
+		>
+			<div class="slds-modal__container">
+				<header class="slds-modal__header slds-p-around_medium">
+					<lightning-button-icon
+						icon-name="utility:close"
+						size="large"
+						variant="bare-inverse"
+						class="slds-modal__close"
+						title="Close this window"
+						onclick={handleCloseButton}
+					></lightning-button-icon>
+					<div class="slds-media slds-media_center">
+						<div class="slds-media__figure slds-p-right_large">
+							<lightning-icon icon-name="utility:apex" variant="success" size="large"></lightning-icon>
+						</div>
+						<div class="slds-media__body">
+							<h2 id="modal-heading" class="slds-modal__title">Edit Apex Cleanup Task</h2>
+							<p class="slds-p-top_medium slds-text-align_left slds-text-color_weak">
+								Apex cleanup tasks execute an Apex class that you specify and are useful for performing cleanup
+								duties that cannot be handled by simple record deletion. The Apex class must be active and must
+								implement the &nbsp;
+								<span class="slds-text-font_monospace">DemoCleanupApexItem</span> interface.
+							</p>
+						</div>
+					</div>
+				</header>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content">
+					<lightning-layout horizontal-align="spread">
+						<lightning-layout-item size="4" padding="horizontal-small">
+							<lightning-combobox
+								label="Apex class:"
+								value={apexClassName}
+								options={apexOptions}
+								required
+								message-when-value-missing="You must select an Apex class"
+								onchange={handleApexClassSelection}
+								onblur={validateApexClassSelection}
+							></lightning-combobox>
+							<p class="slds-p-vertical_x-small slds-text-body_small slds-text-color_inverse-weak">
+								<em>
+									If your Apex class is not listed, please make sure that it is active and implements the &nbsp;
+									<span class="slds-text-font_monospace">DemoCleanupApexItem</span> interface.
+								</em>
+							</p>
+						</lightning-layout-item>
+						<lightning-layout-item size="5" padding="horizontal-small">
+							<lightning-radio-group
+								label="Record deletion:"
+								options={deleteOptions}
+								value={permanentlyDelete}
+								type="button"
+								onchange={handlePermanentlyDelete}
+							></lightning-radio-group>
+							<p class="slds-p-vertical_x-small slds-text-body_small slds-text-color_inverse-weak">
+								<em>
+									The value of this toggle can be inspected by the Apex class to determine if any records it
+									deletes should be permanently deleted or placed in the Recycle Bin.
+								</em>
+							</p>
+						</lightning-layout-item>
+						<lightning-layout-item size="3" padding="horizontal-small">
+							<lightning-input
+								type="toggle"
+								label="Active"
+								variant="label-hidden"
+								checked={active}
+								message-toggle-active="Activated"
+								message-toggle-inactive="Not activated"
+								class="slds-p-top_large"
+								onchange={handleActive}
+							></lightning-input>
+							<p class="slds-p-vertical_xx-small slds-text-body_small slds-text-color_inverse-weak">
+								<em>
+									If this toggle is not checked, the task will be saved but will not appear in the task list,
+									effectively de-activating it.
+								</em>
+							</p>
+						</lightning-layout-item>
+					</lightning-layout>
+					<section class="slds-var-p-top_small slds-p-horizontal_small">
+						<lightning-input
+							type="text"
+							label="Description:"
+							value={description}
+							max-length={maxDescriptionChars}
+							required
+							message-when-value-missing="You must provide a description of this Demo Cleanup Task"
+							onchange={handleDescription}
+							onblur={validateDescription}
+						></lightning-input>
+						<p class="slds-var-p-bottom_small slds-text-align_right slds-text-color_inverse-weak slds-text-body_small">
+							<lightning-formatted-number value={descriptionCharsRemaining}> </lightning-formatted-number>
+							<lightning-formatted-text value=" characters remaining"> </lightning-formatted-text>
+						</p>
+					</section>
+				</div>
+				<footer class="slds-modal__footer">
+					<lightning-button
+						variant="neutral"
+						icon-name="utility:close"
+						label="Cancel"
+						onclick={handleCloseButton}
+					></lightning-button>
+					<lightning-button
+						variant="brand"
+						icon-name="utility:check"
+						label="Validate"
+						disabled={validateDisabled}
+						class="slds-p-left_xx-large"
+						onclick={handleValidateButton}
+					></lightning-button>
+					<lightning-button
+						variant="brand"
+						icon-name="utility:record_update"
+						label="Update"
+						disabled={saveDisabled}
+						class="slds-p-left_medium"
+						onclick={handleUpdateButton}
+					></lightning-button>
+				</footer>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop--open"></div>
+	</template>
+</template>
