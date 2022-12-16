@@ -12,12 +12,8 @@ package.xml
 # LWC Jest
 **/__tests__/**
 
-force-app/main/default/applications/standard__LightningSales.app-meta.xml
-standard__LightningSales.app
-Demo_Reset_Tools.flexipage
-Demo_Reset_Tools.tab
-#force-app/main/default/profiles/Admin.profile-meta.xml
-#Admin.profile
+force-app/main/default/profiles/Admin.profile-meta.xml
+Admin.profile
 Readonly.profile
 force-app/main/default/profiles/Custom%3A Marketing Profile.profile-meta.xml
 Custom%3A Marketing Profile.profile

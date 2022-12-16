@@ -1,6 +1,6 @@
 //  Controller for the Demo Cleanup Lightning component.
 //
-//  Copyright (c) 2021, salesforce.com, inc.
+//  Copyright (c) 2022, salesforce.com, inc.
 //  All rights reserved.
 //  SPDX-License-Identifier: BSD-3-Clause
 //  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -37,15 +37,15 @@ public without sharing class DemoCleanup {
         @AuraEnabled public DateTime itemModifiedDate;
     }
 
-	//  Class used to collect error information to send back to the component in a platform event.
+    //  Class used to collect error information to send back to the component in a platform event.
 
-	public class ErrorSpec {
-		public Id id;
-		public String name;
-		public String link;
-		public String fields;
-		public String message;
-	}
+    public class ErrorSpec {
+        public Id id;
+        public String name;
+        public String link;
+        public String fields;
+        public String message;
+    }
 
    
     //  Get the list of demo cleanup tasks in the org.
@@ -247,7 +247,7 @@ public without sharing class DemoCleanup {
 
     public static String getNameField (String objectApiName) {
 		String name;
-        for (Schema.SObjectField field : Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().values())
+        for (Schema.SObjectField field : Schema.describeSObjects(new List<String> {objectApiName})[0].fields.getMap().values())
             if (field.getDescribe().isNameField()) {
                 name = field.getDescribe().getName();
                 break;
@@ -268,7 +268,7 @@ public without sharing class DemoCleanup {
     public static List<PreviewItem> getPreviewRecords (String objectApiName, String whereClause, Integer numberOfRecords, Integer offset) {
 
         String nameField = getNameField(objectApiName);
-        Boolean hasOwnerId = Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap().containsKey('ownerid');
+        Boolean hasOwnerId = Schema.describeSObjects(new List<String> {objectApiName})[0].fields.getMap().containsKey('ownerid');
         List<SObject> records = Database.query(
             'SELECT CreatedDate, LastModifiedDate, ' + nameField + (hasOwnerId ? ', OwnerId, Owner.Name' : '') +
             ' FROM ' + objectApiName + 

@@ -4,8 +4,15 @@
             "path": "force-app",
             "default": true,
             "package": "Demo Cleanup",
-            "versionName": "Version 3.0.0.0",
-            "versionNumber": "3.0.0.0"
+            "versionName": "Version 3.0.1.0",
+            "versionNumber": "3.0.1.0",
+            "unpackagedMetadata": {
+                "path": "force-development-unpackaged"
+            }
+        },
+        {
+            "path": "force-development-unpackaged",
+            "default": false
         }
     ],
     "namespace": "",
@@ -13,16 +20,6 @@
     "sourceApiVersion": "52.0",
     "packageAliases": {
         "Demo Cleanup": "0Ho2E000000007MSAQ",
-        "Demo Cleanup@1.0.0-0": "04t2E000003obwIQAQ",
-        "Demo Cleanup@1.0.1-0": "04t2E000003obwNQAQ",
-        "Demo Cleanup@1.1.0-0": "04t2E000003obxpQAA",
-        "Demo Cleanup@1.1.1-0": "04t2E000003obyTQAQ",
-        "Demo Cleanup@1.1.2-0": "04t2E000003obyYQAQ",
-        "Demo Cleanup@1.1.3-0": "04t2E000003oc6OQAQ",
-        "Demo Cleanup@1.1.4-0": "04t2E000003oc7HQAQ",
-        "Demo Cleanup@1.1.5-0": "04t2E000003oc9rQAA",
-        "Demo Cleanup@1.1.6-0": "04t2E000003ocCbQAI",
-        "Demo Cleanup@1.2.0-0": "04t2E000003ocR2QAI",
         "Demo Cleanup@2.0.0-0": "04t2E000003oca0QAA",
         "Demo Cleanup@2.0.1-0": "04t2E000003ocbmQAA",
         "Demo Cleanup@2.0.2-0": "04t2E000003ocfjQAA",
@@ -30,6 +27,7 @@
         "Demo Cleanup@2.1.1-0": "04t2E000003ocvAQAQ",
         "Demo Cleanup@2.1.2-0": "04t2E000003ocvKQAQ",
         "Demo Cleanup@2.1.3-0": "04t2E000003ocwDQAQ",
-        "Demo Cleanup@3.0.0-0": "04t2E000003ZU0bQAG"
+        "Demo Cleanup@3.0.0-0": "04t2E000003ZU0bQAG",
+        "Demo Cleanup@3.0.1-0": "04t2E000003smqUQAQ"
     }
 }

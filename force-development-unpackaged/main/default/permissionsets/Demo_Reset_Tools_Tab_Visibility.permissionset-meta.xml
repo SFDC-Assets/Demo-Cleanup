@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Makes the Demo Reset Tools Tab visible for development. This should not be included in the packaged metadata.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Demo Reset Tools Tab Visibility</label>
+    <tabSettings>
+        <tab>Demo_Reset_Tools</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+</PermissionSet>
