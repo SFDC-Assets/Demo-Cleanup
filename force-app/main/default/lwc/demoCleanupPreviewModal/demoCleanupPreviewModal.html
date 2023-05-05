@@ -1,0 +1,76 @@
+<!--
+  Copyright (c) 2021-2023, salesforce.com, inc.
+  All rights reserved.
+  SPDX-License-Identifier: BSD-3-Clause
+  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+
+  Contact: john.meyer@salesforce.com
+-->
+<template>
+	<lightning-modal-header label="Demo Cleanup Task Preview">
+		<div class="slds-media slds-media_center">
+			<div class="slds-media__figure slds-p-horizontal_medium">
+				<lightning-icon icon-name="utility:warning" variant="warning" size="large"></lightning-icon>
+			</div>
+			<div class="slds-media__body">
+				<div class="slds-p-around_large slds-text-heading_small slds-text-align_left">
+					Selecting&nbsp;
+					<lightning-formatted-url
+						label={previewTaskDescription}
+						value={previewTaskLink}
+						target="_parent"
+					></lightning-formatted-url>
+					&nbsp;will delete the following records:
+				</div>
+			</div>
+		</div>
+	</lightning-modal-header>
+	<lightning-modal-body>
+		<div class="slds-p-horizontal_medium">
+			<p class="slds-var-p-bottom_small slds-text-body_small slds-text-color_weak slds-text-align_left slds-trucate">
+				<em>
+					<strong>Note:</strong> &nbsp;Child objects in a master-detail relationship will not have an&nbsp;
+					<strong>Owner</strong> &nbsp;field.
+				</em>
+			</p>
+			<div class="slds-tile_board slds-box slds-box_xx-small previewTableHeight">
+				<lightning-datatable
+					data={previewList}
+					columns={previewListColumns}
+					key-field="itemId"
+					hide-checkbox-column
+					show-row-number-column
+					enable-infinite-loading
+					column-widths-mode="auto"
+					onloadmore={handlePreviewLoadMore}
+					class="previewTable"
+					aria-label="List of record previews"
+				></lightning-datatable>
+			</div>
+			<div class="slds-var-p-top_medium slds-text-body_small">
+				<p class="slds-text-color_weak slds-align_absolute-center">
+					Showing&nbsp;
+					<strong><lightning-formatted-number value={previewRowsShowing}></lightning-formatted-number></strong>
+					&nbsp;of&nbsp;
+					<strong><lightning-formatted-number value={previewTotalRows}></lightning-formatted-number></strong>
+					&nbsp;records
+				</p>
+				<template lwc:if={previewTooManyRows}>
+					<p class="slds-text-color_error slds-align_absolute-center">
+						<em> Only the first&nbsp; </em>
+						<lightning-formatted-number value="2000"></lightning-formatted-number>
+						<em> &nbsp;rows will be shown </em>
+					</p>
+				</template>
+			</div>
+		</div>
+	</lightning-modal-body>
+	<lightning-modal-footer>
+		<lightning-button
+			icon-name="utility:close"
+			label="Close"
+			variant="neutral"
+			onclick={handlePreviewCancelButton}
+		></lightning-button>
+	</lightning-modal-footer>
+</template>

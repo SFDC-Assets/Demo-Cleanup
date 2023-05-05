@@ -5,7 +5,7 @@
 	"tasks": [{
 		"label": "Push Source to Build",
 		"type": "shell",
-		"command": "sfdx force:source:push --json",
+		"command": "sfdx project deploy start --json",
 		"group": {
 			"kind": "build",
 			"isDefault": true

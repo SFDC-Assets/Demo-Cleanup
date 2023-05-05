@@ -1,0 +1,86 @@
+<!--
+  Copyright (c) 2021-2023, salesforce.com, inc.
+  All rights reserved.
+  SPDX-License-Identifier: BSD-3-Clause
+  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+
+  Contact: john.meyer@salesforce.com
+-->
+<template>
+	<lightning-modal-header label="Are You Sure?"></lightning-modal-header>
+	<lightning-modal-body>
+		<lightning-layout vertical-align="start">
+			<lightning-layout-item size="1">
+				<div class="slds-p-horizontal_medium">
+					<lightning-icon icon-name="utility:warning" variant="warning" size="large"></lightning-icon>
+				</div>
+			</lightning-layout-item>
+			<lightning-layout-item size="11">
+				<p class="slds-p-horizontal_medium slds-hyphenate">
+					<template lwc:if={totalRecordsSelected}>
+						You are about to delete&nbsp;
+						<strong>
+							<lightning-formatted-number
+								value={totalRecordsSelected}
+								class="slds-text-color_destructive"
+							></lightning-formatted-number>
+						</strong>
+						&nbsp;record(s). &nbsp;
+					</template>
+					<template lwc:if={totalRecycleRecordsSelected}>
+						<strong>
+							<lightning-formatted-number
+								value={totalRecycleRecordsSelected}
+								class="slds-text-color_destructive"
+							></lightning-formatted-number>
+						</strong>
+						&nbsp;record(s) will remain in the&nbsp;
+						<lightning-formatted-url
+							label="recycle bin"
+							value="https://help.salesforce.com/articleView?id=recycle_bin.htm&amp;type=5"
+						></lightning-formatted-url>
+						&nbsp;for up to 15 days, subject to the usual size limits of the bin.&nbsp;
+					</template>
+					<template lwc:if={totalPermanentRecordsSelected}>
+						<strong>
+							<lightning-formatted-number
+								value={totalPermanentRecordsSelected}
+								class="slds-text-color_destructive"
+							></lightning-formatted-number>
+						</strong>
+						&nbsp;record(s) will be deleted immediately and permanently.&nbsp;
+					</template>
+					<template lwc:if={totalApexItemsSelected}>
+						<strong>
+							<lightning-formatted-number value={totalApexItemsSelected} class="slds-text-color_destructive">
+							</lightning-formatted-number>
+						</strong>
+						&nbsp;Apex class(es) will be executed.&nbsp;
+					</template>
+					<template lwc:if={totalFlowItemsSelected}>
+						<strong>
+							<lightning-formatted-number value={totalFlowItemsSelected} class="slds-text-color_destructive">
+							</lightning-formatted-number>
+						</strong>
+						&nbsp;autolaunched flow(s) will be executed.
+					</template>
+				</p>
+			</lightning-layout-item>
+		</lightning-layout>
+	</lightning-modal-body>
+	<lightning-modal-footer>
+		<lightning-button
+			class="slds-p-right_medium"
+			icon-name="utility:close"
+			label="Cancel"
+			variant="neutral"
+			onclick={handleCancelButton}
+		></lightning-button>
+		<lightning-button
+			icon-name="utility:bucket"
+			label="Clean Up the Demo"
+			variant="destructive"
+			onclick={handleCleanupButton}
+		></lightning-button>
+	</lightning-modal-footer>
+</template>

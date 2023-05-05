@@ -1,0 +1,9 @@
+p, li {
+	text-align: justify;
+}
+.previewTableHeight {
+	height: 15rem;
+}
+.previewTable {
+	width: 100%;
+}

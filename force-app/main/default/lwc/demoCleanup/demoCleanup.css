@@ -2,6 +2,8 @@
     --sds-c-backdrop-color-background: rgba(8, 7, 7, 0.47);
 	--sds-c-checkbox-shadow-focus: 0 0 0px #dddbda;
 	--sds-c-checkbox-color-border-focus: #dddbda;
+	--slds-c-button-shadow-focus: 0 0 0px #0176d3;
+	--slds-c-button-inverse-shadow-focus: 0 0 0px #f3f3f3;
 }
 
 p, li {
@@ -15,12 +17,6 @@ code {
 }
 .scrollerSize {
 	height: 10rem;
-}
-.previewTableHeight {
-	height: 15rem;
-}
-.previewTable {
-	width: 100%;
 }
 .dragging {
 	transform: rotate(3deg);

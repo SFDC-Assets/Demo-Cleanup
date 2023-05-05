@@ -2,7 +2,7 @@
 #
 #  Creates a new package in the dev hub.
 #
-#  Copyright (c) 2022, salesforce.com, inc.
+#  Copyright (c) 2021-2023, salesforce.com, inc.
 #  All rights reserved.
 #  SPDX-License-Identifier: BSD-3-Clause
 #  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -14,10 +14,10 @@ readonly devHubOrgAlias=$(jq --raw-output .defaultdevhubusername < .sfdx/sfdx-co
     exit 1
 }
 
-sfdx force:package:create \
-    --packagetype "Unlocked" \
-    --nonamespace \
+sfdx package create \
+    --package-type "Unlocked" \
+    --no-namespace \
     --name "Demo Cleanup" \
     --description "This package contains code and metadata for the Salesforce Demo Cleanup Lightning component" \
     --path "force-app" \
-    --targetdevhubusername "$devHubOrgAlias"
+    --target-dev-hub "$devHubOrgAlias"

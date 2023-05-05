@@ -1,0 +1,127 @@
+<!--
+    Copyright (c) 2021-2023, salesforce.com, inc.
+    All rights reserved.
+    SPDX-License-Identifier: BSD-3-Clause
+    For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+  
+    Contact: john.meyer@salesforce.com
+  -->
+<template>
+	<lightning-modal-header label="Demo Cleanup"></lightning-modal-header>
+	<lightning-modal-body>
+		<div class="slds-p-horizontal_medium">
+			<h2><strong>Motivation</strong></h2>
+			<p class="slds-p-top_small slds-hyphenate">
+				You know how demos often get cluttered with artifacts from previous demo or test runs? Records are created and never
+				get cleaned up, leaving you wondering long afterwards whether or not they are necessary for the demo scenarios or if
+				they can be cleared away. This component allows you to clean up the org between demos so that any future demo can be
+				started with a clean environment, deleting any records that were created by previous demos, dry runs, or tests, and
+				optionally executing any custom code or flows to reset the state of the org.
+			</p>
+			<h2 class="slds-p-top_large"><strong>How It Works</strong></h2>
+			<p class="slds-p-top_small slds-hyphenate">
+				The component is driven by a series of Demo Cleanup Tasks which you create. These tasks fall into three categories:
+			</p>
+			<ul class="slds-list_dotted slds-p-top_small slds-hyphenate">
+				<li>
+					<strong>SOQL tasks</strong> delete records of an object that match an optional&nbsp;
+					<span class="slds-text-font_monospace">WHERE</span> &nbsp;clause that you create. For example, records that have
+					been hand-crafted for a demo scenario or those that have been uploaded in bulk for use in analytics dashboards
+					might be tagged with custom checkbox fields to indicate that they are to be retained. Any other records of that
+					object not so tagged would then be considered to be a by-product of a demo run and could be safely deleted.
+				</li>
+				<li>
+					<strong>Apex tasks</strong> run an Apex class that you specify. The class must implement the&nbsp;
+					<span class="slds-text-font_monospace">DemoCleanupApexItem</span> &nbsp;interface. These can be useful for
+					resetting demo parameters that do not involve deleting records, such as activating or deactivating users.
+				</li>
+				<li>
+					<strong>Flow tasks</strong> run an autolaunched flow that you specify. The component passes the Id of the task
+					into the flow through the&nbsp; <span class="slds-text-font_monospace">DemoCleanupTaskId</span> &nbsp;input
+					variable, so if the flow needs to access any of the fields in the cleanup task, you should define that variable
+					in the RESOURCES section of the flow.
+				</li>
+			</ul>
+			<p class="slds-p-top_small slds-hyphenate">
+				To set up a SOQL cleanup task, just navigate to the&nbsp;
+				<lightning-formatted-url value={cleanupTaskListViewUrl} label="Demo Cleanup Tasks tab" target="_parent">
+				</lightning-formatted-url>
+				&nbsp;and create as many tasks as you need (although no more than 90 SOQL tasks can be active at any given time).
+				Each one will require a description, which will appear in the task list, the API name of the object whose records
+				you want to delete, and a&nbsp;
+				<lightning-formatted-url
+					label="SOQL WHERE clause expression"
+					value="https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_conditionexpression.htm"
+					target="_parent"
+				>
+				</lightning-formatted-url>
+				&nbsp;to specify which records of that object should be deleted. Additionally, you can specify whether or not the
+				records bypass the&nbsp;
+				<lightning-formatted-url
+					label="recycle bin"
+					value="https://help.salesforce.com/articleView?id=recycle_bin.htm&amp;type=5"
+				>
+				</lightning-formatted-url>
+				, resulting in a permanent deletion. Finally, you can choose to activate or deactivate the task to specify whether
+				or not it appears in the list of available tasks in the component.
+			</p>
+			<p class="slds-p-top_small slds-hyphenate">
+				Power users wishing to create Apex tasks can choose the Apex cleanup task record type and fill in the name of an
+				Apex class. The Apex class must implement the&nbsp;
+				<span class="slds-text-font_monospace">DemoCleanupApexItem</span> &nbsp; interface.
+			</p>
+			<p class="slds-p-top_small slds-hyphenate">
+				Those users who wish to invoke flows may choose the Flow cleanup task record type and fill in the API name of the
+				flow to execute.
+			</p>
+			<h2 class="slds-p-top_large"><strong>Guardrails</strong></h2>
+			<p class="slds-p-top_small slds-hyphenate">
+				Several precautions are taken to ensure that only the records you want to delete are deleted.
+			</p>
+			<p class="slds-p-top_small slds-hyphenate">
+				First, the [New] and [Edit] actions on the Demo Cleanup Tasks list view will not create or update a task without
+				first validating its correctness.
+			</p>
+			<p class="slds-p-top_small slds-hyphenate">
+				Second, the component populates the <strong>Records</strong> column in the component by running a test query using
+				the object API name and SOQL&nbsp; <span class="slds-text-font_monospace">WHERE</span> &nbsp;clause expression you
+				supplied for each SOQL Demo Cleanup Task. If any are in error, the component will display an error message and
+				disable the checkbox for that task. You should always check the record counts for each of the Demo Cleanup Tasks to
+				make sure that a suspiciously large number of records is not being deleted.
+			</p>
+			<p class="slds-p-top_small slds-hyphenate">
+				Third, all SOQL Demo Cleanup Tasks are checked to make sure that no two tasks try to clean up the same object, since
+				one task will clobber records considered safe by the second and vice versa. Any subsequent Demo Cleanup Tasks using
+				the same object will not be executed and their checkboxes will not be selectable. The way to fix this is to combine
+				the duplicate tasks into a single record and use an appropriate
+				<span class="slds-text-font_monospace">WHERE</span> &nbsp;clause that covers the combined conditions. You can also
+				deselect the checkbox called "Check for Reused Objects" in the component's configuration section in Lightning App
+				Builder.
+			</p>
+			<p class="slds-p-top_small slds-hyphenate">
+				Fourth, each SOQL Demo Cleanup Task has a&nbsp;
+				<lightning-icon icon-name="utility:preview" size="x-small"></lightning-icon>
+				&nbsp;icon which can be clicked to reveal the list of records that will be deleted by that task.
+			</p>
+			<p class="slds-p-top_small slds-hyphenate">
+				Finally, a modal dialog will pop up when you click the <strong>Clean Up the Demo</strong> button, confirming the
+				actions that will be taken and giving you one last chance to reconsider.
+			</p>
+			<h2 class="slds-p-top_large"><strong>Reference</strong></h2>
+			<p class="slds-p-top_small slds-hyphenate">
+				You can always find the latest version of this component, along with more documentation and all of its source code,
+				in&nbsp;
+				<lightning-formatted-url
+					label="this GitHub repository"
+					value="https://github.com/SFDC-Assets/Demo-Cleanup"
+					target="_parent"
+				>
+				</lightning-formatted-url>
+				.
+			</p>
+		</div>
+	</lightning-modal-body>
+	<lightning-modal-footer>
+		<lightning-button icon-name="utility:close" label="Close" variant="neutral" onclick={handleCloseButton}></lightning-button>
+	</lightning-modal-footer>
+</template>

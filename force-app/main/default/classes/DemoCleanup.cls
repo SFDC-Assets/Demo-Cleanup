@@ -1,12 +1,13 @@
 //  Controller for the Demo Cleanup Lightning component.
 //
-//  Copyright (c) 2022, salesforce.com, inc.
+//  Copyright (c) 2021-2023, salesforce.com, inc.
 //  All rights reserved.
 //  SPDX-License-Identifier: BSD-3-Clause
 //  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 //
 //  Contact: john.meyer@salesforce.com
 
+@SuppressWarnings('PMD.CognitiveComplexity, PMD.ExcessivePublicCount, PMD.IfStmtsMustUseBraces, PMD.IfElseStmtsMustUseBraces, PMD.ForLoopsMustUseBraces')
 public without sharing class DemoCleanup {
 
     public final static String SOQL_RECORD_TYPE_NAME = 'SOQL Cleanup Task';
@@ -52,8 +53,9 @@ public without sharing class DemoCleanup {
     //
     //  The parameters represent:
     //      allowReusedObjects: set to true if multiple SOQL cleanup tasks for the same object are allowed
-    
-    @AuraEnabled(cacheable=true)
+
+    @SuppressWarnings('PMD.ApexCRUDViolation')
+    @AuraEnabled
     public static List<CleanupTask> getCleanupTasks (Boolean allowReusedObjects) {
         
         List<Demo_Cleanup_Task__c> demoCleanupTasks = [
@@ -61,6 +63,7 @@ public without sharing class DemoCleanup {
                      SOQL_WHERE_Clause__c, Permanently_Delete__c
             FROM     Demo_Cleanup_Task__c
             WHERE    Active__c = true
+            WITH     SYSTEM_MODE
             ORDER BY Order__c ASC NULLS LAST
         ];
 
@@ -88,7 +91,8 @@ public without sharing class DemoCleanup {
                                 'SELECT count()' +
                                 ' FROM ' + demoCleanupTask.Object_API_Name__c +
                                 (String.isBlank(demoCleanupTask.SOQL_WHERE_Clause__c) ? '' :
-                                    ' WHERE ' + demoCleanupTask.SOQL_WHERE_Clause__c)
+                                    ' WHERE (' + demoCleanupTask.SOQL_WHERE_Clause__c + ')') +
+                                ' WITH SYSTEM_MODE'
                             );
                             task.itemQueryError = false;
                             objectsSeen.put(demoCleanupTask.Object_API_Name__c, demoCleanupTask.Description__c);
@@ -122,11 +126,13 @@ public without sharing class DemoCleanup {
     //      objectApiName:  the API name of the object to check.
     //      whereClause:  an optional WHERE clause exxpression to filter the records.
 
+
+    @SuppressWarnings('PMD.ApexCRUDViolation, PMD.ApexSOQLInjection')
     @AuraEnabled
     public static String validateSoql (Boolean allowReusedObjects, String objectApiName, String whereClause) {
 
         String returnValue;
-        String query = 'SELECT Id FROM ' + objectApiName + (String.isBlank(whereClause) ? '' : ' WHERE ' + whereClause);
+        String query = 'SELECT Id FROM ' + objectApiName + (String.isBlank(whereClause) ? '' : ' WHERE ' + whereClause) + ' WITH SYSTEM_MODE';
 
         try {
             Database.query(query);
@@ -139,6 +145,7 @@ public without sharing class DemoCleanup {
                 SELECT Object_API_Name__c, Description__c
                 FROM   Demo_Cleanup_Task__c
                 WHERE  Active__c = true AND RecordType.Name = :SOQL_RECORD_TYPE_NAME
+                WITH   SYSTEM_MODE
             ];
             Map<String,Demo_Cleanup_Task__c> taskMap = new Map<String,Demo_Cleanup_Task__c>();
             for (Demo_Cleanup_Task__c task : soqlCleanupTasks)
@@ -192,10 +199,17 @@ public without sharing class DemoCleanup {
     //      orderedMapJSON:  a JSON string containing a map of the form "id":"order" which specifies which order the
     //          given Demo Cleanup Task should be executed.
 
+    @SuppressWarnings('PMD.ApexCRUDViolation')
     @AuraEnabled
     public static void saveOrderedTasks (String orderedMapJSON) {
         Map<Id,Integer> orderedMap = (Map<Id,Integer>) JSON.deserialize(orderedMapJSON, Map<Id,Integer>.class);
-        List<Demo_Cleanup_Task__c> demoCleanupTasks = [SELECT Order__c FROM Demo_Cleanup_Task__c WHERE Active__c = true FOR UPDATE];
+        List<Demo_Cleanup_Task__c> demoCleanupTasks = [
+            SELECT  Order__c
+            FROM    Demo_Cleanup_Task__c
+            WHERE   Active__c = true
+            WITH    SYSTEM_MODE
+            FOR     UPDATE
+        ];
         for (Demo_Cleanup_Task__c demoCleanupTask : demoCleanupTasks)
             demoCleanupTask.Order__c = orderedMap.get(demoCleanupTask.Id);
         update demoCleanupTasks;
@@ -264,6 +278,7 @@ public without sharing class DemoCleanup {
     //      numberOfRecords:  the number of records to retrieve.
     //      offset:  the number of records to skip before retrieving.
 
+    @SuppressWarnings('PMD.ExcessiveParameterList, PMD.ApexSoqlInjection, PMD.ApexCRUDViolation')
     @AuraEnabled(cacheable=true)
     public static List<PreviewItem> getPreviewRecords (String objectApiName, String whereClause, Integer numberOfRecords, Integer offset) {
 
@@ -272,7 +287,8 @@ public without sharing class DemoCleanup {
         List<SObject> records = Database.query(
             'SELECT CreatedDate, LastModifiedDate, ' + nameField + (hasOwnerId ? ', OwnerId, Owner.Name' : '') +
             ' FROM ' + objectApiName + 
-            (String.isBlank(whereClause) ? '' : ' WHERE ' + whereClause) + 
+            (String.isBlank(whereClause) ? '' : ' WHERE (' + whereClause + ')') +
+            ' WITH SYSTEM_MODE ' +
             ' LIMIT ' + numberOfRecords + 
             ' OFFSET ' + offset
         );
@@ -326,14 +342,12 @@ public without sharing class DemoCleanup {
 
     //  Generate list of Apex classes that implement the DemoCleanupApexItem interface.
 
+    @SuppressWarnings('PMD.ApexCRUDViolation')
     @AuraEnabled(cacheable=true)
     public static List<Selector> getApexClassList () {
         List<Selector> apexList = new List<Selector>();
-        for (ApexClass ac : [SELECT Name FROM ApexClass WHERE Status = 'Active'])
-            try {
-                if (Type.forName(ac.Name).newInstance() instanceof DemoCleanupApexItem)
-                    apexList.add(new Selector(ac.Name, ac.Name));
-            } catch (Exception e) {}
+        for (ApexTypeImplementor ati : [SELECT ClassName FROM ApexTypeImplementor WHERE InterfaceName = 'DemoCleanupApexItem' AND ApexClass.IsValid = true AND IsConcrete = true])
+            apexList.add(new Selector(ati.ClassName, ati.ClassName));
         return apexList;
     }
 

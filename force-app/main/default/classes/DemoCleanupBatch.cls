@@ -1,12 +1,13 @@
 //  Batch date delete methods for the DemoCleanup Lightning component.
 //
-//  Copyright (c) 2022, salesforce.com, inc.
+//  Copyright (c) 2021-2023, salesforce.com, inc.
 //  All rights reserved.
 //  SPDX-License-Identifier: BSD-3-Clause
 //  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 //
 //  Contact: john.meyer@salesforce.com
 
+@SuppressWarnings('PMD.IfStmtsMustUseBraces, PMD.IfElseStmtsMustUseBraces')
 public without sharing class DemoCleanupBatch implements Database.Batchable<SObject>, Database.Stateful {
 
 	private List<DemoCleanup.CleanupTask> cleanupTaskList;
@@ -42,7 +43,7 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<SObj
 
 	public Database.QueryLocator start (Database.BatchableContext bc) {
 		return Database.getQueryLocator('SELECT ' + this.nameField + ' FROM ' + this.sObjectApiName +
-			(this.whereClause == null ? '' : ' WHERE ' + this.whereClause)
+			(this.whereClause == null ? '' : ' WHERE (' + this.whereClause + ')') + ' WITH SYSTEM_MODE'
 		);
 	}
 
@@ -53,7 +54,7 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<SObj
 		Integer recordNumber = 0;
 		List<DemoCleanup.ErrorSpec> errors = new List<DemoCleanup.ErrorSpec>();
 
-		for (Database.DeleteResult result : Database.delete(chunk, false)) {
+		for (Database.DeleteResult result : Database.delete(chunk, false, AccessLevel.SYSTEM_MODE)) {
 			if (!result.isSuccess()) {
 				this.totalRecordsWithErrors++;
 				for (Database.Error dberror : result.getErrors()) {

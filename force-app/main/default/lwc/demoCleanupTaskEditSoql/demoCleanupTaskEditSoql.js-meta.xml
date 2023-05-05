@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>57.0</apiVersion>
+    <masterLabel>Demo Cleanup Edit SOQL Cleanup Task Action</masterLabel>
+    <description>A Lightning Web Component that provides an edit record capability for a SOQL Demo Cleanup Task.</description>
     <isExposed>false</isExposed>
 </LightningComponentBundle>

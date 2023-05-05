@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2022, salesforce.com, inc.
+  Copyright (c) 2021-2023, salesforce.com, inc.
   All rights reserved.
   SPDX-License-Identifier: BSD-3-Clause
   For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -8,13 +8,13 @@
 -->
 
 <template>
-	<template if:true={isSOQL}>
+	<template lwc:if={isSOQL}>
 		<c-demo-cleanup-task-new-soql record-type-id={recordTypeId}></c-demo-cleanup-task-new-soql>
 	</template>
-	<template if:true={isApex}>
+	<template lwc:if={isApex}>
 		<c-demo-cleanup-task-new-apex record-type-id={recordTypeId}></c-demo-cleanup-task-new-apex>
 	</template>
-	<template if:true={isFlow}>
+	<template lwc:if={isFlow}>
 		<c-demo-cleanup-task-new-flow record-type-id={recordTypeId}></c-demo-cleanup-task-new-flow>
 	</template>
 </template>
