@@ -19,14 +19,13 @@ readonly devHubUserName=$(jq --raw-output .defaultdevhubusername < .sfdx/sfdx-co
 }
 
 echo "*** Creating scratch org ..."
-sfdx force org create \
-    --definitionfile config/project-scratch-def.json \
-    --type scratch \
-    --nonamespace \
+sfdx org create scratch \
+    --definition-file config/project-scratch-def.json \
+    --no-namespace \
     --target-dev-hub "$devHubUserName" \
-    --setdefaultusername \
-    --setalias "$orgAlias" \
-    --durationdays 30 || exit 1
+    --set-default \
+    --alias "$orgAlias" \
+    --duration-days 30 || exit 1
 echo "*** Pushing metadata to scratch org ..."
 sfdx project deploy start || exit 1
 echo "*** Assigning permission sets to your user ..."
