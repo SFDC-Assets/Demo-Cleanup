@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#0070D2</headerColor>
+        <logo>demoCleanup</logo>
+        <logoVersion>1</logoVersion>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <description>Testbed app for the Demo Cleanup Tools LWC</description>
+    <formFactors>Small</formFactors>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <label>Demo Cleanup Testbed</label>
+    <navType>Standard</navType>
+    <tabs>Demo_Reset_Tools</tabs>
+    <tabs>Demo_Cleanup_Task__c</tabs>
+    <uiType>Lightning</uiType>
+    <utilityBar>Demo_Cleanup_Testbed_UtilityBar</utilityBar>
+</CustomApplication>

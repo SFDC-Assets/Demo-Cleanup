@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <applicationVisibilities>
+        <application>Demo_Cleanup_Testbed</application>
+        <visible>true</visible>
+    </applicationVisibilities>
+    <description>Makes the Demo Cleanup Testbed app and Demo Reset Tools Tab visible for development.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Demo Reset Tools Tester</label>
+    <tabSettings>
+        <tab>Demo_Reset_Tools</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+</PermissionSet>

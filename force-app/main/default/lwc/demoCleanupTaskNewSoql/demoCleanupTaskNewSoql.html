@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2021-2023, salesforce.com, inc.
+  Copyright (c) 2021-2024, Salesforce.com, Inc.
   All rights reserved.
   SPDX-License-Identifier: BSD-3-Clause
   For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -18,7 +18,7 @@
 			aria-describedby="modal-content"
 		>
 			<div class="slds-modal__container">
-				<header class="slds-modal__header slds-p-around_medium">
+				<header class="slds-modal__header slds-var-p-around_medium">
 					<lightning-button-icon
 						icon-name="utility:close"
 						size="large"
@@ -28,12 +28,12 @@
 						onclick={handleCloseButton}
 					></lightning-button-icon>
 					<div class="slds-media slds-media_center">
-						<div class="slds-media__figure slds-p-right_large">
+						<div class="slds-media__figure slds-var-p-right_large">
 							<lightning-icon icon-name="utility:database" variant="success" size="large"></lightning-icon>
 						</div>
 						<div class="slds-media__body">
 							<h2 id="modal-heading" class="slds-modal__title">Create SOQL Cleanup Task</h2>
-							<p class="slds-p-top_medium slds-text-align_left slds-text-color_weak">
+							<p class="slds-var-p-top_medium slds-text-align_left slds-text-color_weak">
 								SOQL cleanup tasks delete records of an object that match an optional WHERE clause that you specify.
 								Due to Salesforce governor limits, you can have a maximum of 90 SOQL tasks active at any given time.
 								The component checks the validity of the object API name and the WHERE clause and will alert you if
@@ -42,7 +42,7 @@
 						</div>
 					</div>
 				</header>
-				<div class="slds-modal__content slds-p-around_medium" id="modal-content">
+				<div class="slds-modal__content slds-var-p-around_medium" id="modal-content">
 					<lightning-layout horizontal-align="spread">
 						<lightning-layout-item size="4" padding="horizontal-small">
 							<lightning-combobox
@@ -54,7 +54,7 @@
 								onchange={handleObjectSelection}
 								onblur={validateObjectSelection}
 							></lightning-combobox>
-							<p class="slds-p-vertical_x-small slds-text-body_small slds-text-color_inverse-weak">
+							<p class="slds-var-p-vertical_x-small slds-text-body_small slds-text-color_inverse-weak">
 								{objectApiDisplayName}
 							</p>
 						</lightning-layout-item>
@@ -66,7 +66,7 @@
 								type="button"
 								onchange={handlePermanentlyDelete}
 							></lightning-radio-group>
-							<p class="slds-p-vertical_x-small slds-text-body_small slds-text-color_inverse-weak">
+							<p class="slds-var-p-vertical_x-small slds-text-body_small slds-text-color_inverse-weak">
 								<em>
 									This toggle determines if the records should be permanently deleted or placed in the Recycle
 									Bin.
@@ -81,10 +81,10 @@
 								checked={active}
 								message-toggle-active="Activated"
 								message-toggle-inactive="Not activated"
-								class="slds-p-top_large"
+								class="slds-var-p-top_large"
 								onchange={handleActive}
 							></lightning-input>
-							<p class="slds-p-vertical_xx-small slds-text-body_small slds-text-color_inverse-weak">
+							<p class="slds-var-p-vertical_xx-small slds-text-body_small slds-text-color_inverse-weak">
 								<em>
 									If this toggle is not checked, the task will be saved but will not appear in the task list,
 									effectively de-activating it.
@@ -92,7 +92,7 @@
 							</p>
 						</lightning-layout-item>
 					</lightning-layout>
-					<section class="slds-var-p-top_small slds-p-horizontal_small">
+					<section class="slds-var-p-top_small slds-var-p-horizontal_small">
 						<lightning-textarea
 							label="WHERE Clause Expression (optional):"
 							max-length={maxWhereClauseChars}
@@ -113,7 +113,7 @@
 							<lightning-formatted-text value=" characters remaining"> </lightning-formatted-text>
 						</p>
 					</section>
-					<section class="slds-p-horizontal_small">
+					<section class="slds-var-p-horizontal_small">
 						<lightning-input
 							type="text"
 							label="Description:"
@@ -136,8 +136,8 @@
 							<lightning-formatted-text value=" characters remaining"> </lightning-formatted-text>
 						</p>
 					</section>
-					<section class="slds-p-horizontal_small">
-						<p class="slds-p-bottom_x-small slds-text-color_inverse-weak">
+					<section class="slds-var-p-horizontal_small">
+						<p class="slds-var-p-bottom_x-small slds-text-color_inverse-weak">
 							<em>
 								If you get errors from the validation process telling you that your object is already in the active
 								list of SOQL cleanup tasks, please consider merging the two tasks with a combined WHERE clause
@@ -167,7 +167,7 @@
 						icon-name="utility:check"
 						label="Validate"
 						disabled={validateDisabled}
-						class="slds-p-left_xx-large"
+						class="slds-var-p-left_xx-large"
 						onclick={handleValidateButton}
 					></lightning-button>
 					<lightning-button
@@ -175,12 +175,12 @@
 						icon-name="utility:save"
 						label="Save"
 						disabled={saveDisabled}
-						class="slds-p-left_medium"
+						class="slds-var-p-left_medium"
 						onclick={handleSaveButton}
 					></lightning-button>
 				</footer>
 			</div>
 		</section>
-		<div class="slds-backdrop slds-backdrop--open"></div>
+		<div class="slds-backdrop slds-backdrop_open"></div>
 	</template>
 </template>

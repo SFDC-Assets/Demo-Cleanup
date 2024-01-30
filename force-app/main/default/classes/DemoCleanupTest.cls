@@ -1,26 +1,27 @@
-//  Test class and methods for the Demo Cleanup Lightning component.
-//
-//  Copyright (c) 2021-2023, salesforce.com, inc.
-//  All rights reserved.
-//  SPDX-License-Identifier: BSD-3-Clause
-//  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
-//
-//  Contact: john.meyer@salesforce.com
+/**
+ *  Test class and methods for the Demo Cleanup Lightning component.
+ *
+ *  Copyright (c) 2021-2024, Salesforce.com, Inc.
+ *  All rights reserved.
+ *  SPDX-License-Identifier: BSD-3-Clause
+ *  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ *
+ *  @author john.meyer@salesforce.com
+ *  @see    <a href="https://github.com/SFDC-Assets/Demo-Cleanup">Demo Cleanup documentation</a>
+ */
 
-@isTest(isParallel=true)
+@isTest(isParallel=true seeAllData=false)
 private without sharing class DemoCleanupTest {
 
     private static final Integer NUMBER_OF_RECORDS = 10;
+ 
+    private final static Map<String,Schema.RecordTypeInfo> RTINFO = Demo_Cleanup_Task__c.SObjectType.getDescribe().getRecordTypeInfosByName();
+    private final static Id SOQL_RECORD_TYPE_ID = RTINFO.get(DemoCleanup.SOQL_RECORD_TYPE_NAME).getRecordTypeId();
+    private final static Id APEX_RECORD_TYPE_ID = RTINFO.get(DemoCleanup.APEX_RECORD_TYPE_NAME).getRecordTypeId();
+    private final static Id FLOW_RECORD_TYPE_ID = RTINFO.get(DemoCleanup.FLOW_RECORD_TYPE_NAME).getRecordTypeId();
 
     @testSetup
     private static void setup () {
- 
-        final Map<String,Schema.RecordTypeInfo> rtInfo = Demo_Cleanup_Task__c.SObjectType.getDescribe().getRecordTypeInfosByName();
-        final Id SOQL_RECORD_TYPE_ID = rtInfo.get(DemoCleanup.SOQL_RECORD_TYPE_NAME).getRecordTypeId();
-        final Id APEX_RECORD_TYPE_ID = rtInfo.get(DemoCleanup.APEX_RECORD_TYPE_NAME).getRecordTypeId();
-        final Id FLOW_RECORD_TYPE_ID = rtInfo.get(DemoCleanup.FLOW_RECORD_TYPE_NAME).getRecordTypeId();
-
-        List<DemoCleanup.CleanupTask> cleanupTasks = DemoCleanup.getCleanupTasks(false);
 
         List<Demo_Cleanup_Task__c> tasks = new List<Demo_Cleanup_Task__c> {
             new Demo_Cleanup_Task__c (
@@ -102,28 +103,31 @@ private without sharing class DemoCleanupTest {
         insert tasks;
     
         List<Account> accounts = new List<Account>();
-        for (Integer i = 1; i <= NUMBER_OF_RECORDS; i++)
+        for (Integer i = 1; i <= NUMBER_OF_RECORDS; i++) {
             accounts.add(new Account (
                 Name = 'Account ' + i,
                 Sic = 'Test'
             ));
+        }
         insert accounts;
 
         List<Contact> contacts = new List<Contact>();
-        for (Integer i = 0; i < NUMBER_OF_RECORDS; i++)
+        for (Integer i = 0; i < NUMBER_OF_RECORDS; i++) {
             contacts.add(new Contact (
                 FirstName = 'John',
                 LastName = 'Meyer',
                 AccountId = accounts[NUMBER_OF_RECORDS - i - 1].Id
             ));
+        }
         insert contacts;
 
         List<Case> cases = new List<Case>();
-        for (Integer i = 0; i < NUMBER_OF_RECORDS; i++)
+        for (Integer i = 0; i < NUMBER_OF_RECORDS; i++) {
             cases.add(new Case (
                 ContactId = contacts[i].Id,
                 Subject = 'Case ' + i
             ));
+        }
         insert cases;
     }
 
@@ -131,9 +135,9 @@ private without sharing class DemoCleanupTest {
     @isTest
     private static void testSoqlValidation () {
         System.Test.startTest();
-        System.assertNotEquals(null, DemoCleanup.validateSoql(false, 'Case', 'john'));
-        System.assertNotEquals(null, DemoCleanup.validateSoql(false, 'Account', 'Sic = \'Test\''));
-        System.assertEquals(null, DemoCleanup.validateSoql(true, 'Account', 'Sic = \'Test\''));
+        Assert.isNotNull(DemoCleanup.validateSoql(false, 'Case', 'john'), 'Bad WHERE clause should have returned error string.');
+        Assert.isNotNull(DemoCleanup.validateSoql(false, 'Account', 'Sic = \'Test\''), 'Duplicate object should have returned error string.');
+        Assert.isNull(DemoCleanup.validateSoql(true, 'Account', 'Sic = \'Test\''), 'Duplicate object should be allowed if allowReusedObjects is true.');
         System.Test.stopTest();
     }
 
@@ -141,7 +145,7 @@ private without sharing class DemoCleanupTest {
     private static void testBadApexClassName () {
         System.Test.startTest();
         List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
-        DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[1] }));
+        Assert.isFalse(DemoCleanup.validateApexClass(cleanupTaskList[1].itemApexClassName), 'validateApexClassName should have rejected bad Apex class name.');
         System.Test.stopTest();
     }
 
@@ -182,7 +186,7 @@ private without sharing class DemoCleanupTest {
         System.Test.startTest();
         List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[6] }));
-        System.assertEquals(NUMBER_OF_RECORDS, [SELECT Id FROM Contact].size());
+        Assert.areEqual(NUMBER_OF_RECORDS, [SELECT Id FROM Contact].size(), 'Bad SOQL deletion should have returned ' + NUMBER_OF_RECORDS + ' rows.');
         System.Test.stopTest();
     }
 
@@ -191,7 +195,7 @@ private without sharing class DemoCleanupTest {
         System.Test.startTest();
         List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         DemoCleanup.startCleanup(JSON.serialize(new List<DemoCleanup.CleanupTask> { cleanupTaskList[7] }));
-        System.assertEquals(NUMBER_OF_RECORDS, [SELECT Id FROM Account].size());
+        Assert.areEqual(NUMBER_OF_RECORDS, [SELECT Id FROM Account].size(), 'Test of WHERE clause should have returned ' + NUMBER_OF_RECORDS + ' rows.');
         System.Test.stopTest();
     }
 
@@ -200,34 +204,37 @@ private without sharing class DemoCleanupTest {
         System.Test.startTest();
         List<DemoCleanup.CleanupTask> cleanupTaskList = DemoCleanup.getCleanupTasks(false);
         Map<Id,Integer> orderMap = new Map<Id,Integer>();
-        for (DemoCleanup.CleanupTask cleanupTask : cleanupTaskList)
+        for (DemoCleanup.CleanupTask cleanupTask : cleanupTaskList) {
             orderMap.put(cleanupTask.itemId, cleanupTask.itemOrder);
+        }
         DemoCleanup.saveOrderedTasks(JSON.serialize(orderMap));
         List<DemoCleanup.CleanupTask> newCleanupTaskList = DemoCleanup.getCleanupTasks(false);
-        for (Integer i = 0; i < cleanupTaskList.size(); i++)
-            System.assertEquals(newCleanupTaskList[i].itemOrder, cleanupTaskList[i].itemOrder);
+        for (Integer i = 0; i < cleanupTaskList.size(); i++) {
+            Assert.areEqual(newCleanupTaskList[i].itemOrder, cleanupTaskList[i].itemOrder, '');
+        }
         System.Test.stopTest();
     }
 
     @isTest
     private static void testGetPreviewRecords () {
-        final Integer OFFSET = 3;
+        final Integer offset = 3;
         System.Test.startTest();
-        System.assertEquals(NUMBER_OF_RECORDS - OFFSET, DemoCleanup.getPreviewRecords('Contact', null, NUMBER_OF_RECORDS, OFFSET).size());
+        Assert.areEqual(NUMBER_OF_RECORDS - offset, DemoCleanup.getPreviewRecords('Contact', null, NUMBER_OF_RECORDS, offset).size(),
+            'Getting preview records should have returned ' + (NUMBER_OF_RECORDS - offset) + ' rows.');
         System.Test.stopTest();
     }
 
     @isTest
     private static void testGetObjectList () {
         System.Test.startTest();
-        System.assertNotEquals(0, DemoCleanup.getOrgObjectList().size());
+        Assert.areNotEqual(0, DemoCleanup.getOrgObjectList().size(), 'Retrieval of object list should have returned some rows.');
         System.Test.stopTest();
     }
     
     @isTest
     private static void testGetApexClassList () {
         System.Test.startTest();
-        System.assertNotEquals(0, DemoCleanup.getApexClassList().size());
+        Assert.areNotEqual(0, DemoCleanup.getApexClassList().size(), 'List of valid Apex classes should not be empty.');
         System.Test.stopTest();
     }
 

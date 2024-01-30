@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2021-2023, salesforce.com, inc.
+  Copyright (c) 2021-2024, Salesforce.com, Inc.
   All rights reserved.
   SPDX-License-Identifier: BSD-3-Clause
   For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -12,7 +12,7 @@
 		<header slot="title" class="slds-media slds-media_center">
 			<div class="slds-media__figure slds-icon_container">
 				<!-- prettier-ignore -->
-				<svg class="slds-icon slds-icon_small" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 400 400" style="enable-background:new 0 0 400 400;" xml:space="preserve">
+				<svg class="slds-icon slds-icon_small" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 400 400">
 					<g>
 						<path fill="#07844b" d="M350,400H50c-27.6,0-50-22.4-50-50V50C0,22.4,22.4,0,50,0h300c27.6,0,50,22.4,50,50v300
 						C400,377.6,377.6,400,350,400z"></path>
@@ -42,33 +42,22 @@
 			</div>
 		</header>
 		<div slot="actions">
-			<lightning-button-group>
-				<lightning-button
-					variant="neutral"
-					label="Reset"
-					icon-name="utility:refresh"
-					onclick={initialize}
-				></lightning-button>
-				<lightning-button
-					variant="neutral"
-					label="Help"
-					icon-name="utility:info"
-					onclick={handleHelpButton}
-				></lightning-button>
-			</lightning-button-group>
+			<lightning-button variant="neutral" label="Help" icon-name="utility:info" onclick={handleHelpButton}></lightning-button>
 		</div>
-		<p class="slds-p-horizontal_large slds-hyphenate">
+		<p class="slds-var-p-horizontal_large slds-hyphenate">
 			Delete any spurious or temporary records that were created during a demo or during testing, leaving the org in a clean
 			state for the next demo.
 		</p>
 		<template lwc:if={spinnerVisible}>
-			<div class="slds-p-vertical_medium slds-is-relative">
-				<lightning-spinner
-					variant="brand"
-					size="medium"
-					title="Working ..."
-					alternative-text="Working ..."
-				></lightning-spinner>
+			<div class="slds-var-p-top_large slds-var-p-bottom_medium">
+				<div class="slds-is-relative">
+					<lightning-spinner
+						variant="brand"
+						size="medium"
+						title="Working ..."
+						alternative-text="Working ..."
+					></lightning-spinner>
+				</div>
 			</div>
 		</template>
 		<template lwc:if={cleanupTasksPresent}>
@@ -206,18 +195,14 @@
 							label="Take Me There"
 							title="Go to the Demo Cleanup Tasks tab"
 							onclick={handleGoToDemoCleanupTasksButton}
-						>
-						</lightning-button>
+						></lightning-button>
 					</div>
 				</div>
 			</template>
 			<template lwc:else>
-				<section class="slds-var-p-top_medium slds-p-horizontal_large">
+				<section class="slds-var-p-top_medium slds-var-p-horizontal_large">
 					<lightning-layout horizontal-align="spread" vertical-align="center">
-						<lightning-layout-item
-							size="6"
-							class="slds-text-body_small slds-text-color_weak slds-text-align_left slds-trucate"
-						>
+						<lightning-layout-item size="6" class="slds-text-body_small slds-text-color_weak slds-text-align_left">
 							<em> Drag and drop the rows in the list to re-order them. Click the&nbsp; </em>
 							<lightning-icon icon-name="utility:preview" size="x-small"></lightning-icon>
 							<em> &nbsp;icon on a task to see a preview of the records to be deleted. </em>
@@ -225,7 +210,7 @@
 						<lightning-layout-item size="6" class="slds-text-align_right">
 							<div>
 								<lightning-icon
-									class="slds-p-right_x-small"
+									class="slds-var-p-right_x-small"
 									icon-name="utility:new_window"
 									size="xx-small"
 								></lightning-icon>
@@ -238,7 +223,7 @@
 						</lightning-layout-item>
 					</lightning-layout>
 				</section>
-				<section class="slds-var-p-vertical_x-small slds-p-horizontal_large">
+				<section class="slds-var-p-vertical_x-small slds-var-p-horizontal_large">
 					<table
 						lwc:ref="cleanupTaskTable"
 						class="slds-table slds-no-row-hover slds-table_bordered slds-border_left slds-border_right"
@@ -314,7 +299,8 @@
 														title="Preview the records to be deleted by this task"
 														data-id={ct.itemId}
 														onclick={handlePreviewButton}
-													></lightning-button-icon>
+													>
+													</lightning-button-icon>
 												</template>
 											</div>
 										</div>
@@ -340,7 +326,10 @@
 										></lightning-formatted-url>
 										<template lwc:if={ct.itemShowProgress}>
 											<template lwc:if={ct.itemIsSOQL}>
-												<lightning-layout vertical-align="center" class="slds-var-p-vertical_medium">
+												<lightning-layout
+													vertical-align="center"
+													class="slds-var-p-vertical_medium slds-has-flexi-truncate"
+												>
 													<lightning-layout-item size="3" class="slds-text-align_right slds-truncate">
 														<lightning-formatted-number
 															value={ct.itemRunningTotal}
@@ -389,7 +378,7 @@
 					</table>
 				</section>
 				<template lwc:if={showErrorList}>
-					<div class="slds-p-horizontal_large slds-var-p-vertical_small">
+					<div class="slds-var-p-horizontal_large slds-var-p-vertical_small">
 						<div class="slds-box">
 							<p class="slds-var-p-bottom_small slds-text-color_error slds-hyphenate">
 								<em>
@@ -411,12 +400,12 @@
 						</div>
 					</div>
 				</template>
-				<section class="slds-p-horizontal_large slds-p-vertical_x-small">
+				<section class="slds-var-p-horizontal_large slds-var-p-vertical_x-small">
 					<lightning-layout multiple-rows="false" horizontal-align="spread" vertical-align="center">
 						<lightning-layout-item size="6">
 							<strong>
 								Total Records: &nbsp;
-								<lightning-formatted-number value={totalRecordsSelected}> </lightning-formatted-number>
+								<lightning-formatted-number value={totalRecordsSelected}></lightning-formatted-number>
 							</strong>
 						</lightning-layout-item>
 						<lightning-layout-item size="6">
@@ -563,8 +552,7 @@
 						label="Take Me There"
 						title="Go to the Demo Cleanup Tasks tab"
 						onclick={handleGoToDemoCleanupTasksButton}
-					>
-					</lightning-button>
+					></lightning-button>
 				</div>
 			</div>
 		</template>

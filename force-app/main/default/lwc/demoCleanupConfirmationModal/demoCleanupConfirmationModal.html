@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2021-2023, salesforce.com, inc.
+  Copyright (c) 2021-2024, Salesforce.com, Inc.
   All rights reserved.
   SPDX-License-Identifier: BSD-3-Clause
   For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -11,12 +11,12 @@
 	<lightning-modal-body>
 		<lightning-layout vertical-align="start">
 			<lightning-layout-item size="1">
-				<div class="slds-p-horizontal_medium">
+				<div class="slds-var-p-horizontal_medium">
 					<lightning-icon icon-name="utility:warning" variant="warning" size="large"></lightning-icon>
 				</div>
 			</lightning-layout-item>
 			<lightning-layout-item size="11">
-				<p class="slds-p-horizontal_medium slds-hyphenate">
+				<p class="slds-var-p-horizontal_medium slds-hyphenate">
 					<template lwc:if={totalRecordsSelected}>
 						You are about to delete&nbsp;
 						<strong>
@@ -70,7 +70,7 @@
 	</lightning-modal-body>
 	<lightning-modal-footer>
 		<lightning-button
-			class="slds-p-right_medium"
+			class="slds-var-p-right_medium"
 			icon-name="utility:close"
 			label="Cancel"
 			variant="neutral"

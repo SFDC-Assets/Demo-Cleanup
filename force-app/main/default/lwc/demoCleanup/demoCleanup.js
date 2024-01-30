@@ -1,16 +1,16 @@
 //  Javascript controller for the Demo Cleanup Lightning component.
 //
-//  Copyright (c) 2021-2023, salesforce.com, inc.
+//  Copyright (c) 2021-2024, Salesforce.com, Inc.
 //  All rights reserved.
 //  SPDX-License-Identifier: BSD-3-Clause
 //  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 //
 //  Contact: john.meyer@salesforce.com
 
-import { LightningElement, wire, track, api } from 'lwc';
+import { LightningElement, track, api } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, unsubscribe } from 'lightning/empApi';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import Toast from 'lightning/toast';
 import DemoCleanupHelpModal from 'c/demoCleanupHelpModal';
 import DemoCleanupPreviewModal from 'c/demoCleanupPreviewModal';
 import DemoCleanupConfirmationModal from 'c/demoCleanupConfirmationModal';
@@ -189,14 +189,12 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 						itemDeletionFinished: false
 					});
 					if (task.itemDuplicateObjectTask) {
-						this.dispatchEvent(
-							new ShowToastEvent({
-								title: `Cleanup task "${task.itemDescription}" uses the same object as "${task.itemDuplicateObjectTask}"`,
-								message: 'Combine the two Demo Cleanup Tasks into a single task with a unified WHERE clause.',
-								variant: 'error',
-								mode: 'sticky'
-							})
-						);
+						Toast.show({
+							label: `Cleanup task "${task.itemDescription}" uses the same object as "${task.itemDuplicateObjectTask}"`,
+							message: 'Combine the two Demo Cleanup Tasks into a single task with a unified WHERE clause.',
+							variant: 'error',
+							mode: 'sticky'
+						});
 					} else if (task.itemQueryError) {
 						let message;
 						switch (task.itemRecordTypeName) {
@@ -213,26 +211,22 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 									'Please check the object API name (including any "__c") and WHERE clause expression for any bad syntax.';
 								break;
 						}
-						this.dispatchEvent(
-							new ShowToastEvent({
-								title: `Cleanup task "${task.itemDescription}" has an error.`,
-								message: message,
-								variant: 'error',
-								mode: 'sticky'
-							})
-						);
+						Toast.show({
+							label: `Cleanup task "${task.itemDescription}" has an error.`,
+							message: message,
+							variant: 'error',
+							mode: 'sticky'
+						});
 					}
 				});
 			})
 			.catch((error) => {
-				this.dispatchEvent(
-					new ShowToastEvent({
-						message: `${JSON.stringify(error)}`,
-						title: 'Error occurred trying to retrieve Demo Cleanup Tasks',
-						variant: 'error',
-						mode: 'sticky'
-					})
-				);
+				Toast.show({
+					message: `${JSON.stringify(error)}`,
+					label: 'Error occurred trying to retrieve Demo Cleanup Tasks',
+					variant: 'error',
+					mode: 'sticky'
+				});
 			})
 			.finally(() => {
 				this.numberOfSoqlCleanupTasks = this.cleanupTasks.reduce(
@@ -275,26 +269,22 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 					});
 					startCleanup({ cleanupTaskListJSON: JSON.stringify(this.selectedRows) })
 						.then(() => {
-							this.dispatchEvent(
-								new ShowToastEvent({
-									title: 'The demo cleanup process has started. PLEASE BE PATIENT.',
-									message:
-										'Depending on the load on the infrastructure, some items may take up to a few minutes to start. ' +
-										'If you navigate away from this page, the cleanup will continue, but you will not be able to monitor the progress.',
-									variant: 'info',
-									mode: 'sticky'
-								})
-							);
+							Toast.show({
+								label: 'The demo cleanup process has started. PLEASE BE PATIENT.',
+								message:
+									'Depending on the load on the infrastructure, some items may take up to a few minutes to start. ' +
+									'If you navigate away from this page, the cleanup will continue, but you will not be able to monitor the progress.',
+								variant: 'info',
+								mode: 'sticky'
+							});
 						})
 						.catch((error) => {
-							this.dispatchEvent(
-								new ShowToastEvent({
-									title: 'Could not begin demo cleanup process.',
-									message: JSON.stringify(error),
-									variant: 'error',
-									mode: 'sticky'
-								})
-							);
+							Toast.show({
+								label: 'Could not begin demo cleanup process.',
+								message: JSON.stringify(error),
+								variant: 'error',
+								mode: 'sticky'
+							});
 						});
 					break;
 				case 'cancel':
@@ -372,21 +362,17 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			this.deletionInProgress = false;
 			unsubscribe(this.subscription, () => (this.subscription = {}));
 			if (this.deletionHadErrors)
-				this.dispatchEvent(
-					new ShowToastEvent({
-						variant: 'error',
-						mode: 'sticky',
-						message: 'Demo cleanup has completed but one or more tasks had errors.'
-					})
-				);
+				Toast.show({
+					variant: 'error',
+					mode: 'sticky',
+					label: 'Demo cleanup has completed but one or more tasks had errors.'
+				});
 			else
-				this.dispatchEvent(
-					new ShowToastEvent({
-						variant: 'success',
-						mode: 'sticky',
-						message: 'Demo cleanup has completed without any errors.'
-					})
-				);
+				Toast.show({
+					variant: 'success',
+					mode: 'sticky',
+					label: 'Demo cleanup has completed without any errors.'
+				});
 			this.spinnerVisible = false;
 		}
 	}
@@ -506,14 +492,12 @@ export default class DemoCleanup extends NavigationMixin(LightningElement) {
 			orderedMap[task.itemId] = task.itemOrder;
 		});
 		saveOrderedTasks({ orderedMapJSON: JSON.stringify(orderedMap) }).catch((error) => {
-			this.dispatchEvent(
-				new ShowToastEvent({
-					message: JSON.stringify(error),
-					title: 'Error saving new Demo Cleanup Task order',
-					variant: 'error',
-					mode: 'sticky'
-				})
-			);
+			Toast.show({
+				message: JSON.stringify(error),
+				label: 'Error saving new Demo Cleanup Task order',
+				variant: 'error',
+				mode: 'sticky'
+			});
 		});
 	}
 }

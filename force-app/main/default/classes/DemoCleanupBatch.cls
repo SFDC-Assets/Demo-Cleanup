@@ -1,13 +1,15 @@
-//  Batch date delete methods for the DemoCleanup Lightning component.
-//
-//  Copyright (c) 2021-2023, salesforce.com, inc.
-//  All rights reserved.
-//  SPDX-License-Identifier: BSD-3-Clause
-//  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
-//
-//  Contact: john.meyer@salesforce.com
+/**
+ *  Batch date delete methods for the DemoCleanup Lightning component.
+ *
+ *  Copyright (c) 2021-2024, Salesforce.com, Inc.
+ *  All rights reserved.
+ *  SPDX-License-Identifier: BSD-3-Clause
+ *  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ *
+ *  @author john.meyer@salesforce.com
+ *  @see    <a href="https://github.com/SFDC-Assets/Demo-Cleanup">Demo Cleanup documentation</a>
+ */
 
-@SuppressWarnings('PMD.IfStmtsMustUseBraces, PMD.IfElseStmtsMustUseBraces')
 public without sharing class DemoCleanupBatch implements Database.Batchable<SObject>, Database.Stateful {
 
 	private List<DemoCleanup.CleanupTask> cleanupTaskList;
@@ -23,11 +25,12 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<SObj
 	private Integer totalErrors = 0;
 
 
-	//  Constructor method that gathers the information for the batch job and builds the query string.
-	//
-	//  The parameters represent:
-	//      cleanupTaskList:  the entire list of cleanup tasks
-	//      currentIndex:  the zero-based index into cleanupTaskList of the current cleanup task
+	/**
+	 *  Constructor method that gathers the information for the batch job and builds the query string.
+	 *
+	 *  @param cleanupTaskList	the entire list of cleanup tasks.
+	 *  @param currentIndex		the zero-based index into cleanupTaskList of the current cleanup task.
+	 */
 
 	public DemoCleanupBatch (List<DemoCleanup.CleanupTask> cleanupTaskList, Integer currentIndex) {
 		this.cleanupTaskList = cleanupTaskList;
@@ -69,8 +72,9 @@ public without sharing class DemoCleanupBatch implements Database.Batchable<SObj
 			}
 			recordNumber++;
 		}
-		if (this.permanentlyDelete)
+		if (this.permanentlyDelete) {
 			Database.emptyRecycleBin(chunk);
+		}
 
 		this.totalRecordsProcessed += chunk.size();
 		this.totalErrors += errors.size();

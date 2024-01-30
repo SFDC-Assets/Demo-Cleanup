@@ -1,31 +1,33 @@
-//  Asynchronous Apex method invocation for the DemoCleanup Lightning component.
-//
-//  Copyright (c) 2021-2023, salesforce.com, inc.
-//  All rights reserved.
-//  SPDX-License-Identifier: BSD-3-Clause
-//  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
-//
-//  Contact: john.meyer@salesforce.com
+/**
+ *  Asynchronous Apex method invocation for the DemoCleanup Lightning component.
+ *
+ *  Copyright (c) 2021-2024, Salesforce.com, Inc.
+ *  All rights reserved.
+ *  SPDX-License-Identifier: BSD-3-Clause
+ *  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ *
+ *  @author john.meyer@salesforce.com
+ *  @see    <a href="https://github.com/SFDC-Assets/Demo-Cleanup">Demo Cleanup documentation</a>
+ */
 
 public without sharing class DemoCleanupApex implements Queueable {
 
     private List<DemoCleanup.CleanupTask> cleanupTaskList;
     private Integer currentIndex;
 
-
-	//  Constructor method that gathers the information for the queuable.
-	//
-	//  The parameters represent:
-	//      cleanupTaskList:  the entire list of cleanup tasks
-	//      currentIndex: The zero-based index into cleanupTaskList of the current cleanup task
+    
+    /**
+     *  Constructor method that gathers the information for the queuable.
+	 *
+	 *  @param cleanupTaskList  the entire list of cleanup tasks.
+	 *  @param currentIndex     the zero-based index into cleanupTaskList of the current cleanup task.
+     */
  
     public DemoCleanupApex (List<DemoCleanup.CleanupTask> cleanupTaskList, Integer currentIndex) {
         this.cleanupTaskList = cleanupTaskList;
         this.currentIndex = currentIndex;
     }
 
-    
-    //  Execute the Apex class's execute() method.
     
     public void execute (QueueableContext context) {
 

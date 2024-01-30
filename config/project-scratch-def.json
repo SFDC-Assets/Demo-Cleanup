@@ -1,7 +1,9 @@
 {
   "orgName": "Demo Cleanup",
   "edition": "Developer",
-  "features": [],
+  "features": [
+    "EinsteinGPTForDevelopers"
+  ],
   "settings": {
     "lightningExperienceSettings": {
         "enableS1DesktopEnabled": true

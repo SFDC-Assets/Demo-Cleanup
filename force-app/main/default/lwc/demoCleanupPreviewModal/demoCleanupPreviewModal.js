@@ -1,6 +1,6 @@
 //  Javascript controller for the preview modal of the Demo Cleanup LWC.
 //
-//  Copyright (c) 2021-2023, salesforce.com, inc.
+//  Copyright (c) 2021-2024, Salesforce.com, Inc.
 //  All rights reserved.
 //  SPDX-License-Identifier: BSD-3-Clause
 //  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -96,7 +96,6 @@ export default class DemoCleanupPreviewModal extends LightningModal {
 	}
 
 	async loadPreviewData() {
-		console.log(`loadPreviewData: offset = ${this.previewOffset}`);
 		const result = await getPreviewRecords({
 			objectApiName: this.previewObjectApiName,
 			whereClause: this.previewWhereClause,
